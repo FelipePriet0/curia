@@ -13,9 +13,10 @@ interface FloatingNavProps {
   navItems: NavItem[]
   className?: string
   cta?: React.ReactNode
+  brand?: React.ReactNode
 }
 
-export function FloatingNav({ navItems, className = '', cta }: FloatingNavProps) {
+export function FloatingNav({ navItems, className = '', cta, brand }: FloatingNavProps) {
   const [visible, setVisible] = useState(false)
   const lastScrollY = useRef(0)
 
@@ -48,6 +49,12 @@ export function FloatingNav({ navItems, className = '', cta }: FloatingNavProps)
         backdrop-blur-lg
         px-3 py-2
       ">
+        {/* Brand */}
+        {brand && (
+          <div className="mr-2 pr-2 border-r border-neutral-200/60 dark:border-white/10 flex items-center">
+            {brand}
+          </div>
+        )}
         {/* Nav links */}
         {navItems.map((item, i) => (
           <Link

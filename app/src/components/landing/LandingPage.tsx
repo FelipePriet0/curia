@@ -16,7 +16,7 @@ function CuriaLogo({ size = 'md' }: { size?: 'sm' | 'md' }) {
   return (
     <div className="flex items-center">
       <span className={`font-curia-rounded text-[#2B1A07] ${sizeClass} leading-none`}>
-        curia
+        Curia
       </span>
     </div>
   )
@@ -40,8 +40,10 @@ export function LandingPage() {
 // ─── Nav ──────────────────────────────────────────────────────────────────────
 
 const NAV_ITEMS = [
-  { name: 'Como funciona', link: '#como-funciona' },
-  { name: 'Entrar',        link: '/login' },
+  { name: 'Conheça',        link: '#conheca' },
+  { name: 'Como funciona',  link: '#como-funciona' },
+  { name: 'Autoridade',     link: '#autoridade' },
+  { name: 'Big Techs',      link: '#big-techs' },
 ]
 
 function Nav() {
@@ -49,15 +51,15 @@ function Nav() {
     <>
       {/* Static top bar — visible at the top of the page */}
       <header className="relative z-40 px-6 bg-[#FDFBF9]">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between">
+        <div className="mx-auto flex h-20 max-w-6xl items-center justify-between">
           <CuriaLogo size="md" />
           <div className="flex items-center gap-3">
             <Link href="/login">
-              <Button variant="ghost" size="sm">Entrar</Button>
+              <Button size="md" className="bg-[#2B1A07] text-white hover:opacity-90">Entrar</Button>
             </Link>
             <Link href="/signup">
-              <Button size="sm">
-                Começar agora <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+              <Button size="md" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
+                Montar meu Board <ArrowRight className="ml-1.5 h-4 w-4" />
               </Button>
             </Link>
           </div>
@@ -67,16 +69,20 @@ function Nav() {
       {/* Floating pill — appears when scrolling back up */}
       <FloatingNav
         navItems={NAV_ITEMS}
+        brand={<CuriaLogo size="sm" />}
         cta={
-          <Link href="/signup">
-            <button className="
-              rounded-full bg-[hsl(var(--primary))] px-4 py-1.5
-              text-sm font-semibold text-[#2B1A07]
-              hover:opacity-90 transition-opacity
-            ">
-              Começar agora
-            </button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/login">
+              <button className="rounded-full bg-[#2B1A07] px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity">
+                Entrar
+              </button>
+            </Link>
+            <Link href="/signup">
+              <button className="rounded-full bg-[#FF6F1E] px-4 py-1.5 text-sm font-semibold text-[#2B1A07] hover:opacity-90 transition-opacity">
+                Montar meu Board
+              </button>
+            </Link>
+          </div>
         }
       />
     </>
@@ -90,7 +96,7 @@ function Hero() {
     <section className="relative overflow-hidden px-6 pb-24 pt-20 text-center">
       {/* Glow background */}
       <div aria-hidden className="pointer-events-none absolute inset-0 flex items-start justify-center">
-        <div className="h-[600px] w-[600px] rounded-full bg-[hsl(var(--primary))] opacity-[0.07] blur-3xl" />
+        <div className="h-[600px] w-[600px] rounded-full bg-[#FF6F1E] opacity-[0.07] blur-3xl" />
       </div>
 
       <div className="relative mx-auto max-w-3xl">
@@ -105,7 +111,7 @@ function Hero() {
         <h1 className="mb-6 text-5xl leading-[1.05] text-[#2B1A07] md:text-7xl font-curia-rounded">
           <span className="block mx-auto max-w-[18ch]"><NoWidows>O conselho de toda</NoWidows></span>
           <span className="block mx-auto max-w-[28ch] md:whitespace-nowrap text-[#2B1A07]"><NoWidows>empresa de sucesso,</NoWidows></span>
-          <span className="block mx-auto max-w-[32ch] text-[#2B1A07]/70"><NoWidows>no seu computador</NoWidows></span>
+          <span className="block mx-auto max-w-[32ch] font-curia-script text-[#FF6F1E]"><NoWidows>no seu computador</NoWidows></span>
         </h1>
 
         {/* Subtitle */}
@@ -116,16 +122,16 @@ function Hero() {
 
         {/* CTAs */}
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <Link href="/signup">
-            <Button size="lg" className="w-full sm:w-auto">
-              Montar meu Board <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
           <a href="#como-funciona">
             <Button variant="outline" size="lg" className="w-full sm:w-auto">
               Ver como funciona
             </Button>
           </a>
+          <Link href="/signup">
+            <Button size="lg" className="w-full sm:w-auto bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
+              Montar meu board <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </div>
 
@@ -517,7 +523,7 @@ function Authority() {
   const visible = QUOTES.filter((q) => !hidden.has(q.author))
 
   return (
-    <section className="bg-[#FDFBF9] px-6 py-24 overflow-hidden">
+    <section id="autoridade" className="bg-[#FDFBF9] px-6 py-24 overflow-hidden">
       <div className="mx-auto max-w-5xl">
         <AnimatedStickyHeadlines />
         <div className="mt-12" />
@@ -531,7 +537,7 @@ function Authority() {
 
 function MeetCuria() {
   return (
-    <section className="bg-[#FDFBF9] px-6 py-28">
+    <section id="conheca" className="bg-[#FDFBF9] px-6 py-28">
       <div className="mx-auto max-w-6xl">
         <div className="grid items-center gap-10 md:grid-cols-2 md:gap-16">
           {/* Left: Copy */}
@@ -545,12 +551,14 @@ function MeetCuria() {
             </p>
 
             <div className="mt-8 flex items-center gap-3">
-              <Link href="/signup">
-                <Button size="lg">Começar agora</Button>
-              </Link>
-              <a href="#como-funciona" className="text-sm font-medium text-[#2B1A07]/80 hover:text-[#2B1A07]">
-                Ver como funciona →
+              <a href="#como-funciona">
+                <Button variant="outline" size="lg">Ver como funciona</Button>
               </a>
+              <Link href="/signup">
+                <Button size="lg" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
+                  Montar meu board <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
             </div>
           </div>
 
@@ -622,7 +630,7 @@ const HOW_STEPS = [
 
 function HowItWorks() {
   return (
-    <section id="como-funciona" className="bg-[#FDFBF9] px-6 py-28">
+    <section id="como-funciona" className="bg-[#FDFBF9] px-6 pt-28 pb-24">
       <div className="mx-auto max-w-5xl">
         {/* 2-column layout: sticky title left + scrolling timeline right */}
         <div className="flex flex-col gap-16 md:flex-row md:gap-20 md:items-start">
@@ -673,14 +681,20 @@ function BigTechs() {
   const columns = Array.from({ length: 10 }, (_, i) => makeColumn(i))
 
   return (
-    <section className="bg-[#FDFBF9] px-6 py-24 overflow-hidden">
+    <section id="big-techs" className="bg-[#FDFBF9] px-6 py-24 overflow-hidden">
       <style>{`
         @keyframes ticker-up { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
         @keyframes ticker-down { 0% { transform: translateY(-50%); } 100% { transform: translateY(0); } }
       `}</style>
 
       <div className="mx-auto max-w-7xl text-center">
-        <h2 className="mb-12 text-3xl font-curia-rounded text-[#2B1A07] md:text-5xl tracking-[-0.02em]"><NoWidows>Jogue no nível de quem você se inspira</NoWidows></h2>
+        <h2 className="mb-16 text-5xl md:text-7xl font-curia-rounded text-[#2B1A07] tracking-[-0.02em] leading-tight">
+          <span className="block"><NoWidows>Jogue no nível de</NoWidows></span>
+          <span className="block">
+            <span>quem você </span>
+            <span className="font-curia-script text-[#FF6F1E]">se inspira</span>
+          </span>
+        </h2>
 
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
           {columns.map((col, i) => (
@@ -747,8 +761,8 @@ function Footer() {
           {/* Brand */}
           <div className="space-y-3">
             <CuriaLogo size="sm" />
-            <p className="text-sm text-[#2B1A07]/70 pl-8">
-              O lugar onde boas empresas se tornam ótimas.
+            <p className="text-sm text-[#2B1A07]/70">
+              Onde boas empresas se tornam ótimas.
             </p>
           </div>
 
