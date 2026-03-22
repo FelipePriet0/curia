@@ -1,0 +1,90 @@
+Curia - O lugar onde boas empresas se tornam ótimas.  
+
+
+NAV
+Logo: Curia Links: Entrar · Começar agora →
+
+
+HERO
+(Seção de conversão — usuário já passou pela descoberta)
+Badge: ● Acesso antecipado — vagas limitadas
+H1:
+Os maiores conselheiros do mundo, trabalhando na sua empresa
+Subtitle:
+Grandes empresas pagam milhões por conselheiros estratégicos. Agora sua empresa também tem — sem custar R$50 mil por mês ou 1% do seu cap table.
+CTAs: Montar meu Board → · Ver como funciona
+Abaixo: Video demo rodando
+
+
+SEÇÃO 1 — Âncora de autoridade + citações
+H1 proposto (você pediu pra lapidar):
+TOs conselheiros que toda empresa de sucesso tem. No seu computador.
+(A ideia aqui é simples: antes de falar sobre o produto, criar a crença de que boards são o que separa empresas grandes de pequenas. As citações fazem esse trabalho.)
+3 citações em carrossel:
+"Eu sempre tive pessoas ao meu redor que me disseram coisas que eu não queria ouvir. Essa foi a diferença." — Steve Jobs, Apple
+"Cerque-se de pessoas que desafiem suas decisões. O consenso mata empresas." — Jack Welch, GE
+"Nunca construí nada sozinho. Cada grande ideia foi questionada, refinada e melhorada por alguém de fora." — Walt Disney, The Walt Disney Company
+Elon Musk · Tesla · SpaceX
+
+"Questione cada premissa. A maioria do que consideramos inevitável é apenas convencional."
+
+ Peter Drucker · Pai da Administração Moderna
+
+"O que não é questionado não é compreendido. O que não é compreendido não pode ser melhorado."
+
+ Sêneca · Filósofo Estoico · 4 a.C – 65 d.C
+
+"Se você não sabe para qual porto está navegando, nenhum vento será favorável."
+
+Confúcio · Filósofo · 551–479 a.C
+
+"Aquele que não pensa longe terá problemas perto."
+
+ Nicolau Maquiavel · O Príncipe · 1513
+
+"O primeiro método para estimar a inteligência de um governante é olhar para os homens ao seu redor."
+
+Isaac Newton · Físico e Matemático · 1643–1727
+
+"Se enxerguei mais longe, foi porque me apoiei nos ombros de gigantes."
+
+ Cícero · Filósofo e Estadista · 106–43 a.C
+
+"Nenhum homem é suficientemente sábio para governar a si mesmo sem o conselho de outros."
+
+ Aristóteles · Filósofo · 384–322 a.C
+
+"Nas deliberações, a multidão frequentemente julga melhor do que qualquer indivíduo."
+Sub do carrossel:
+A Curia traz esse nível de questionamento para o seu negócio.
+
+
+SEÇÃO 2 — Como funciona
+H2: Como funciona
+Sub: Três passos para ter um board estratégico operando no seu negócio.
+
+Cards: 
+
+01 Monte seu Board
+Escolha os conselheiros que fazem sentido para o seu modelo de negócio.
+
+02 Apresente seu negócio
+Seus conselheiros debatem com você, questionam suas premissas, te faz enxergar o que você não via. 
+
+03 Engrene o negócio
+Mostre seus desafio. Conte suas barreiras. Cresça como uma Big tech
+
+SEÇÃO 3 —
+H2: Se iguale a quem você se inspira 
+
+(Aqui entram os logos/símbolos das big techs visualmente)
+
+Agora você tem acesso ao mesmo tipo de raciocínio estratégico — adaptado para a sua empresa.
+
+SEÇÃO 4 — CTA Final
+H2: Fortaleça suas decisões 
+
+Sub: Acesso gratuito. Sem formulários, sem setup.  
+
+FOOTER
+Logo: Curia Tagline: O lugar onde boas empresas se tornam ótimas. Copyright: © 2025 Curia. Todos os direitos reservados.

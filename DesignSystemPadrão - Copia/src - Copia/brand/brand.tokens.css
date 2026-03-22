@@ -1,0 +1,31 @@
+/*
+  Raw Brand Tokens
+  - Source of truth for identity-level variables (colors, typography, radius)
+  - Do NOT reference these directly in components; map them in semantic.tokens.css
+*/
+
+:root {
+  /* Brand colors (HSL tuples for Tailwind-friendly hsl(var(--token))) */
+  --brand-primary: 217 91% 60%;      /* #3B82F6 */
+  --brand-secondary: 252 94% 67%;    /* #8B5CF6 */
+  --brand-accent: 188 72% 56%;       /* #22D3EE */
+
+  --brand-neutral-100: 0 0% 100%;    /* #FFFFFF */
+  --brand-neutral-900: 0 0% 4%;      /* ~#0A0A0A */
+
+  --brand-success: 160 84% 39%;      /* #10B981 */
+  --brand-warning: 36 92% 50%;       /* #F59E0B */
+  --brand-danger: 0 84% 60%;         /* #EF4444 */
+
+  /* Radii */
+  --brand-radius-sm: 0.375rem; /* 6px */
+  --brand-radius-md: 0.5rem;   /* 8px */
+  --brand-radius-lg: 0.75rem;  /* 12px */
+  --brand-radius-xl: 1rem;     /* 16px */
+
+  /* Typography */
+  --font-display: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  --font-body: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  --font-mono: JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+

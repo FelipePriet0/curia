@@ -1,0 +1,72 @@
+/*
+  Semantic Tokens
+  - Map brand tokens to design-system semantic variables
+  - Components must ONLY use these tokens
+  - Dark mode overrides live under the .dark class
+*/
+
+:root {
+  /* Surfaces & text */
+  --background: var(--brand-neutral-100);
+  --foreground: var(--brand-neutral-900);
+
+  /* Brand actions */
+  --primary: var(--brand-primary);
+  --primary-foreground: var(--brand-neutral-100);
+
+  --secondary: var(--brand-secondary);
+  --secondary-foreground: var(--brand-neutral-100);
+
+  --accent: var(--brand-accent);
+  --accent-foreground: var(--brand-neutral-900);
+
+  /* Subtle content */
+  --muted: var(--brand-neutral-100);
+  --muted-foreground: var(--brand-neutral-900);
+
+  /* Feedback */
+  --destructive: var(--brand-danger);
+  --destructive-foreground: var(--brand-neutral-100);
+
+  /* Structure */
+  --border: var(--brand-neutral-900);
+  --input: var(--brand-neutral-900);
+  --ring: var(--brand-primary);
+
+  /* Surfaces */
+  --card: var(--brand-neutral-100);
+  --card-foreground: var(--brand-neutral-900);
+  --popover: var(--brand-neutral-100);
+  --popover-foreground: var(--brand-neutral-900);
+
+  /* Shape */
+  --radius: var(--brand-radius-md);
+}
+
+/* Dark mode overrides: invert surfaces and adjust structure */
+.dark {
+  --background: var(--brand-neutral-900);
+  --foreground: var(--brand-neutral-100);
+
+  --card: var(--brand-neutral-900);
+  --card-foreground: var(--brand-neutral-100);
+  --popover: var(--brand-neutral-900);
+  --popover-foreground: var(--brand-neutral-100);
+
+  /* Keep brand colors; adjust structural contrasts */
+  --border: var(--brand-neutral-100);
+  --input: var(--brand-neutral-100);
+
+  /* Muted text on dark: lighten */
+  --muted: var(--brand-neutral-900);
+  --muted-foreground: var(--brand-neutral-100);
+
+  /* Primary/accent/secondary foregrounds remain readable on bright brand hues */
+  --primary-foreground: var(--brand-neutral-100);
+  --secondary-foreground: var(--brand-neutral-100);
+  --accent-foreground: var(--brand-neutral-100);
+
+  /* Shape can remain consistent across modes */
+  --radius: var(--brand-radius-md);
+}
+
