@@ -160,30 +160,30 @@ function Hero() {
 // ─── Authority — Quotes Carousel ──────────────────────────────────────────────
 
 const QUOTES = [
-  // {
-  //   quote: 'Questione cada premissa. A maioria do que consideramos inevitável é apenas convencional.',
-  //   author: 'Elon Musk',
-  //   company: 'Tesla · SpaceX',
-  //   image: '/elon-musk.jpeg',
-  // },
-  // {
-  //   quote: 'O que não é questionado não é compreendido. O que não é compreendido não pode ser melhorado.',
-  //   author: 'Peter Drucker',
-  //   company: 'Pai da Administração Moderna',
-  //   image: '/peter-drucker.jpeg',
-  // },
-  // {
-  //   quote: 'Se você não sabe para qual porto está navegando, nenhum vento será favorável.',
-  //   author: 'Sêneca',
-  //   company: 'Filósofo Estoico · 4 a.C – 65 d.C',
-  //   image: '/seneca.jpeg',
-  // },
-  // {
-  //   quote: 'Aquele que não pensa longe terá problemas perto.',
-  //   author: 'Confúcio',
-  //   company: 'Filósofo · 551–479 a.C',
-  //   image: '/confucio.jpeg',
-  // },
+  {
+    quote: 'Questione cada premissa. A maioria do que consideramos inevitável é apenas convencional.',
+    author: 'Elon Musk',
+    company: 'Tesla · SpaceX',
+    image: '/elon-musk.jpeg',
+  },
+  {
+    quote: 'O que não é questionado não é compreendido. O que não é compreendido não pode ser melhorado.',
+    author: 'Peter Drucker',
+    company: 'Pai da Administração Moderna',
+    image: '/peter-drucker.jpeg',
+  },
+  {
+    quote: 'Se você não sabe para qual porto está navegando, nenhum vento será favorável.',
+    author: 'Sêneca',
+    company: 'Filósofo Estoico · 4 a.C – 65 d.C',
+    image: '/seneca.jpeg',
+  },
+  {
+    quote: 'Aquele que não pensa longe terá problemas perto.',
+    author: 'Confúcio',
+    company: 'Filósofo · 551–479 a.C',
+    image: '/confucio.jpeg',
+  },
   {
     quote: 'O primeiro método para estimar a inteligência de um governante é olhar para os homens ao seu redor.',
     author: 'Nicolau Maquiavel',
@@ -406,11 +406,10 @@ function QuotesStickyTwoColumn({ slides, segmentVh = 100 }: { slides: typeof QUO
   return (
     <div ref={containerRef} className="relative" style={{ height }}>
       <div className="sticky top-[30vh]">
-        <div className="mx-auto max-w-6xl grid grid-cols-1 gap-x-6 gap-y-6 md:grid-cols-2">
+        <div className="mx-auto max-w-3xl grid grid-cols-1 gap-y-8">
           {slides.map((s, i) => {
             const local = Math.max(0, Math.min(1, progress * count - i))
-            const dir = i % 2 === 0 ? 1 : -1
-            const colClass = i % 2 === 0 ? 'md:col-start-2' : 'md:col-start-1'
+            const dir = 1 // all from right → left
             const translate = (1 - local) * 48 * dir
             const style: React.CSSProperties = {
               transform: `translateX(${translate}px) scale(${0.98 + local * 0.02})`,
@@ -418,7 +417,7 @@ function QuotesStickyTwoColumn({ slides, segmentVh = 100 }: { slides: typeof QUO
               transition: 'transform 0.45s cubic-bezier(0.22,1,0.36,1), opacity 0.45s cubic-bezier(0.22,1,0.36,1)',
             }
             return (
-              <div key={i} className={colClass} style={{ gridRowStart: i + 1 }}>
+              <div key={i} style={{ gridRowStart: i + 1 }}>
                 <div style={style}>
                   <QuoteCard {...s} />
                 </div>
@@ -431,19 +430,98 @@ function QuotesStickyTwoColumn({ slides, segmentVh = 100 }: { slides: typeof QUO
   )
 }
 
+// ─── Sticky Carousel (scroll-driven horizontal) ─────────────────────────────
+function QuotesStickyCarousel({ slides, segmentVh = 120 }: { slides: typeof QUOTES; segmentVh?: number }) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [progress, setProgress] = useState(0)
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const onScroll = () => {
+      const rect = el.getBoundingClientRect()
+      const vh = window.innerHeight
+      const start = rect.top - vh * 0.25
+      const end = rect.bottom - vh * 0.75
+      const total = end - start
+      if (total <= 0) return
+      const raw = (-start) / total
+      setProgress(Math.max(0, Math.min(1, raw)))
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  const count = slides.length
+  const height = `${Math.max(1, count) * segmentVh}vh`
+
+  return (
+    <div ref={containerRef} className="relative" style={{ height }}>
+      <div className="sticky top-[20vh]">
+        {/* Stage */}
+        <div className="relative mx-auto flex items-center justify-center" style={{ height: 620 }}>
+          {slides.map((s, i) => {
+            const idx = progress * count
+            const local = idx - i // [-1,0] prev → current; [0,1] current → next
+
+            let opacity = 0
+            let translateX = 0
+            let scale = 0.98
+            let zIndex = 0
+
+            if (local >= 0 && local <= 1) {
+              const t = local
+              opacity = Math.min(1, t * 1.2)
+              translateX = (1 - t) * 80 // from right → center
+              scale = 0.98 + t * 0.02
+              zIndex = 2
+            } else if (local > -1 && local < 0) {
+              const t = 1 + local // map [-1,0] → [0,1]
+              opacity = Math.max(0, t * 1.0)
+              translateX = -(1 - t) * 80 // center → left
+              scale = 0.98 + t * 0.02
+              zIndex = 1
+            } else {
+              opacity = 0
+              translateX = 0
+              scale = 0.98
+              zIndex = 0
+            }
+
+            const style: React.CSSProperties = {
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              transform: `translate(-50%, -50%) translateX(${translateX}px) scale(${scale})`,
+              opacity,
+              transition: 'transform 0.45s cubic-bezier(0.22,1,0.36,1), opacity 0.45s ease',
+              width: 'min(560px, 92vw)',
+              zIndex,
+              pointerEvents: opacity > 0.1 ? 'auto' : 'none',
+            }
+            return (
+              <div key={i} style={style}>
+                <QuoteCard {...s} />
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function Authority() {
-  // Curated order: Jobs, Newton, Disney, Welch, Cícero
-  const order = ['Steve Jobs', 'Isaac Newton', 'Walt Disney', 'Jack Welch', 'Cícero']
-  const selected = order
-    .map((name) => QUOTES.find((q) => q.author === name))
-    .filter(Boolean) as typeof QUOTES
+  const hidden = new Set(['Confúcio', 'Sêneca', 'Peter Drucker', 'Elon Musk'])
+  const visible = QUOTES.filter((q) => !hidden.has(q.author))
 
   return (
     <section className="bg-[#FDFBF9] px-6 py-24 overflow-hidden">
       <div className="mx-auto max-w-5xl">
         <AnimatedStickyHeadlines />
-        <div className="mt-4" />
-        <QuotesStickyTwoColumn slides={selected as any} segmentVh={100} />
+        <div className="mt-12" />
+        <QuotesCarousel slides={visible.map((q, i) => <QuoteCard key={i} {...q} />)} autoplay autoplayDelay={2600} showArrows={false} showIndicators />
       </div>
     </section>
   )

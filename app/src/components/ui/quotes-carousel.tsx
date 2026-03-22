@@ -108,8 +108,8 @@ export function QuotesCarousel({
                 aria-label={`Slide ${i + 1}`}
                 className={`rounded-full transition-all duration-300 ${
                   i === selectedIndex
-                    ? "h-2 w-6 bg-white"
-                    : "h-2 w-2 bg-white/30 hover:bg-white/50"
+                    ? "h-2 w-6 bg-[#2B1A07]"
+                    : "h-2 w-2 bg-[#2B1A07]/30 hover:bg-[#2B1A07]/50"
                 }`}
               />
             ))}
