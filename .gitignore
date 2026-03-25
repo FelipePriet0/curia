@@ -1,0 +1,23 @@
+.DS_Store
+*.pem
+
+# Root envs
+.env*
+supabase_mcp/.env
+
+# App artifacts and envs
+app/.next/
+app/.env*
+
+# Lock/coverage (optional)
+coverage/
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+
+# Local Claude CLI per-account dirs
+.claude-config-*
+.claude-data-*
+.claude-appdata-*
+.claude-localdata-*
+.claude/

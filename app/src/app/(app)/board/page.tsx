@@ -5,8 +5,9 @@ export const dynamic = 'force-dynamic'
 import { useState, useEffect, useCallback } from 'react'
 import { ConversationList } from '@/components/board/ConversationList'
 import { ChatArea } from '@/components/board/ChatArea'
+import { ReviewBanner } from '@/components/board/ReviewBanner'
 import { createClient } from '@/lib/supabase/client'
-import type { Conversation, Message } from '@/types'
+import type { Conversation, Message, Plan } from '@/types'
 
 export default function BoardPage() {
   const supabase = createClient()
@@ -17,10 +18,13 @@ export default function BoardPage() {
   const [streamingContent, setStreamingContent] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
   const [loadingConvs, setLoadingConvs] = useState(true)
+  const [plans, setPlans] = useState<Plan[]>([])
+  const [dismissedReviews, setDismissedReviews] = useState<Set<string>>(new Set())
 
-  // Load conversations on mount
+  // Load conversations and plans on mount
   useEffect(() => {
     loadConversations()
+    loadPlans()
   }, [])
 
   // Load messages when active conversation changes
@@ -38,6 +42,14 @@ export default function BoardPage() {
       if (data.length > 0 && !activeId) setActiveId(data[0].id)
     }
     setLoadingConvs(false)
+  }
+
+  async function loadPlans() {
+    const res = await fetch('/api/plans')
+    if (res.ok) {
+      const data = await res.json()
+      setPlans(data)
+    }
   }
 
   async function loadMessages(convId: string) {
@@ -60,6 +72,28 @@ export default function BoardPage() {
       setActiveId(conv.id)
       setMessages([])
     }
+  }
+
+  async function handleStartReview(planId: string) {
+    const res = await fetch(`/api/plans/${planId}/review`, { method: 'POST' })
+    if (res.ok) {
+      const conv = await res.json()
+      setConversations((prev) => [conv, ...prev])
+      setActiveId(conv.id)
+      setMessages([])
+      // Refresh plans to reflect updated status
+      loadPlans()
+    }
+  }
+
+  function handleDismissReview(planId: string) {
+    setDismissedReviews((prev) => new Set([...prev, planId]))
+  }
+
+  function handlePlanScheduled(planId: string, reviewDate: string) {
+    // Update conversations to reflect plan_origin type
+    loadConversations()
+    loadPlans()
   }
 
   const handleSend = useCallback(
@@ -135,6 +169,22 @@ export default function BoardPage() {
     [activeId]
   )
 
+  // Derive active conversation metadata
+  const activeConversation = conversations.find((c) => c.id === activeId)
+
+  // Pending reviews: active plans with review_date <= today, not dismissed
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const pendingReviews = plans.filter((p) => {
+    if (p.status !== 'active' || !p.review_date) return false
+    if (dismissedReviews.has(p.id)) return false
+    const rd = new Date(p.review_date + 'T00:00:00')
+    return rd <= today
+  })
+
+  // A plan is already scheduled for the active conversation if its type is plan_origin
+  const planScheduled = activeConversation?.conversation_type === 'plan_origin'
+
   return (
     <div className="flex h-screen bg-[hsl(var(--background))]">
       {/* Sidebar */}
@@ -145,17 +195,33 @@ export default function BoardPage() {
           onSelect={setActiveId}
           onNew={handleNewConversation}
           loading={loadingConvs}
+          plans={plans}
+          onPlanSelect={(plan) => handleStartReview(plan.id)}
         />
       </aside>
 
       {/* Main chat */}
       <main className="flex flex-1 flex-col overflow-hidden">
+        {/* Review banners */}
+        {pendingReviews.map((plan) => (
+          <ReviewBanner
+            key={plan.id}
+            plan={plan}
+            onStartReview={handleStartReview}
+            onDismiss={handleDismissReview}
+          />
+        ))}
+
         <ChatArea
           messages={messages}
           streamingContent={streamingContent}
           isStreaming={isStreaming}
           onSend={handleSend}
           conversationId={activeId}
+          conversationTitle={activeConversation?.title}
+          conversationType={activeConversation?.conversation_type}
+          planScheduled={planScheduled}
+          onPlanScheduled={handlePlanScheduled}
         />
       </main>
     </div>

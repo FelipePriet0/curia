@@ -70,15 +70,13 @@ export function AuthForm({ mode }: AuthFormProps) {
         {/* Logo */}
         <div className="mb-8 flex flex-col items-center text-center">
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-[var(--brand-radius-lg)] bg-[hsl(var(--primary))]">
-            <span className="text-lg font-bold text-[hsl(var(--primary-foreground))]">AI</span>
+            <span className="text-lg font-bold text-[hsl(var(--primary-foreground))]">C</span>
           </div>
           <h1 className="text-2xl font-bold text-[hsl(var(--foreground))]">
-            {isLogin ? 'Welcome back' : 'Get started free'}
+            {isLogin ? 'Bem-vindo de volta' : 'Comece agora'}
           </h1>
           <p className="mt-1.5 text-sm text-[hsl(var(--muted-foreground))]">
-            {isLogin
-              ? 'Sign in to your Board'
-              : 'Create your account and meet your Board'}
+            {isLogin ? 'Acesse seu Board' : 'Crie sua conta e monte seu Board'}
           </p>
         </div>
 
@@ -110,22 +108,20 @@ export function AuthForm({ mode }: AuthFormProps) {
               />
             </svg>
           )}
-          Continue with Google
+          Continuar com Google
         </Button>
 
         {/* Divider */}
         <div className="my-5 flex items-center gap-3">
           <div className="flex-1 border-t border-[hsl(var(--border))]" />
-          <span className="text-xs text-[hsl(var(--muted-foreground))]">or</span>
+          <span className="text-xs text-[hsl(var(--muted-foreground))]">ou</span>
           <div className="flex-1 border-t border-[hsl(var(--border))]" />
         </div>
 
         {/* Email/Password form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-[hsl(var(--foreground))]">
-              Email
-            </label>
+            <label className="mb-1.5 block text-sm font-medium text-[hsl(var(--foreground))]">E-mail</label>
             <input
               type="email"
               value={email}
@@ -142,9 +138,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-[hsl(var(--foreground))]">
-              Password
-            </label>
+            <label className="mb-1.5 block text-sm font-medium text-[hsl(var(--foreground))]">Senha</label>
             <input
               type="password"
               value={password}
@@ -168,18 +162,18 @@ export function AuthForm({ mode }: AuthFormProps) {
           )}
 
           <Button type="submit" className="w-full" loading={loading} disabled={googleLoading}>
-            {isLogin ? 'Sign in' : 'Create account'}
+            {isLogin ? 'Entrar' : 'Criar conta'}
           </Button>
         </form>
 
         {/* Switch mode */}
         <p className="mt-6 text-center text-sm text-[hsl(var(--muted-foreground))]">
-          {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
+          {isLogin ? 'Ainda não tem conta?' : 'Já tem conta?'}{' '}
           <Link
             href={isLogin ? '/signup' : '/login'}
             className="font-medium text-[hsl(var(--primary))] hover:underline"
           >
-            {isLogin ? 'Sign up' : 'Sign in'}
+            {isLogin ? 'Criar conta' : 'Entrar'}
           </Link>
         </p>
 
@@ -189,7 +183,7 @@ export function AuthForm({ mode }: AuthFormProps) {
             href="/"
             className="text-xs text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
           >
-            ← Back to home
+            ← Voltar para o início
           </Link>
         </p>
       </div>

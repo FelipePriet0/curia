@@ -32,8 +32,14 @@ export function MessageBubble({ message, isStreaming }: MessageBubbleProps) {
 }
 
 function BoardResponse({ content, isStreaming }: { content: string; isStreaming?: boolean }) {
+  const missing = isStreaming ? [] : detectMissingSections(content)
   return (
     <div className="space-y-4">
+      {!isStreaming && missing.length > 0 && (
+        <div className="text-[10px] text-[hsl(var(--muted-foreground))]">
+          Estrutura incompleta: faltam {missing.join(', ')}.
+        </div>
+      )}
       <MarkdownContent content={content} />
       {isStreaming && (
         <span className="inline-block h-4 w-1 animate-pulse bg-[hsl(var(--primary))] rounded-full" />
@@ -99,4 +105,38 @@ function MarkdownContent({ content }: { content: string }) {
       })}
     </div>
   )
+}
+
+// ─── Guardrail: detectar seções obrigatórias ──────────────────────────────────
+
+function normalize(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .replace(/^[^a-z0-9()]+/g, '')
+    .trim()
+}
+
+function detectMissingSections(content: string): string[] {
+  const lines = content.split('\n')
+  const headers = lines
+    .filter((l) => l.trim().startsWith('### '))
+    .map((l) => normalize(l.replace(/^###\s+/, '')))
+
+  const required = [
+    { key: 'diagnostico', label: 'Diagnóstico' },
+    { key: 'problema central', label: 'Problema Central' },
+    { key: 'riscos estrategicos', label: 'Riscos Estratégicos' },
+    { key: 'leitura de performance', label: 'Leitura de Performance' },
+    { key: 'framework aplicado', label: 'Framework Aplicado' },
+    { key: 'recomendacoes estrategicas', label: 'Recomendações Estratégicas' },
+  ]
+
+  const missing: string[] = []
+  for (const req of required) {
+    const found = headers.some((h) => h.includes(req.key))
+    if (!found) missing.push(req.label)
+  }
+  return missing
 }

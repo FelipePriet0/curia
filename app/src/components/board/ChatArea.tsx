@@ -1,8 +1,11 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { Button } from '@/components/ui/button'
 import { MessageBubble } from './MessageBubble'
 import { ChatInput } from './ChatInput'
+import { PlanScheduler } from './PlanScheduler'
+import { hasNextSteps } from '@/lib/metrics/detectors'
 import type { Message } from '@/types'
 
 interface ChatAreaProps {
@@ -11,6 +14,10 @@ interface ChatAreaProps {
   isStreaming: boolean
   onSend: (message: string) => void
   conversationId?: string
+  conversationTitle?: string
+  conversationType?: 'regular' | 'plan_origin' | 'plan_review'
+  planScheduled?: boolean
+  onPlanScheduled?: (planId: string, reviewDate: string) => void
 }
 
 export function ChatArea({
@@ -19,6 +26,10 @@ export function ChatArea({
   isStreaming,
   onSend,
   conversationId,
+  conversationTitle,
+  conversationType,
+  planScheduled,
+  onPlanScheduled,
 }: ChatAreaProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
 
@@ -28,17 +39,48 @@ export function ChatArea({
 
   const isEmpty = messages.length === 0 && !isStreaming
 
+  // Show plan scheduler after last assistant message if it has next steps and no plan yet
+  const lastAssistantMsg = !isStreaming
+    ? [...messages].reverse().find((m) => m.role === 'assistant')
+    : null
+  const showScheduler =
+    !planScheduled &&
+    conversationType !== 'plan_origin' &&
+    conversationType !== 'plan_review' &&
+    lastAssistantMsg != null &&
+    hasNextSteps(lastAssistantMsg.content)
+
   return (
     <div className="flex h-full flex-col">
       {/* Messages */}
       <div className="flex-1 overflow-y-auto">
         {isEmpty ? (
-          <EmptyState />
+          conversationType === 'plan_review' ? (
+            <ReviewEmptyState onSend={onSend} />
+          ) : (
+            <EmptyState onSend={onSend} />
+          )
         ) : (
           <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
-            {messages.map((msg) => (
-              <MessageBubble key={msg.id} message={msg} />
-            ))}
+            {messages.map((msg, idx) => {
+              const isLastAssistant =
+                msg.role === 'assistant' &&
+                showScheduler &&
+                msg.id === lastAssistantMsg?.id
+              return (
+                <div key={msg.id}>
+                  <MessageBubble message={msg} />
+                  {isLastAssistant && conversationId && (
+                    <PlanScheduler
+                      messageContent={msg.content}
+                      conversationId={conversationId}
+                      conversationTitle={conversationTitle || 'Plano estratégico'}
+                      onScheduled={onPlanScheduled ?? (() => {})}
+                    />
+                  )}
+                </div>
+              )
+            })}
 
             {/* Streaming message */}
             {isStreaming && streamingContent && (
@@ -79,13 +121,32 @@ export function ChatArea({
       {/* Input */}
       <div className="border-t border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 py-4">
         <div className="mx-auto max-w-3xl">
+          {conversationType !== 'plan_review' && (
+            <div className="mb-2 flex flex-wrap gap-2">
+              {USE_CASE_CHIPS.map((c) => (
+                <Button
+                  key={c.label}
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onSend(c.message)}
+                  disabled={isStreaming}
+                >
+                  {c.label}
+                </Button>
+              ))}
+            </div>
+          )}
           <ChatInput
             onSend={onSend}
             disabled={isStreaming}
-            placeholder="Ask your strategic board anything..."
+            placeholder={
+              conversationType === 'plan_review'
+                ? 'O que avançou? O que travou? Mostre os números...'
+                : 'Traga uma decisão ou problema estratégico para o Board...'
+            }
           />
           <p className="mt-2 text-center text-xs text-[hsl(var(--muted-foreground))]">
-            AI Board may make mistakes. Validate strategic decisions with trusted advisors.
+            Curia é um sistema de decisão. Use com senso crítico.
           </p>
         </div>
       </div>
@@ -93,35 +154,71 @@ export function ChatArea({
   )
 }
 
-function EmptyState() {
+function EmptyState({ onSend }: { onSend: (msg: string) => void }) {
   return (
     <div className="flex h-full flex-col items-center justify-center px-4 text-center">
       <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-[var(--brand-radius-xl)] bg-[hsl(var(--primary))]">
-        <span className="text-2xl font-bold text-[hsl(var(--primary-foreground))]">AI</span>
+        <span className="text-2xl font-bold text-[hsl(var(--primary-foreground))]">C</span>
       </div>
       <h2 className="mb-2 text-xl font-semibold text-[hsl(var(--foreground))]">
-        Your strategic board is ready
+        Seu Board estratégico está pronto
       </h2>
       <p className="max-w-sm text-sm text-[hsl(var(--muted-foreground))]">
-        Ask about growth, positioning, priorities, or any business challenge.
-        Your board will diagnose, challenge, and guide your thinking.
+        Traga crescimento, vendas, prioridade ou decisões binárias. O Board vai
+        diagnosticar, reenquadrar, priorizar e recomendar um caminho claro.
       </p>
-      <div className="mt-8 grid gap-2 w-full max-w-md">
-        {EXAMPLE_QUESTIONS.map((q) => (
-          <div
-            key={q}
-            className="rounded-[var(--radius)] border border-[hsl(var(--border))] px-4 py-2 text-sm text-[hsl(var(--muted-foreground))] text-left"
-          >
-            {q}
-          </div>
+      <div className="mt-6 flex flex-wrap justify-center gap-2">
+        {USE_CASE_CHIPS.map((c) => (
+          <Button key={c.label} size="sm" variant="outline" onClick={() => onSend(c.message)}>
+            {c.label}
+          </Button>
         ))}
       </div>
     </div>
   )
 }
 
-const EXAMPLE_QUESTIONS = [
-  '💰 We\'re growing revenue but losing money every month. What should I do?',
-  '🎯 I have 3 product ideas. How do I decide which one to focus on?',
-  '⚡ My team is growing but execution is getting slower. Why?',
+function ReviewEmptyState({ onSend }: { onSend: (msg: string) => void }) {
+  return (
+    <div className="flex h-full flex-col items-center justify-center px-4 text-center">
+      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-[var(--brand-radius-xl)] bg-[hsl(var(--primary))]">
+        <span className="text-2xl font-bold text-[hsl(var(--primary-foreground))]">C</span>
+      </div>
+      <h2 className="mb-2 text-xl font-semibold text-[hsl(var(--foreground))]">
+        Sessão de revisão
+      </h2>
+      <p className="max-w-sm text-sm text-[hsl(var(--muted-foreground))]">
+        A Curia já tem o contexto do plano anterior. Conte o que avançou, o que
+        travou, e mostre os números — o Board continua de onde parou.
+      </p>
+      <div className="mt-6">
+        <Button onClick={() => onSend('Vamos revisar o plano. O que avançou e o que travou.')}>
+          Iniciar revisão
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+const USE_CASE_CHIPS = [
+  {
+    label: 'Não estou vendendo',
+    message:
+      'Não estou vendendo. Diagnostique o problema real (funil, proposta de valor, ICP, canal, preço) e recomende 3–5 ações priorizadas. Se precisar de contexto, pergunte objetivamente só o essencial antes de decidir.',
+  },
+  {
+    label: 'Não consigo gerar lucro',
+    message:
+      'Não consigo gerar lucro. Avalie unit economics (ticket, margem, CAC, retenção) e dê um caminho claro para virar para positivo — com trade-offs explícitos.',
+  },
+  {
+    label: 'Meu crescimento travou',
+    message:
+      'Meu crescimento travou. Enquadre a causa (produto, canal, preço, posicionamento, execução) e proponha alavancas com impacto esperado. Priorize pelo maior efeito composto (flywheel).',
+  },
+  {
+    label: 'No que focar agora',
+    message:
+      'Tenho várias frentes e pouca tração. No que devo focar agora? Quero uma única recomendação com justificativa e riscos dos caminhos não escolhidos.',
+  },
 ]

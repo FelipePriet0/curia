@@ -806,7 +806,9 @@ function Footer() {
             <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#2B1A07]/60 mb-3">Começar</h3>
             <p className="text-sm text-[#2B1A07]/70 mb-4 font-curia-serif">Leva menos de 2 minutos.</p>
             <Link href="/signup">
-              <Button size="sm" className="w-full sm:w-auto">Criar minha conta</Button>
+              <Button size="md" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90 w-full sm:w-auto">
+                Montar meu board
+              </Button>
             </Link>
           </div>
         </div>
@@ -861,9 +863,12 @@ function Pricing() {
         </p>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {/* Starter */}
+          {/* Curia Starter */}
           <div className="rounded-2xl border border-[#2B1A07]/15 bg-[#2B1A07]/5 p-6 text-left">
-            <h3 className="text-lg font-semibold text-[#2B1A07]"><NoWidows>Starter</NoWidows></h3>
+            <h3 className="text-2xl text-[#2B1A07]">
+              <span className="font-curia-rounded">Curia </span>
+              <span className="font-curia-script text-[#FF6F1E]">Starter</span>
+            </h3>
             <p className="mt-1 text-sm text-[#2B1A07]/70"><NoWidows>Para começar com o básico.</NoWidows></p>
             <p className="mt-6 text-3xl font-bold text-[#2B1A07]">R$0<span className="text-base font-medium text-[#2B1A07]/70">/mês</span></p>
             <ul className="mt-6 space-y-2 text-sm text-[#2B1A07]/80">
@@ -872,16 +877,17 @@ function Pricing() {
               <li>• Sem cartão de crédito</li>
             </ul>
             <Link href="/signup" className="mt-6 inline-block">
-              <Button className="w-full">Começar</Button>
+              <Button className="w-full bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">Montar meu Board</Button>
             </Link>
           </div>
 
-          {/* Pro */}
+          {/* Curia Strategist — Mais popular */}
           <div className="rounded-2xl border border-[#2B1A07]/15 bg-[#2B1A07]/10 p-6 text-left ring-1 ring-[#2B1A07]/10">
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#2B1A07]/10 px-3 py-1 text-xs font-semibold text-[#2B1A07]/80">
-              Mais popular
-            </div>
-            <h3 className="text-lg font-semibold text-[#2B1A07]"><NoWidows>Pro</NoWidows></h3>
+            <div className="mb-2 text-sm font-curia-script text-[#FF6F1E]">Mais popular</div>
+            <h3 className="text-2xl text-[#2B1A07]">
+              <span className="font-curia-rounded">Curia </span>
+              <span className="font-curia-script text-[#FF6F1E]">Strategist</span>
+            </h3>
             <p className="mt-1 text-sm text-[#2B1A07]/70"><NoWidows>Para operar com mais intensidade.</NoWidows></p>
             <p className="mt-6 text-3xl font-bold text-[#2B1A07]">R$99<span className="text-base font-medium text-[#2B1A07]/70">/mês</span></p>
             <ul className="mt-6 space-y-2 text-sm text-[#2B1A07]/80">
@@ -890,13 +896,16 @@ function Pricing() {
               <li>• Prioridade no suporte</li>
             </ul>
             <Link href="/signup" className="mt-6 inline-block">
-              <Button className="w-full">Assinar Pro</Button>
+              <Button className="w-full bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">Montar meu Board</Button>
             </Link>
           </div>
 
-          {/* Business */}
+          {/* Curia Enterprise */}
           <div className="rounded-2xl border border-[#2B1A07]/15 bg-[#2B1A07]/5 p-6 text-left">
-            <h3 className="text-lg font-semibold text-[#2B1A07]"><NoWidows>Business</NoWidows></h3>
+            <h3 className="text-2xl text-[#2B1A07]">
+              <span className="font-curia-rounded">Curia </span>
+              <span className="font-curia-script text-[#FF6F1E]">Enterprise</span>
+            </h3>
             <p className="mt-1 text-sm text-[#2B1A07]/70"><NoWidows>Para times e empresas.</NoWidows></p>
             <p className="mt-6 text-3xl font-bold text-[#2B1A07]">R$299<span className="text-base font-medium text-[#2B1A07]/70">/mês</span></p>
             <ul className="mt-6 space-y-2 text-sm text-[#2B1A07]/80">
@@ -905,7 +914,7 @@ function Pricing() {
               <li>• Suporte dedicado</li>
             </ul>
             <Link href="/signup" className="mt-6 inline-block">
-              <Button className="w-full">Falar com vendas</Button>
+              <Button className="w-full bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">Falar com vendas</Button>
             </Link>
           </div>
         </div>

@@ -33,12 +33,12 @@ function getOpenAIClient(): OpenAI {
 export async function streamBoardResponse(
   options: LLMOptions
 ): Promise<ReadableStream<string>> {
-  // Try Claude first, fallback to OpenAI
+  // Try GPT-5.4 mini first, fallback to Claude
   try {
-    return await streamWithClaude(options)
-  } catch (err) {
-    console.warn('[LLM] Claude failed, falling back to OpenAI:', err)
     return await streamWithOpenAI(options)
+  } catch (err) {
+    console.warn('[LLM] OpenAI failed, falling back to Claude:', err)
+    return await streamWithClaude(options)
   }
 }
 
@@ -46,7 +46,7 @@ async function streamWithClaude(options: LLMOptions): Promise<ReadableStream<str
   const client = getAnthropicClient()
 
   const stream = client.messages.stream({
-    model: 'claude-opus-4-5',
+    model: 'claude-sonnet-4-6',
     max_tokens: 4096,
     system: options.system,
     messages: options.messages.map((m) => ({
@@ -74,7 +74,7 @@ async function streamWithOpenAI(options: LLMOptions): Promise<ReadableStream<str
   const client = getOpenAIClient()
 
   const stream = await client.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'gpt-5.4-mini',
     max_tokens: 4096,
     stream: true,
     messages: [

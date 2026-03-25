@@ -3,6 +3,9 @@ import { createClient } from '@/lib/supabase/server'
 import { streamBoardResponse } from '@/lib/llm/client'
 import { buildSystemPrompt } from '@/lib/llm/board-prompt'
 import type { LLMMessage } from '@/lib/llm/client'
+import type { PlanReviewContext } from '@/types'
+import { isPlanRequest, hasDiagnosis, hasProblemCentral } from '@/lib/metrics/detectors'
+import { trackEvent } from '@/lib/metrics/track'
 
 // GET /api/conversations/[id]/messages — fetch all messages in a conversation
 export async function GET(
@@ -55,10 +58,10 @@ export async function POST(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // Verify ownership
+  // Verify ownership and fetch conversation metadata
   const { data: conversation } = await supabase
     .from('conversations')
-    .select('id')
+    .select('id, plan_id, conversation_type')
     .eq('id', id)
     .eq('user_id', user.id)
     .single()
@@ -80,6 +83,15 @@ export async function POST(
     content: message,
   })
 
+  // Metrics: plan requested
+  if (isPlanRequest(message)) {
+    await trackEvent(supabase as any, {
+      userId: user.id,
+      conversationId: id,
+      type: 'plan_requested',
+    })
+  }
+
   // Fetch conversation history
   const { data: history } = await supabase
     .from('messages')
@@ -93,7 +105,19 @@ export async function POST(
   }))
 
   const isFirstMessage = messages.filter((m) => m.role === 'assistant').length === 0
-  const system = buildSystemPrompt(company_context)
+
+  // Fetch plan context if this is a review conversation
+  let planReview: PlanReviewContext | undefined
+  if (conversation.conversation_type === 'plan_review' && conversation.plan_id) {
+    const { data: plan } = await supabase
+      .from('plans')
+      .select('id, title, summary, next_steps, metrics, framework_used, created_at, review_date')
+      .eq('id', conversation.plan_id)
+      .single()
+    if (plan) planReview = plan as PlanReviewContext
+  }
+
+  const system = buildSystemPrompt(company_context, planReview)
 
   // Generate title from first message
   if (isFirstMessage) {
@@ -102,6 +126,33 @@ export async function POST(
       .from('conversations')
       .update({ title })
       .eq('id', id)
+
+    // Metrics: conversation started
+    await trackEvent(supabase as any, {
+      userId: user.id,
+      conversationId: id,
+      type: 'conversation_started',
+    })
+
+    // Metrics: activation started (first-ever message across all conversations)
+    const { count } = await supabase
+      .from('messages')
+      .select('id', { count: 'exact', head: true })
+      .in('conversation_id', (
+        await supabase
+          .from('conversations')
+          .select('id')
+          .eq('user_id', user.id)
+      ).data?.map((c: any) => c.id) || []
+      )
+
+    if ((count ?? 0) <= 1) {
+      await trackEvent(supabase as any, {
+        userId: user.id,
+        conversationId: id,
+        type: 'activation_started',
+      })
+    }
   }
 
   // Stream LLM response
@@ -126,11 +177,21 @@ export async function POST(
         controller.close()
 
         // Save assistant message after stream completes
-        await supabase.from('messages').insert({
+        const { data: savedAssistant } = await supabase.from('messages').insert({
           conversation_id: id,
           role: 'assistant',
           content: fullResponse,
-        })
+        }).select().single()
+
+        // Metrics: flow progressed (diagnosis + problem central present)
+        if (fullResponse && hasDiagnosis(fullResponse) && hasProblemCentral(fullResponse)) {
+          await trackEvent(supabase as any, {
+            userId: user.id,
+            conversationId: id,
+            type: 'flow_progressed',
+            metadata: { message_id: savedAssistant?.id },
+          })
+        }
 
         // Touch updated_at
         await supabase

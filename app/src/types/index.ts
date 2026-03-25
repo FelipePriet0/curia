@@ -20,6 +20,8 @@ export interface Conversation {
   id: string
   company_id: string | null
   user_id: string
+  plan_id: string | null
+  conversation_type: 'regular' | 'plan_origin' | 'plan_review'
   title: string
   created_at: string
   updated_at: string
@@ -31,6 +33,35 @@ export interface Message {
   role: 'user' | 'assistant'
   content: string
   created_at: string
+}
+
+export interface Plan {
+  id: string
+  user_id: string
+  origin_conversation_id: string | null
+  title: string
+  summary: string
+  next_steps: string
+  metrics: Record<string, string> | null
+  framework_used: string | null
+  review_date: string | null
+  review_interval_days: number
+  status: 'active' | 'reviewed' | 'archived'
+  notification_sent: boolean
+  notification_sent_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface PlanReviewContext {
+  id: string
+  title: string
+  summary: string
+  next_steps: string
+  metrics: Record<string, string> | null
+  framework_used: string | null
+  created_at: string
+  review_date: string | null
 }
 
 // ─── Board Types ──────────────────────────────────────────────────────────────

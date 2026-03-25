@@ -1,0 +1,7 @@
+# Ignore everything in this folder by default
+*
+
+# Keep these example and docs files
+!.gitignore
+!README.md
+!.example.env
