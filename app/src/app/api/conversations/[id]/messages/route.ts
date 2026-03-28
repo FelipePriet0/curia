@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { streamBoardResponse } from '@/lib/llm/client'
 import { buildSystemPrompt } from '@/lib/llm/board-prompt'
+import { STRATEGY_PROPOSAL_MARKER } from '@/lib/llm/client'
 import type { LLMMessage } from '@/lib/llm/client'
-import type { PlanReviewContext } from '@/types'
-import { isPlanRequest, hasDiagnosis, hasProblemCentral } from '@/lib/metrics/detectors'
+import type { PlanReviewContext, StrategyContext } from '@/types'
+import { isPlanRequest, hasDiagnosis, hasProblemCentral, stripStrategyMarker } from '@/lib/metrics/detectors'
 import { trackEvent } from '@/lib/metrics/track'
 
 // GET /api/conversations/[id]/messages — fetch all messages in a conversation
@@ -20,7 +21,6 @@ export async function GET(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // Verify ownership
   const { data: conversation } = await supabase
     .from('conversations')
     .select('id')
@@ -58,10 +58,9 @@ export async function POST(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // Verify ownership and fetch conversation metadata
   const { data: conversation } = await supabase
     .from('conversations')
-    .select('id, plan_id, conversation_type')
+    .select('id, plan_id, conversation_type, strategy_id')
     .eq('id', id)
     .eq('user_id', user.id)
     .single()
@@ -76,14 +75,12 @@ export async function POST(
     return NextResponse.json({ error: 'Message is required' }, { status: 400 })
   }
 
-  // Save user message
   await supabase.from('messages').insert({
     conversation_id: id,
     role: 'user',
     content: message,
   })
 
-  // Metrics: plan requested
   if (isPlanRequest(message)) {
     await trackEvent(supabase as any, {
       userId: user.id,
@@ -92,7 +89,6 @@ export async function POST(
     })
   }
 
-  // Fetch conversation history
   const { data: history } = await supabase
     .from('messages')
     .select('role, content')
@@ -106,7 +102,7 @@ export async function POST(
 
   const isFirstMessage = messages.filter((m) => m.role === 'assistant').length === 0
 
-  // Fetch plan context if this is a review conversation
+  // Fetch plan context for review conversations
   let planReview: PlanReviewContext | undefined
   if (conversation.conversation_type === 'plan_review' && conversation.plan_id) {
     const { data: plan } = await supabase
@@ -117,34 +113,35 @@ export async function POST(
     if (plan) planReview = plan as PlanReviewContext
   }
 
-  const system = buildSystemPrompt(company_context, planReview)
+  // Fetch strategy context (Plano 5)
+  let strategyContext: StrategyContext | undefined
+  if (conversation.strategy_id) {
+    const { data: strategy } = await supabase
+      .from('strategies')
+      .select('name, brief, stage')
+      .eq('id', conversation.strategy_id)
+      .single()
+    if (strategy) strategyContext = strategy as StrategyContext
+  }
 
-  // Generate title from first message
+  const system = buildSystemPrompt(company_context, planReview, strategyContext)
+
   if (isFirstMessage) {
     const title = message.slice(0, 60) + (message.length > 60 ? '...' : '')
-    await supabase
-      .from('conversations')
-      .update({ title })
-      .eq('id', id)
+    await supabase.from('conversations').update({ title }).eq('id', id)
 
-    // Metrics: conversation started
     await trackEvent(supabase as any, {
       userId: user.id,
       conversationId: id,
       type: 'conversation_started',
     })
 
-    // Metrics: activation started (first-ever message across all conversations)
     const { count } = await supabase
       .from('messages')
       .select('id', { count: 'exact', head: true })
       .in('conversation_id', (
-        await supabase
-          .from('conversations')
-          .select('id')
-          .eq('user_id', user.id)
-      ).data?.map((c: any) => c.id) || []
-      )
+        await supabase.from('conversations').select('id').eq('user_id', user.id)
+      ).data?.map((c: any) => c.id) || [])
 
     if ((count ?? 0) <= 1) {
       await trackEvent(supabase as any, {
@@ -155,7 +152,6 @@ export async function POST(
     }
   }
 
-  // Stream LLM response
   const llmStream = await streamBoardResponse({ system, messages })
 
   let fullResponse = ''
@@ -176,14 +172,15 @@ export async function POST(
         reader.releaseLock()
         controller.close()
 
-        // Save assistant message after stream completes
+        // Strip strategy marker before saving to DB (marker is handled by front-end)
+        const contentToSave = stripStrategyMarker(fullResponse)
+
         const { data: savedAssistant } = await supabase.from('messages').insert({
           conversation_id: id,
           role: 'assistant',
-          content: fullResponse,
+          content: contentToSave,
         }).select().single()
 
-        // Metrics: flow progressed (diagnosis + problem central present)
         if (fullResponse && hasDiagnosis(fullResponse) && hasProblemCentral(fullResponse)) {
           await trackEvent(supabase as any, {
             userId: user.id,
@@ -193,7 +190,6 @@ export async function POST(
           })
         }
 
-        // Touch updated_at
         await supabase
           .from('conversations')
           .update({ updated_at: new Date().toISOString() })

@@ -21,7 +21,8 @@ export interface Conversation {
   company_id: string | null
   user_id: string
   plan_id: string | null
-  conversation_type: 'regular' | 'plan_origin' | 'plan_review'
+  strategy_id: string | null
+  conversation_type: 'regular' | 'plan_origin' | 'plan_review' | 'strategy'
   title: string
   created_at: string
   updated_at: string
@@ -53,6 +54,18 @@ export interface Plan {
   updated_at: string
 }
 
+export interface Strategy {
+  id: string
+  user_id: string
+  name: string
+  brief: string
+  stage: string | null
+  created_at: string
+  updated_at: string
+}
+
+// ─── Context Types ────────────────────────────────────────────────────────────
+
 export interface PlanReviewContext {
   id: string
   title: string
@@ -62,6 +75,18 @@ export interface PlanReviewContext {
   framework_used: string | null
   created_at: string
   review_date: string | null
+}
+
+export interface StrategyContext {
+  name: string
+  brief: string
+  stage: string | null
+}
+
+export interface StrategyProposal {
+  name: string
+  brief: string
+  stage?: string
 }
 
 // ─── Board Types ──────────────────────────────────────────────────────────────

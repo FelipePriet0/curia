@@ -35,3 +35,26 @@ export function hasNextSteps(text: string): boolean {
   )
 }
 
+// ─── Strategy proposal helpers (Plano 5) ─────────────────────────────────────
+
+const STRATEGY_MARKER = '\n[STRATEGY_PROPOSAL]:'
+
+export function hasStrategyProposal(text: string): boolean {
+  return text.includes(STRATEGY_MARKER)
+}
+
+export function extractStrategyProposal(text: string): import('@/types').StrategyProposal | null {
+  const idx = text.lastIndexOf(STRATEGY_MARKER)
+  if (idx === -1) return null
+  try {
+    return JSON.parse(text.slice(idx + STRATEGY_MARKER.length).trim())
+  } catch {
+    return null
+  }
+}
+
+export function stripStrategyMarker(text: string): string {
+  const idx = text.lastIndexOf(STRATEGY_MARKER)
+  if (idx === -1) return text
+  return text.slice(0, idx).trimEnd()
+}

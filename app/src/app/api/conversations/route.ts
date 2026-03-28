@@ -12,7 +12,7 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from('conversations')
-    .select('id, title, plan_id, conversation_type, created_at, updated_at')
+    .select('id, title, plan_id, strategy_id, conversation_type, created_at, updated_at')
     .eq('user_id', user.id)
     .order('updated_at', { ascending: false })
 
@@ -34,10 +34,12 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json()
   const title = body.title || 'New conversation'
+  const strategy_id = body.strategy_id ?? null
+  const conversation_type = strategy_id ? 'strategy' : (body.conversation_type ?? 'regular')
 
   const { data, error } = await supabase
     .from('conversations')
-    .insert({ user_id: user.id, title })
+    .insert({ user_id: user.id, title, strategy_id, conversation_type })
     .select()
     .single()
 

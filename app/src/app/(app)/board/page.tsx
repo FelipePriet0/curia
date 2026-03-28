@@ -4,14 +4,15 @@ export const dynamic = 'force-dynamic'
 
 import { useState, useEffect, useCallback } from 'react'
 import { ConversationList } from '@/components/board/ConversationList'
-import { ChatArea } from '@/components/board/ChatArea'
 import { ReviewBanner } from '@/components/board/ReviewBanner'
-import { createClient } from '@/lib/supabase/client'
-import type { Conversation, Message, Plan } from '@/types'
+import { CuriaChambra } from '@/components/board/chamber/CuriaChambra'
+import { CouncilVerdict } from '@/components/board/chamber/CouncilVerdict'
+import { CouncilInput } from '@/components/board/chamber/CouncilInput'
+import { getChambraState } from '@/components/board/chamber/chambraStates'
+import { hasStrategyProposal, extractStrategyProposal, stripStrategyMarker } from '@/lib/metrics/detectors'
+import type { Conversation, Message, Plan, Strategy, StrategyProposal } from '@/types'
 
 export default function BoardPage() {
-  const supabase = createClient()
-
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeId, setActiveId] = useState<string | undefined>()
   const [messages, setMessages] = useState<Message[]>([])
@@ -21,16 +22,21 @@ export default function BoardPage() {
   const [plans, setPlans] = useState<Plan[]>([])
   const [dismissedReviews, setDismissedReviews] = useState<Set<string>>(new Set())
 
-  // Load conversations and plans on mount
+  // Plano 5: strategies
+  const [strategies, setStrategies] = useState<Strategy[]>([])
+  const [strategyProposal, setStrategyProposal] = useState<StrategyProposal | null>(null)
+
   useEffect(() => {
     loadConversations()
     loadPlans()
+    loadStrategies()
   }, [])
 
-  // Load messages when active conversation changes
   useEffect(() => {
     if (activeId) loadMessages(activeId)
     else setMessages([])
+    // Clear proposal when switching conversations
+    setStrategyProposal(null)
   }, [activeId])
 
   async function loadConversations() {
@@ -52,6 +58,14 @@ export default function BoardPage() {
     }
   }
 
+  async function loadStrategies() {
+    const res = await fetch('/api/strategies')
+    if (res.ok) {
+      const data = await res.json()
+      setStrategies(data)
+    }
+  }
+
   async function loadMessages(convId: string) {
     const res = await fetch(`/api/conversations/${convId}/messages`)
     if (res.ok) {
@@ -60,18 +74,43 @@ export default function BoardPage() {
     }
   }
 
-  async function handleNewConversation() {
+  async function handleNewConversation(strategyId?: string) {
+    const body: Record<string, string> = { title: 'New conversation' }
+    if (strategyId) body.strategy_id = strategyId
+
     const res = await fetch('/api/conversations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: 'New conversation' }),
+      body: JSON.stringify(body),
     })
     if (res.ok) {
       const conv = await res.json()
-      setConversations((prev) => [conv, ...prev])
+      await loadConversations()
       setActiveId(conv.id)
       setMessages([])
+      setStrategyProposal(null)
     }
+  }
+
+  // Plano 5: open or create conversation for a strategy
+  async function handleStrategySelect(strategy: Strategy) {
+    // Find the most recent conversation for this strategy
+    const strategyConv = conversations
+      .filter((c) => c.strategy_id === strategy.id)
+      .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())[0]
+
+    if (strategyConv) {
+      setActiveId(strategyConv.id)
+    } else {
+      await handleNewConversation(strategy.id)
+    }
+  }
+
+  // Plano 5: user confirmed saving a strategy
+  async function handleStrategySaved(_strategyId: string, _strategyName: string) {
+    setStrategyProposal(null)
+    await loadStrategies()
+    await loadConversations()
   }
 
   async function handleStartReview(planId: string) {
@@ -81,7 +120,6 @@ export default function BoardPage() {
       setConversations((prev) => [conv, ...prev])
       setActiveId(conv.id)
       setMessages([])
-      // Refresh plans to reflect updated status
       loadPlans()
     }
   }
@@ -90,8 +128,7 @@ export default function BoardPage() {
     setDismissedReviews((prev) => new Set([...prev, planId]))
   }
 
-  function handlePlanScheduled(planId: string, reviewDate: string) {
-    // Update conversations to reflect plan_origin type
+  function handlePlanScheduled(_planId: string, _reviewDate: string) {
     loadConversations()
     loadPlans()
   }
@@ -100,7 +137,6 @@ export default function BoardPage() {
     async (text: string) => {
       let convId = activeId
 
-      // Auto-create conversation if none selected
       if (!convId) {
         const res = await fetch('/api/conversations', {
           method: 'POST',
@@ -114,7 +150,6 @@ export default function BoardPage() {
         setActiveId(convId)
       }
 
-      // Optimistically add user message
       const userMsg: Message = {
         id: crypto.randomUUID(),
         conversation_id: convId!,
@@ -125,6 +160,7 @@ export default function BoardPage() {
       setMessages((prev) => [...prev, userMsg])
       setIsStreaming(true)
       setStreamingContent('')
+      setStrategyProposal(null)
 
       try {
         const res = await fetch(`/api/conversations/${convId}/messages`, {
@@ -147,17 +183,21 @@ export default function BoardPage() {
           setStreamingContent(full)
         }
 
-        // Add completed assistant message
+        // Plano 5: detect strategy proposal in response
+        if (hasStrategyProposal(full)) {
+          const proposal = extractStrategyProposal(full)
+          if (proposal) setStrategyProposal(proposal)
+        }
+
         const assistantMsg: Message = {
           id: crypto.randomUUID(),
           conversation_id: convId!,
           role: 'assistant',
-          content: full,
+          content: stripStrategyMarker(full),
           created_at: new Date().toISOString(),
         }
         setMessages((prev) => [...prev, assistantMsg])
 
-        // Update conversation title in sidebar
         await loadConversations()
       } catch (err) {
         console.error('[BoardPage] Stream error:', err)
@@ -169,10 +209,6 @@ export default function BoardPage() {
     [activeId]
   )
 
-  // Derive active conversation metadata
-  const activeConversation = conversations.find((c) => c.id === activeId)
-
-  // Pending reviews: active plans with review_date <= today, not dismissed
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const pendingReviews = plans.filter((p) => {
@@ -182,26 +218,31 @@ export default function BoardPage() {
     return rd <= today
   })
 
-  // A plan is already scheduled for the active conversation if its type is plan_origin
-  const planScheduled = activeConversation?.conversation_type === 'plan_origin'
+  const chambraState = getChambraState({
+    isStreaming,
+    hasMessages: messages.length > 0,
+    streamingContent,
+  })
 
   return (
-    <div className="flex h-screen bg-[hsl(var(--background))]">
+    <div className="flex h-screen" style={{ background: '#FDFBF9' }}>
       {/* Sidebar */}
-      <aside className="w-64 shrink-0 border-r border-[hsl(var(--border))] bg-[hsl(var(--sidebar))]">
+      <aside className="w-60 shrink-0 border-r border-[hsl(var(--border))]" style={{ background: '#F5F0EC' }}>
         <ConversationList
           conversations={conversations}
           activeId={activeId}
           onSelect={setActiveId}
-          onNew={handleNewConversation}
+          onNew={() => handleNewConversation()}
           loading={loadingConvs}
           plans={plans}
           onPlanSelect={(plan) => handleStartReview(plan.id)}
+          strategies={strategies}
+          onStrategySelect={handleStrategySelect}
         />
       </aside>
 
-      {/* Main chat */}
-      <main className="flex flex-1 flex-col overflow-hidden">
+      {/* Chamber main */}
+      <main className="flex flex-1 flex-col overflow-hidden" style={{ background: '#FDFBF9' }}>
         {/* Review banners */}
         {pendingReviews.map((plan) => (
           <ReviewBanner
@@ -212,17 +253,18 @@ export default function BoardPage() {
           />
         ))}
 
-        <ChatArea
+        {/* Chamber visual */}
+        <CuriaChambra state={chambraState} />
+
+        {/* Verdict / response area */}
+        <CouncilVerdict
           messages={messages}
           streamingContent={streamingContent}
           isStreaming={isStreaming}
-          onSend={handleSend}
-          conversationId={activeId}
-          conversationTitle={activeConversation?.title}
-          conversationType={activeConversation?.conversation_type}
-          planScheduled={planScheduled}
-          onPlanScheduled={handlePlanScheduled}
         />
+
+        {/* Input */}
+        <CouncilInput onSend={handleSend} isStreaming={isStreaming} />
       </main>
     </div>
   )

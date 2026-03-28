@@ -1,6 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils/cn'
+import { stripStrategyMarker } from '@/lib/metrics/detectors'
 import type { Message } from '@/types'
 
 interface MessageBubbleProps {
@@ -15,16 +16,16 @@ export function MessageBubble({ message, isStreaming }: MessageBubbleProps) {
     <div className={cn('flex w-full', isUser ? 'justify-end' : 'justify-start')}>
       <div
         className={cn(
-          'max-w-[85%] rounded-[var(--brand-radius-lg)] px-4 py-3 text-sm leading-relaxed',
+          'max-w-[85%] rounded-xl px-4 py-3 font-curia-serif text-sm leading-relaxed',
           isUser
-            ? 'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] rounded-br-[var(--brand-radius-sm)]'
-            : 'bg-[hsl(var(--muted))] text-[hsl(var(--foreground))] rounded-bl-[var(--brand-radius-sm)]'
+            ? 'bg-[#FF6F1E] text-[#2B1A07] rounded-br-sm font-medium'
+            : 'bg-[#2B1A07]/[0.06] text-[#2B1A07] rounded-bl-sm'
         )}
       >
         {isUser ? (
           <p className="whitespace-pre-wrap">{message.content}</p>
         ) : (
-          <BoardResponse content={message.content} isStreaming={isStreaming} />
+          <BoardResponse content={stripStrategyMarker(message.content)} isStreaming={isStreaming} />
         )}
       </div>
     </div>
@@ -42,7 +43,7 @@ function BoardResponse({ content, isStreaming }: { content: string; isStreaming?
       )}
       <MarkdownContent content={content} />
       {isStreaming && (
-        <span className="inline-block h-4 w-1 animate-pulse bg-[hsl(var(--primary))] rounded-full" />
+        <span className="inline-block h-4 w-1 animate-pulse bg-[#FF6F1E] rounded-full" />
       )}
     </div>
   )

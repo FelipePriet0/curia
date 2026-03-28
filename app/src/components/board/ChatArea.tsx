@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button'
 import { MessageBubble } from './MessageBubble'
 import { ChatInput } from './ChatInput'
 import { PlanScheduler } from './PlanScheduler'
+import { StrategyProposalBanner } from './StrategyProposalBanner'
 import { hasNextSteps } from '@/lib/metrics/detectors'
-import type { Message } from '@/types'
+import type { Message, StrategyProposal } from '@/types'
 
 interface ChatAreaProps {
   messages: Message[]
@@ -15,9 +16,12 @@ interface ChatAreaProps {
   onSend: (message: string) => void
   conversationId?: string
   conversationTitle?: string
-  conversationType?: 'regular' | 'plan_origin' | 'plan_review'
+  conversationType?: 'regular' | 'plan_origin' | 'plan_review' | 'strategy'
   planScheduled?: boolean
   onPlanScheduled?: (planId: string, reviewDate: string) => void
+  strategyProposal?: StrategyProposal | null
+  onStrategySaved?: (strategyId: string, strategyName: string) => void
+  onStrategyProposalDismiss?: () => void
 }
 
 export function ChatArea({
@@ -30,6 +34,9 @@ export function ChatArea({
   conversationType,
   planScheduled,
   onPlanScheduled,
+  strategyProposal,
+  onStrategySaved,
+  onStrategyProposalDismiss,
 }: ChatAreaProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
 
@@ -99,12 +106,12 @@ export function ChatArea({
             {/* Thinking indicator */}
             {isStreaming && !streamingContent && (
               <div className="flex justify-start">
-                <div className="rounded-[var(--brand-radius-lg)] rounded-bl-[var(--brand-radius-sm)] bg-[hsl(var(--muted))] px-4 py-3">
+                <div className="rounded-xl rounded-bl-sm bg-[#2B1A07]/[0.06] px-4 py-3">
                   <div className="flex gap-1">
                     {[0, 1, 2].map((i) => (
                       <span
                         key={i}
-                        className="h-2 w-2 rounded-full bg-[hsl(var(--muted-foreground))] animate-bounce"
+                        className="h-2 w-2 rounded-full bg-[#FF6F1E] animate-bounce"
                         style={{ animationDelay: `${i * 0.15}s` }}
                       />
                     ))}
@@ -118,21 +125,30 @@ export function ChatArea({
         )}
       </div>
 
+      {/* Strategy Proposal Banner */}
+      {strategyProposal && conversationId && !isStreaming && (
+        <StrategyProposalBanner
+          proposal={strategyProposal}
+          conversationId={conversationId}
+          onSaved={onStrategySaved ?? (() => {})}
+          onDismiss={onStrategyProposalDismiss ?? (() => {})}
+        />
+      )}
+
       {/* Input */}
       <div className="border-t border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 py-4">
         <div className="mx-auto max-w-3xl">
           {conversationType !== 'plan_review' && (
             <div className="mb-2 flex flex-wrap gap-2">
               {USE_CASE_CHIPS.map((c) => (
-                <Button
+                <button
                   key={c.label}
-                  size="sm"
-                  variant="outline"
                   onClick={() => onSend(c.message)}
                   disabled={isStreaming}
+                  className="rounded-full border border-[#2B1A07]/12 bg-white px-3 py-1 font-curia-serif text-xs text-[#2B1A07]/60 shadow-sm transition-all hover:border-[#FF6F1E]/40 hover:text-[#2B1A07] hover:shadow disabled:pointer-events-none disabled:opacity-40"
                 >
                   {c.label}
-                </Button>
+                </button>
               ))}
             </div>
           )}
@@ -145,7 +161,7 @@ export function ChatArea({
                 : 'Traga uma decisão ou problema estratégico para o Board...'
             }
           />
-          <p className="mt-2 text-center text-xs text-[hsl(var(--muted-foreground))]">
+          <p className="mt-2 text-center font-curia-serif text-xs text-[#2B1A07]/35">
             Curia é um sistema de decisão. Use com senso crítico.
           </p>
         </div>
@@ -157,22 +173,33 @@ export function ChatArea({
 function EmptyState({ onSend }: { onSend: (msg: string) => void }) {
   return (
     <div className="flex h-full flex-col items-center justify-center px-4 text-center">
-      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-[var(--brand-radius-xl)] bg-[hsl(var(--primary))]">
-        <span className="text-2xl font-bold text-[hsl(var(--primary-foreground))]">C</span>
+      {/* Glow decorativo */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden">
+        <div className="h-[400px] w-[400px] rounded-full bg-[#FF6F1E] opacity-[0.05] blur-3xl" />
       </div>
-      <h2 className="mb-2 text-xl font-semibold text-[hsl(var(--foreground))]">
-        Seu Board estratégico está pronto
-      </h2>
-      <p className="max-w-sm text-sm text-[hsl(var(--muted-foreground))]">
-        Traga crescimento, vendas, prioridade ou decisões binárias. O Board vai
-        diagnosticar, reenquadrar, priorizar e recomendar um caminho claro.
-      </p>
-      <div className="mt-6 flex flex-wrap justify-center gap-2">
-        {USE_CASE_CHIPS.map((c) => (
-          <Button key={c.label} size="sm" variant="outline" onClick={() => onSend(c.message)}>
-            {c.label}
-          </Button>
-        ))}
+
+      <div className="relative">
+        <span className="font-curia-rounded text-[#2B1A07] text-5xl leading-none mb-4 block">
+          Curia
+        </span>
+        <h2 className="font-curia-rounded text-xl text-[#2B1A07] mb-3">
+          Seu Board estratégico está pronto
+        </h2>
+        <p className="max-w-sm font-curia-serif text-sm leading-relaxed text-[#2B1A07]/55">
+          Traga crescimento, vendas, prioridade ou decisões binárias. O Board vai
+          diagnosticar, reenquadrar, priorizar e recomendar um caminho claro.
+        </p>
+        <div className="mt-7 flex flex-wrap justify-center gap-2">
+          {USE_CASE_CHIPS.map((c) => (
+            <button
+              key={c.label}
+              onClick={() => onSend(c.message)}
+              className="rounded-full border border-[#2B1A07]/15 bg-white px-4 py-1.5 font-curia-serif text-sm text-[#2B1A07]/70 shadow-sm transition-all hover:border-[#FF6F1E]/50 hover:text-[#2B1A07] hover:shadow-md"
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   )
@@ -181,20 +208,30 @@ function EmptyState({ onSend }: { onSend: (msg: string) => void }) {
 function ReviewEmptyState({ onSend }: { onSend: (msg: string) => void }) {
   return (
     <div className="flex h-full flex-col items-center justify-center px-4 text-center">
-      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-[var(--brand-radius-xl)] bg-[hsl(var(--primary))]">
-        <span className="text-2xl font-bold text-[hsl(var(--primary-foreground))]">C</span>
+      {/* Glow decorativo */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden">
+        <div className="h-[400px] w-[400px] rounded-full bg-[#FF6F1E] opacity-[0.05] blur-3xl" />
       </div>
-      <h2 className="mb-2 text-xl font-semibold text-[hsl(var(--foreground))]">
-        Sessão de revisão
-      </h2>
-      <p className="max-w-sm text-sm text-[hsl(var(--muted-foreground))]">
-        A Curia já tem o contexto do plano anterior. Conte o que avançou, o que
-        travou, e mostre os números — o Board continua de onde parou.
-      </p>
-      <div className="mt-6">
-        <Button onClick={() => onSend('Vamos revisar o plano. O que avançou e o que travou.')}>
-          Iniciar revisão
-        </Button>
+
+      <div className="relative">
+        <span className="font-curia-rounded text-[#2B1A07] text-5xl leading-none mb-4 block">
+          Curia
+        </span>
+        <h2 className="font-curia-rounded text-xl text-[#2B1A07] mb-3">
+          Sessão de revisão
+        </h2>
+        <p className="max-w-sm font-curia-serif text-sm leading-relaxed text-[#2B1A07]/55">
+          A Curia já tem o contexto do plano anterior. Conte o que avançou, o que
+          travou, e mostre os números — o Board continua de onde parou.
+        </p>
+        <div className="mt-7">
+          <button
+            onClick={() => onSend('Vamos revisar o plano. O que avançou e o que travou.')}
+            className="inline-flex items-center gap-2 rounded-xl bg-[#FF6F1E] px-6 py-3 font-curia-serif text-sm font-semibold text-[#2B1A07] shadow-sm transition-all hover:opacity-90 active:scale-[0.98]"
+          >
+            Iniciar revisão
+          </button>
+        </div>
       </div>
     </div>
   )
