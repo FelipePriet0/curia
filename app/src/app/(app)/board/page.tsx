@@ -244,8 +244,10 @@ export default function BoardPage() {
 
         {isHomeMode ? (
           /* ── HOME: Chamber + welcome + centered input ── */
-          <div className="flex flex-1 flex-col overflow-y-auto">
-            <CuriaChambra state={chambraState} />
+          <div className="flex flex-1 flex-col items-center justify-center">
+            <div className="w-full" style={{ height: '58vh' }}>
+              <CuriaChambra state={chambraState} />
+            </div>
             <div className="board-home-content">
               <div className="board-welcome">
                 <span className="board-welcome-star">✦</span>
@@ -262,7 +264,9 @@ export default function BoardPage() {
         ) : (
           /* ── CHAT: Chamber (compact) + verdict + input ── */
           <>
-            <CuriaChambra state={chambraState} />
+            <div className="w-full" style={{ height: '42vh' }}>
+              <CuriaChambra state={chambraState} />
+            </div>
             <CouncilVerdict
               messages={messages}
               streamingContent={streamingContent}

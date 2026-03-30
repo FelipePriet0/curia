@@ -6,7 +6,6 @@
       {
         "id": "08703758b2d34271",
         "type": "tabs",
-        "dimension": 49.1751269035533,
         "children": [
           {
             "id": "52afeee4b48d0664",
@@ -28,37 +27,16 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Pontos a Colocar.md",
+                "file": "03 - Arquitetura — Loop de Revisão de Plano.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Pontos a Colocar"
+              "title": "03 - Arquitetura — Loop de Revisão de Plano"
             }
           }
         ],
         "currentTab": 1
-      },
-      {
-        "id": "9f673aab16e53f96",
-        "type": "tabs",
-        "dimension": 50.8248730964467,
-        "children": [
-          {
-            "id": "5819ae80940ed105",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Pontos a Colocar.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Pontos a Colocar"
-            }
-          }
-        ]
       }
     ],
     "direction": "vertical"
@@ -222,15 +200,15 @@
   },
   "active": "6446627756b74fd8",
   "lastOpenFiles": [
+    "01 - O que é a Curia.md",
+    "02 - Como o Projeto Funciona (Visão Técnica).md",
+    "Pontos a Colocar.md",
     "Plano 5 — Contexto por Estratégia.md",
     "Pasted image 20260325195306.png",
     "Melhorias de Produto.md",
     "🏛️ CURIA UI UX BRIEF (VERSÃO OFICIAL).md",
-    "Pontos a Colocar.md",
-    "01 - O que é a Curia.md",
     "Pontos para refinar.md",
     "03 - Arquitetura — Loop de Revisão de Plano.md",
-    "02 - Como o Projeto Funciona (Visão Técnica).md",
     "V1/Cases — Forçar SDR sempre buscar.md",
     "Plano 1 — Insights como Perguntas + Pensar Junto.md",
     "Plano 2 — Índice de Frameworks.md",
