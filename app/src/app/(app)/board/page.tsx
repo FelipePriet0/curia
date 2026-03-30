@@ -10,6 +10,7 @@ import { CouncilVerdict } from '@/components/board/chamber/CouncilVerdict'
 import { CouncilInput } from '@/components/board/chamber/CouncilInput'
 import { getChambraState } from '@/components/board/chamber/chambraStates'
 import { hasStrategyProposal, extractStrategyProposal, stripStrategyMarker } from '@/lib/metrics/detectors'
+import { createClient } from '@/lib/supabase/client'
 import type { Conversation, Message, Plan, Strategy, StrategyProposal } from '@/types'
 
 export default function BoardPage() {
@@ -21,21 +22,31 @@ export default function BoardPage() {
   const [loadingConvs, setLoadingConvs] = useState(true)
   const [plans, setPlans] = useState<Plan[]>([])
   const [dismissedReviews, setDismissedReviews] = useState<Set<string>>(new Set())
-
-  // Plano 5: strategies
   const [strategies, setStrategies] = useState<Strategy[]>([])
   const [strategyProposal, setStrategyProposal] = useState<StrategyProposal | null>(null)
+  const [userName, setUserName] = useState<string | null>(null)
 
   useEffect(() => {
     loadConversations()
     loadPlans()
     loadStrategies()
+
+    // Fetch user name from Supabase auth
+    const fetchUser = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const full = user.user_metadata?.full_name ?? user.user_metadata?.name ?? user.email?.split('@')[0] ?? null
+        // Use only first name
+        setUserName(full ? full.split(' ')[0] : null)
+      }
+    }
+    fetchUser()
   }, [])
 
   useEffect(() => {
     if (activeId) loadMessages(activeId)
     else setMessages([])
-    // Clear proposal when switching conversations
     setStrategyProposal(null)
   }, [activeId])
 
@@ -52,32 +63,22 @@ export default function BoardPage() {
 
   async function loadPlans() {
     const res = await fetch('/api/plans')
-    if (res.ok) {
-      const data = await res.json()
-      setPlans(data)
-    }
+    if (res.ok) setPlans(await res.json())
   }
 
   async function loadStrategies() {
     const res = await fetch('/api/strategies')
-    if (res.ok) {
-      const data = await res.json()
-      setStrategies(data)
-    }
+    if (res.ok) setStrategies(await res.json())
   }
 
   async function loadMessages(convId: string) {
     const res = await fetch(`/api/conversations/${convId}/messages`)
-    if (res.ok) {
-      const data = await res.json()
-      setMessages(data)
-    }
+    if (res.ok) setMessages(await res.json())
   }
 
   async function handleNewConversation(strategyId?: string) {
     const body: Record<string, string> = { title: 'New conversation' }
     if (strategyId) body.strategy_id = strategyId
-
     const res = await fetch('/api/conversations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -92,21 +93,14 @@ export default function BoardPage() {
     }
   }
 
-  // Plano 5: open or create conversation for a strategy
   async function handleStrategySelect(strategy: Strategy) {
-    // Find the most recent conversation for this strategy
     const strategyConv = conversations
       .filter((c) => c.strategy_id === strategy.id)
       .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())[0]
-
-    if (strategyConv) {
-      setActiveId(strategyConv.id)
-    } else {
-      await handleNewConversation(strategy.id)
-    }
+    if (strategyConv) setActiveId(strategyConv.id)
+    else await handleNewConversation(strategy.id)
   }
 
-  // Plano 5: user confirmed saving a strategy
   async function handleStrategySaved(_strategyId: string, _strategyName: string) {
     setStrategyProposal(null)
     await loadStrategies()
@@ -183,7 +177,6 @@ export default function BoardPage() {
           setStreamingContent(full)
         }
 
-        // Plano 5: detect strategy proposal in response
         if (hasStrategyProposal(full)) {
           const proposal = extractStrategyProposal(full)
           if (proposal) setStrategyProposal(proposal)
@@ -197,7 +190,6 @@ export default function BoardPage() {
           created_at: new Date().toISOString(),
         }
         setMessages((prev) => [...prev, assistantMsg])
-
         await loadConversations()
       } catch (err) {
         console.error('[BoardPage] Stream error:', err)
@@ -218,11 +210,8 @@ export default function BoardPage() {
     return rd <= today
   })
 
-  const chambraState = getChambraState({
-    isStreaming,
-    hasMessages: messages.length > 0,
-    streamingContent,
-  })
+  const chambraState = getChambraState({ isStreaming, hasMessages: messages.length > 0, streamingContent })
+  const isHomeMode = messages.length === 0 && !isStreaming
 
   return (
     <div className="flex h-screen" style={{ background: '#FDFBF9' }}>
@@ -241,7 +230,7 @@ export default function BoardPage() {
         />
       </aside>
 
-      {/* Chamber main */}
+      {/* Main */}
       <main className="flex flex-1 flex-col overflow-hidden" style={{ background: '#FDFBF9' }}>
         {/* Review banners */}
         {pendingReviews.map((plan) => (
@@ -253,18 +242,35 @@ export default function BoardPage() {
           />
         ))}
 
-        {/* Chamber visual */}
-        <CuriaChambra state={chambraState} />
-
-        {/* Verdict / response area */}
-        <CouncilVerdict
-          messages={messages}
-          streamingContent={streamingContent}
-          isStreaming={isStreaming}
-        />
-
-        {/* Input */}
-        <CouncilInput onSend={handleSend} isStreaming={isStreaming} />
+        {isHomeMode ? (
+          /* ── HOME: Chamber + welcome + centered input ── */
+          <div className="flex flex-1 flex-col overflow-y-auto">
+            <CuriaChambra state={chambraState} />
+            <div className="board-home-content">
+              <div className="board-welcome">
+                <span className="board-welcome-star">✦</span>
+                <h1 className="board-welcome-title">
+                  Olá{userName ? `, ${userName}` : ''}
+                </h1>
+                <p className="board-welcome-sub">
+                  Qual é o seu maior desafio estratégico hoje?
+                </p>
+              </div>
+              <CouncilInput onSend={handleSend} isStreaming={isStreaming} variant="home" />
+            </div>
+          </div>
+        ) : (
+          /* ── CHAT: Chamber (compact) + verdict + input ── */
+          <>
+            <CuriaChambra state={chambraState} />
+            <CouncilVerdict
+              messages={messages}
+              streamingContent={streamingContent}
+              isStreaming={isStreaming}
+            />
+            <CouncilInput onSend={handleSend} isStreaming={isStreaming} variant="chat" />
+          </>
+        )}
       </main>
     </div>
   )

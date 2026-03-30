@@ -151,6 +151,165 @@
   letter-spacing: 0.04em;
 }
 
+/* ─── Council Input v2 (home + chat variants) ─── */
+
+/* Home variant — centered, large */
+.council-input-home-wrap {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* Chat variant — bottom bar */
+.council-input-chat-wrap {
+  padding: 0.75rem 1.5rem 0.75rem;
+  background: #FDFBF9;
+  border-top: 1px solid hsl(var(--border));
+}
+
+/* Shared input box */
+.council-input-box {
+  background: #fff;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--brand-radius-lg);
+  padding: 0.75rem 0.75rem 0.6rem 1rem;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.council-input-box:focus-within {
+  border-color: rgba(255, 111, 30, 0.45);
+  box-shadow: 0 0 0 3px rgba(255, 111, 30, 0.07), 0 2px 20px rgba(255, 111, 30, 0.05);
+}
+
+.council-textarea-home {
+  min-height: 64px;
+}
+
+/* Footer row: tools left, send right */
+.council-input-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.council-input-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* "+" button */
+.council-tool-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid hsl(var(--border));
+  background: transparent;
+  color: rgba(43, 26, 7, 0.45);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.council-tool-btn:hover:not(:disabled) {
+  background: rgba(43, 26, 7, 0.06);
+  color: rgba(43, 26, 7, 0.75);
+}
+
+.council-tool-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Model badge */
+.council-model-badge {
+  font-size: 0.7rem;
+  font-family: Inter, ui-sans-serif, sans-serif;
+  letter-spacing: 0.04em;
+  color: rgba(43, 26, 7, 0.4);
+  background: rgba(43, 26, 7, 0.05);
+  border: 1px solid rgba(43, 26, 7, 0.10);
+  border-radius: 20px;
+  padding: 0.15rem 0.55rem;
+  user-select: none;
+}
+
+/* Round send button */
+.council-send-round {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: none;
+  background: #FF6F1E;
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.council-send-round:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.council-send-round:disabled {
+  background: rgba(43, 26, 7, 0.12);
+  color: rgba(43, 26, 7, 0.3);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ─── Board Home layout ─── */
+
+.board-home-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 2rem 3rem;
+  gap: 1.75rem;
+  width: 100%;
+}
+
+.board-welcome {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.board-welcome-star {
+  font-size: 1.6rem;
+  color: #C9A84C;
+  line-height: 1;
+  margin-bottom: 0.2rem;
+}
+
+.board-welcome-title {
+  font-family: 'Eczar', Georgia, serif;
+  font-size: 1.85rem;
+  font-weight: 600;
+  color: #2B1A07;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.board-welcome-sub {
+  font-family: 'Eczar', Georgia, serif;
+  font-size: 0.95rem;
+  color: rgba(43, 26, 7, 0.50);
+  margin: 0;
+}
+
 /* ─── Council Verdict ─── */
 .council-verdict-wrapper {
   flex: 1;

@@ -42,6 +42,8 @@ export function ConversationList({
     return acc
   }, {})
 
+  const isEmpty = !loading && conversations.length === 0 && strategies.length === 0 && activePlans.length === 0
+
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
@@ -52,7 +54,7 @@ export function ConversationList({
         </Button>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto flex flex-col">
         {/* Strategies section */}
         {strategies.length > 0 && (
           <div className="p-2 pb-0">
@@ -168,24 +170,35 @@ export function ConversationList({
         )}
 
         {/* Regular Conversations */}
-        <nav className="p-2 space-y-1">
-          {loading ? (
-            <div className="space-y-1 p-2">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-9 rounded-xl bg-[#2B1A07]/[0.06] animate-pulse" />
-              ))}
+        {loading ? (
+          <div className="p-3 space-y-1">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-9 rounded-xl bg-[#2B1A07]/[0.06] animate-pulse" />
+            ))}
+          </div>
+        ) : isEmpty ? (
+          /* ── Empty state: centered in sidebar ── */
+          <div className="flex flex-1 flex-col items-center justify-center px-6 py-10 text-center">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#2B1A07]/[0.06]">
+              <MessageSquare className="h-5 w-5 text-[#2B1A07]/35" />
             </div>
-          ) : regularConversations.length === 0 && strategies.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center px-4">
-              <MessageSquare className="h-8 w-8 text-[#2B1A07]/25 mb-2" />
-              <p className="font-curia-serif text-xs text-[#2B1A07]/40">
-                Nenhuma conversa ainda.
-                <br />
-                Traga um problema estratégico para o Board.
-              </p>
-            </div>
-          ) : (
-            regularConversations.map((conv) => (
+            <p className="font-curia-serif text-sm text-[#2B1A07]/60 leading-relaxed mb-1">
+              Você ainda não tem nenhuma consulta aberta.
+            </p>
+            <p className="font-curia-serif text-xs text-[#2B1A07]/38 mb-5">
+              Traga um desafio estratégico ao Conselho.
+            </p>
+            <button
+              onClick={onNew}
+              className="flex items-center gap-1.5 rounded-xl bg-[#FF6F1E] px-4 py-2 text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Começar agora
+            </button>
+          </div>
+        ) : (
+          <nav className="p-2 space-y-1">
+            {regularConversations.map((conv) => (
               <button
                 key={conv.id}
                 onClick={() => onSelect(conv.id)}
@@ -198,9 +211,9 @@ export function ConversationList({
               >
                 {conv.title}
               </button>
-            ))
-          )}
-        </nav>
+            ))}
+          </nav>
+        )}
       </div>
     </div>
   )
