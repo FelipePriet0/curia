@@ -41,7 +41,7 @@ export function ChatInput({ onSend, disabled, placeholder }: ChatInputProps) {
   }
 
   return (
-    <div className="flex items-end gap-2 rounded-[var(--brand-radius-xl)] border border-[hsl(var(--border))] bg-[hsl(var(--background))] p-3 shadow-sm">
+    <div className="flex items-end gap-2 rounded-xl border border-[#2B1A07]/12 bg-white p-3 shadow-sm transition-shadow focus-within:shadow-md focus-within:border-[#FF6F1E]/40">
       <Textarea
         ref={textareaRef}
         value={value}
@@ -49,21 +49,20 @@ export function ChatInput({ onSend, disabled, placeholder }: ChatInputProps) {
         onKeyDown={handleKeyDown}
         onInput={handleInput}
         disabled={disabled}
-        placeholder={placeholder || 'Ask your strategic board anything...'}
+        placeholder={placeholder || 'Traga uma decisão ou problema estratégico para o Board...'}
         rows={1}
         className={cn(
           'min-h-[36px] border-0 bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0',
-          'text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]'
+          'font-curia-serif text-sm text-[#2B1A07] placeholder:text-[#2B1A07]/35'
         )}
       />
-      <Button
-        size="icon"
+      <button
         onClick={handleSend}
         disabled={disabled || !value.trim()}
-        className="shrink-0"
+        className="shrink-0 flex h-9 w-9 items-center justify-center rounded-lg bg-[#FF6F1E] text-[#2B1A07] shadow-sm transition-all hover:opacity-90 active:scale-95 disabled:pointer-events-none disabled:opacity-30"
       >
         <Send className="h-4 w-4" />
-      </Button>
+      </button>
     </div>
   )
 }

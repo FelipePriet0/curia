@@ -186,7 +186,7 @@ export function ScrollTimeline({ steps, className = "" }: ScrollTimelineProps) {
 
           return (
           <div
-            ref={(el) => (stepRefs.current[i] = el)}
+            ref={(el) => { stepRefs.current[i] = el }}
             key={i}
             className="relative pb-16 last:pb-0"
           >
