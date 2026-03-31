@@ -244,13 +244,12 @@ export default function BoardPage() {
 
         {isHomeMode ? (
           /* ── HOME: Chamber + welcome + centered input ── */
-          <div className="flex flex-1 flex-col items-center justify-center">
-            <div className="w-full" style={{ height: '58vh' }}>
+          <div className="flex flex-1 flex-col min-h-0 items-center justify-center">
+            <div className="w-full min-h-0" style={{ height: '38vh' }}>
               <CuriaChambra state={chambraState} />
             </div>
             <div className="board-home-content">
               <div className="board-welcome">
-                <span className="board-welcome-star">✦</span>
                 <h1 className="board-welcome-title">
                   Olá{userName ? `, ${userName}` : ''}
                 </h1>
@@ -264,7 +263,7 @@ export default function BoardPage() {
         ) : (
           /* ── CHAT: Chamber (compact) + verdict + input ── */
           <>
-            <div className="w-full" style={{ height: '42vh' }}>
+            <div className="w-full" style={{ height: '28vh' }}>
               <CuriaChambra state={chambraState} />
             </div>
             <CouncilVerdict

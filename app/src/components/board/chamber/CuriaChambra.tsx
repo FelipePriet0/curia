@@ -54,14 +54,15 @@ const TABLE_RX = TABLE_R * SX * Math.SQRT2
 const TABLE_RY = TABLE_R * SY * Math.SQRT2
 const [TABLE_CX, TABLE_CY] = iso(0, 0, TABLE_H)
 
-// Per-counselor 3-face colors [top, right, left]
+// Per-counselor 3-face colors [top=light, right=mid, left=shadow]
+// Light source: top-left → top face brightest, right face medium, left face deep shadow
 const CHAR_COLORS: [string, string, string][] = [
-  ['#EAC96A', '#C9A84C', '#9A7E30'],  // Estratégia — gold
-  ['#C8D8E4', '#A0B8C4', '#6E90A0'],  // Finanças   — silver
-  ['#6AC090', '#4A9B6F', '#27764A'],  // Growth     — green
-  ['#6A90C8', '#4A6FA5', '#28507F'],  // Produto    — blue
-  ['#AABBD8', '#8A9BB4', '#637590'],  // Operações  — steel
-  ['#BD8ED8', '#9B6BB4', '#754E8C'],  // Marca      — purple
+  ['#F2D060', '#C8980C', '#6A4C00'],  // Estratégia — gold    (yellow, strong contrast)
+  ['#7EC8F0', '#3A88C0', '#0E4070'],  // Finanças   — blue    (clear, trustworthy)
+  ['#6AC090', '#2E8050', '#0A4020'],  // Growth     — green
+  ['#6A90C8', '#2E58A0', '#0A2858'],  // Produto    — blue-slate
+  ['#B0C0D8', '#6880A0', '#283850'],  // Operações  — steel
+  ['#D090E8', '#8840B8', '#420868'],  // Marca      — purple  (vibrant, distinctive)
 ]
 
 // Positions derived from screen-space: each seat ≈20px outside table ellipse edge,
@@ -85,62 +86,89 @@ function Chair({ ix, iy }: { ix: number; iy: number }) {
   const angleDeg = Math.atan2(sy - TABLE_CY, sx - TABLE_CX) * (180 / Math.PI)
   return (
     <g transform={`translate(${sx.toFixed(1)}, ${sy.toFixed(1)}) rotate(${(angleDeg + 90).toFixed(1)})`}>
-      <circle r={13} fill="#94a3b8" opacity={0.92} />
-      <path d="M -11 -13 Q 0 -20 11 -13" fill="none" stroke="#64748b" strokeWidth={4} strokeLinecap="round" />
+      {/* Seat shadow */}
+      <circle r={13} cy={2} fill="rgba(0,0,0,0.20)" />
+      {/* Seat — dark navy */}
+      <circle r={13} fill="#3D5472" />
+      {/* Seat subtle highlight */}
+      <circle r={8} cx={-2} cy={-2} fill="#485E80" opacity={0.35} />
+      {/* Backrest — two arcs for depth */}
+      <path d="M -11 -12 Q 0 -21 11 -12" fill="none" stroke="#2A3D58" strokeWidth={5} strokeLinecap="round" />
+      <path d="M -11 -12 Q 0 -21 11 -12" fill="none" stroke="#4A6488" strokeWidth={2.5} strokeLinecap="round" />
     </g>
   )
 }
 
-// Isometric box character — body keeps volume/posture; only the head face rotates toward table
+// Low-poly isometric character — fixed proportions (h≈3×w), defined lighting, grounded shadow
+// Light source: top-left → top=bright, right=mid, left=deep shadow
 function IsoCharacter({
   ix, iy, shirt,
 }: {
   ix: number; iy: number
   shirt: [string, string, string]
 }) {
-  const pants = ['#7A8CA3', '#5E6E83', '#6A7C91'] as [string, string, string]
-  const skin  = ['#F4D1B0', '#E2BFA0', '#D1AC8E'] as [string, string, string]
+  // Pants: neutral dark with strong face contrast
+  const pants = ['#5A6E88', '#384E68', '#182840'] as [string, string, string]
+  // Skin: warm, clear top/shadow separation
+  const skin  = ['#F8C880', '#D8944A', '#944820'] as [string, string, string]
+  // Shoes: near-black with subtle face separation
+  const shoes = ['#303840', '#181E28', '#080C14'] as [string, string, string]
 
-  const torso = { x: ix - 0.22, y: iy - 0.20, z: 0.22, w: 0.44, d: 0.44, h: 0.62 }
-  const legL  = { x: ix - 0.18, y: iy - 0.02, z: 0.00, w: 0.16, d: 0.16, h: 0.26 }
-  const legR  = { x: ix + 0.02, y: iy - 0.02, z: 0.00, w: 0.16, d: 0.16, h: 0.26 }
-  const armL  = { x: ix - 0.30, y: iy - 0.06, z: 0.50, w: 0.10, d: 0.30, h: 0.18 }
-  const armR  = { x: ix + 0.20, y: iy - 0.06, z: 0.50, w: 0.10, d: 0.30, h: 0.18 }
-  const shoeL = { x: ix - 0.18, y: iy + 0.12, z: 0.00, w: 0.16, d: 0.12, h: 0.08 }
-  const shoeR = { x: ix + 0.02, y: iy + 0.12, z: 0.00, w: 0.16, d: 0.12, h: 0.08 }
+  // Proportions: w=0.44 → total h≈1.32 (3×)
+  const torso = { x: ix - 0.22, y: iy - 0.20, z: 0.28, w: 0.44, d: 0.44, h: 0.58 }
+  const legL  = { x: ix - 0.20, y: iy - 0.02, z: 0.00, w: 0.18, d: 0.18, h: 0.28 }
+  const legR  = { x: ix + 0.02, y: iy - 0.02, z: 0.00, w: 0.18, d: 0.18, h: 0.28 }
+  const armL  = { x: ix - 0.32, y: iy - 0.08, z: 0.54, w: 0.10, d: 0.32, h: 0.18 }
+  const armR  = { x: ix + 0.22, y: iy - 0.08, z: 0.54, w: 0.10, d: 0.32, h: 0.18 }
+  const shoeL = { x: ix - 0.20, y: iy + 0.10, z: 0.00, w: 0.18, d: 0.14, h: 0.08 }
+  const shoeR = { x: ix + 0.02, y: iy + 0.10, z: 0.00, w: 0.18, d: 0.14, h: 0.08 }
+  const head  = { x: ix - 0.17, y: iy - 0.17, z: 0.92, w: 0.34, d: 0.34, h: 0.36 }
+  const hair  = { x: ix - 0.17, y: iy - 0.17, z: 1.26, w: 0.34, d: 0.34, h: 0.10 }
 
-  // Head: positioned at correct iso height, face rotated to look at table center
-  const [hx, hy] = iso(ix, iy, 1.07)
-  const angleDeg = Math.atan2(hy - TABLE_CY, hx - TABLE_CX) * (180 / Math.PI)
-  const faceDeg  = angleDeg + 270   // flip: now points TOWARD table, not away
+  // Ground shadow — blurred ellipse at floor level
+  const [gx, gy] = iso(ix, iy, 0)
 
   return (
     <g>
-      {/* Legs */}
-      <Box ix={legL.x} iy={legL.y} iz={legL.z} w={legL.w} d={legL.d} h={legL.h} ct={pants[0]} cr={pants[1]} cl={pants[2]} opacity={0.95} />
-      <Box ix={legR.x} iy={legR.y} iz={legR.z} w={legR.w} d={legR.d} h={legR.h} ct={pants[0]} cr={pants[1]} cl={pants[2]} opacity={0.95} />
-      {/* Shoes */}
-      <Box ix={shoeL.x} iy={shoeL.y} iz={shoeL.z} w={shoeL.w} d={shoeL.d} h={shoeL.h} ct="#1F2937" cr="#111827" cl="#111827" opacity={0.96} />
-      <Box ix={shoeR.x} iy={shoeR.y} iz={shoeR.z} w={shoeR.w} d={shoeR.d} h={shoeR.h} ct="#1F2937" cr="#111827" cl="#111827" opacity={0.96} />
-      {/* Torso */}
-      <Box ix={torso.x} iy={torso.y} iz={torso.z} w={torso.w} d={torso.d} h={torso.h} ct={shirt[0]} cr={shirt[1]} cl={shirt[2]} opacity={1} />
-      {/* Arms */}
-      <Box ix={armL.x} iy={armL.y} iz={armL.z} w={armL.w} d={armL.d} h={armL.h} ct={shirt[0]} cr={shirt[1]} cl={shirt[2]} opacity={1} />
-      <Box ix={armR.x} iy={armR.y} iz={armR.z} w={armR.w} d={armR.d} h={armR.h} ct={shirt[0]} cr={shirt[1]} cl={shirt[2]} opacity={1} />
-      {/* Hands */}
-      <Box ix={armL.x} iy={armL.y + armL.d} iz={armL.z} w={armL.w} d={0.08} h={0.10} ct={skin[0]} cr={skin[1]} cl={skin[2]} opacity={0.98} />
-      <Box ix={armR.x} iy={armR.y + armR.d} iz={armR.z} w={armR.w} d={0.08} h={0.10} ct={skin[0]} cr={skin[1]} cl={skin[2]} opacity={0.98} />
-      {/* Head — flat circle at iso z=1.07; face group rotated toward table */}
-      <g transform={`translate(${hx.toFixed(1)}, ${hy.toFixed(1)})`}>
-        <circle r="9" fill={skin[0]} />
-        <g transform={`rotate(${faceDeg.toFixed(1)})`}>
-          {/* Hair: back of head (local +Y = away from table) */}
-          <ellipse cx="0" cy="5.5" rx="8.5" ry="5" fill="#2B2B2B" opacity={0.78} />
-          {/* Eyes: front of head (local −Y = toward table) */}
-          <circle cx="-3" cy="-3" r="1.4" fill="#3A2A1A" opacity={0.68} />
-          <circle cx=" 3" cy="-3" r="1.4" fill="#3A2A1A" opacity={0.68} />
-        </g>
-      </g>
+      {/* ── Ground shadow (anchors character to floor) ── */}
+      <ellipse
+        cx={gx} cy={gy + 4}
+        rx={22} ry={10}
+        fill="rgba(0,0,0,0.28)"
+        style={{ filter: 'blur(5px)' }}
+      />
+
+      {/* ── Legs ── */}
+      <Box ix={legL.x} iy={legL.y} iz={legL.z} w={legL.w} d={legL.d} h={legL.h} ct={pants[0]} cr={pants[1]} cl={pants[2]} />
+      <Box ix={legR.x} iy={legR.y} iz={legR.z} w={legR.w} d={legR.d} h={legR.h} ct={pants[0]} cr={pants[1]} cl={pants[2]} />
+      {/* ── Shoes ── */}
+      <Box ix={shoeL.x} iy={shoeL.y} iz={shoeL.z} w={shoeL.w} d={shoeL.d} h={shoeL.h} ct={shoes[0]} cr={shoes[1]} cl={shoes[2]} />
+      <Box ix={shoeR.x} iy={shoeR.y} iz={shoeR.z} w={shoeR.w} d={shoeR.d} h={shoeR.h} ct={shoes[0]} cr={shoes[1]} cl={shoes[2]} />
+      {/* ── Torso ── */}
+      <Box ix={torso.x} iy={torso.y} iz={torso.z} w={torso.w} d={torso.d} h={torso.h} ct={shirt[0]} cr={shirt[1]} cl={shirt[2]} />
+      {/* ── Arms ── */}
+      <Box ix={armL.x} iy={armL.y} iz={armL.z} w={armL.w} d={armL.d} h={armL.h} ct={shirt[0]} cr={shirt[1]} cl={shirt[2]} />
+      <Box ix={armR.x} iy={armR.y} iz={armR.z} w={armR.w} d={armR.d} h={armR.h} ct={shirt[0]} cr={shirt[1]} cl={shirt[2]} />
+      {/* ── Hands ── */}
+      <Box ix={armL.x} iy={armL.y + armL.d} iz={armL.z} w={armL.w} d={0.08} h={0.10} ct={skin[0]} cr={skin[1]} cl={skin[2]} />
+      <Box ix={armR.x} iy={armR.y + armR.d} iz={armR.z} w={armR.w} d={0.08} h={0.10} ct={skin[0]} cr={skin[1]} cl={skin[2]} />
+      {/* ── Head ── */}
+      <Box ix={head.x} iy={head.y} iz={head.z} w={head.w} d={head.d} h={head.h} ct={skin[0]} cr={skin[1]} cl={skin[2]} />
+      {/* ── Hair (dark cap = reads as volume top) ── */}
+      <Box ix={hair.x} iy={hair.y} iz={hair.z} w={hair.w} d={hair.d} h={hair.h} ct="#2A1A0A" cr="#160C04" cl="#0A0402" />
+      {/* ── Eyes — placed on the RIGHT face (+X) of the head, the visible front face ── */}
+      {(() => {
+        const [e1x, e1y] = iso(head.x + head.w, head.y + head.d * 0.28, head.z + head.h * 0.62)
+        const [e2x, e2y] = iso(head.x + head.w, head.y + head.d * 0.72, head.z + head.h * 0.62)
+        return (
+          <>
+            <circle cx={e1x} cy={e1y} r={2.2} fill="#1A0804" />
+            <circle cx={e2x} cy={e2y} r={2.2} fill="#1A0804" />
+            <circle cx={e1x - 0.7} cy={e1y - 0.7} r={0.8} fill="white" opacity={0.90} />
+            <circle cx={e2x - 0.7} cy={e2y - 0.7} r={0.8} fill="white" opacity={0.90} />
+          </>
+        )
+      })()}
     </g>
   )
 }
@@ -206,11 +234,13 @@ export function CuriaChambra({ state }: { state: ChambraState }) {
 
   return (
     <div className="curia-chamber-wrapper">
-      <svg viewBox="0 0 800 440" className="curia-chamber-svg" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="230 120 340 280" className="curia-chamber-svg" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <radialGradient id="mt-grad" cx="38%" cy="32%" r="68%">
-            <stop offset="0%"   stopColor="#dbe4ef" />
-            <stop offset="100%" stopColor="#bfcbda" />
+          {/* Warm wood surface gradient — matches reference */}
+          <radialGradient id="mt-grad" cx="40%" cy="36%" r="62%">
+            <stop offset="0%"   stopColor="#D4BC8C" />
+            <stop offset="60%"  stopColor="#C4A870" />
+            <stop offset="100%" stopColor="#B09050" />
           </radialGradient>
         </defs>
 
@@ -239,29 +269,34 @@ export function CuriaChambra({ state }: { state: ChambraState }) {
         {/* ════════════════════════════════════════════════════════════
             ROUND TABLE
         ════════════════════════════════════════════════════════════ */}
-        {/* Drop shadow */}
+        {/* ── Drop shadow ── */}
         <ellipse
-          cx={TABLE_CX} cy={TABLE_CY + 5}
-          rx={TABLE_RX + 4} ry={TABLE_RY + 3}
-          fill="rgba(0,0,0,0.09)"
-          style={{ filter: 'blur(4px)' }}
+          cx={TABLE_CX} cy={TABLE_CY + 14}
+          rx={TABLE_RX + 6} ry={TABLE_RY + 4}
+          fill="rgba(0,0,0,0.18)"
+          style={{ filter: 'blur(6px)' }}
         />
-        {/* Table surface */}
+        {/* ── Cylinder rim — bottom face (darkest) ── */}
+        <ellipse
+          cx={TABLE_CX} cy={TABLE_CY + 9}
+          rx={TABLE_RX} ry={TABLE_RY}
+          fill="#7A5A28"
+        />
+        {/* ── Cylinder rim — top band (mid-tone wood) ── */}
+        <ellipse
+          cx={TABLE_CX} cy={TABLE_CY + 4}
+          rx={TABLE_RX} ry={TABLE_RY}
+          fill="#A07838"
+        />
+        {/* ── Table surface (top face) ── */}
         <ellipse
           cx={TABLE_CX} cy={TABLE_CY}
           rx={TABLE_RX} ry={TABLE_RY}
           fill="url(#mt-grad)"
-          stroke="#94a3b8"
-          strokeWidth={isActive ? 2 : 1.5}
-          style={{ filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.10))' }}
+          stroke="#9A7840"
+          strokeWidth="0.8"
         />
-        {/* Inner ring detail */}
-        <ellipse
-          cx={TABLE_CX} cy={TABLE_CY}
-          rx={TABLE_RX * 0.72} ry={TABLE_RY * 0.72}
-          fill="none" stroke="#aabbd0" strokeWidth="0.6" opacity="0.45"
-        />
-        {/* Center glow (state feedback) */}
+        {/* ── State glow — centre of table (reactive) ── */}
         <ellipse
           cx={TABLE_CX} cy={TABLE_CY}
           rx={isVerdict ? 62 : isActive ? 44 : 20}
@@ -313,16 +348,7 @@ export function CuriaChambra({ state }: { state: ChambraState }) {
           )
         })}
 
-        {/* ── CURIA watermark ── */}
-        <text
-          x="400" y="432"
-          textAnchor="middle" fontSize="8" fill="#C9A84C" opacity="0.15"
-          fontFamily="Inter, ui-sans-serif, sans-serif"
-          letterSpacing="0.3em"
-          style={{ textTransform: 'uppercase', userSelect: 'none' }}
-        >
-          CURIA
-        </text>
+
       </svg>
     </div>
   )
