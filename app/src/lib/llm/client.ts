@@ -235,6 +235,25 @@ async function streamWithClaude(options: LLMOptions): Promise<ReadableStream<str
   })
 }
 
+// ─── Title generation (Haiku — fast, no streaming) ───────────────────────────
+
+export async function generateConversationTitle(firstMessage: string): Promise<string> {
+  const client = getAnthropicClient()
+  try {
+    const response = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 24,
+      system:
+        'Gere um título conciso (3 a 6 palavras) em português para uma conversa estratégica que começa com a mensagem do usuário. Retorne APENAS o título — sem aspas, sem ponto final, sem explicação.',
+      messages: [{ role: 'user', content: firstMessage.slice(0, 400) }],
+    })
+    const text = (response.content[0] as { type: string; text: string }).text?.trim()
+    return text || firstMessage.slice(0, 50)
+  } catch {
+    return firstMessage.slice(0, 50)
+  }
+}
+
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 export async function streamBoardResponse(

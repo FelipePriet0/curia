@@ -79,16 +79,22 @@ export default function BoardPage() {
   }
 
   async function handleNewConversation(strategyId?: string) {
-    const body: Record<string, string> = { title: 'New conversation' }
-    if (strategyId) body.strategy_id = strategyId
+    // Without strategyId: just reset to home — conversation is created on first send
+    if (!strategyId) {
+      setActiveId(undefined)
+      setMessages([])
+      setStrategyProposal(null)
+      return
+    }
+    // With strategyId: create immediately (needs the FK)
     const res = await fetch('/api/conversations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ title: 'Nova estratégia', strategy_id: strategyId }),
     })
     if (res.ok) {
       const conv = await res.json()
-      await loadConversations()
+      setConversations((prev) => [conv, ...prev])
       setActiveId(conv.id)
       setMessages([])
       setStrategyProposal(null)
@@ -132,12 +138,13 @@ export default function BoardPage() {
   const handleSend = useCallback(
     async (text: string) => {
       let convId = activeId
+      const isFirstMessage = messages.length === 0
 
       if (!convId) {
         const res = await fetch('/api/conversations', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title: 'New conversation' }),
+          body: JSON.stringify({ title: text.slice(0, 60) }),
         })
         if (!res.ok) return
         const conv = await res.json()
@@ -192,7 +199,23 @@ export default function BoardPage() {
           created_at: new Date().toISOString(),
         }
         setMessages((prev) => [...prev, assistantMsg])
-        await loadConversations()
+
+        // After first message: generate AI title in background and update sidebar
+        if (isFirstMessage) {
+          const fid = convId
+          fetch(`/api/conversations/${fid}/title`, { method: 'POST' })
+            .then((r) => r.ok ? r.json() : null)
+            .then((data) => {
+              if (data?.title) {
+                setConversations((prev) =>
+                  prev.map((c) => c.id === fid ? { ...c, title: data.title } : c)
+                )
+              }
+            })
+            .catch(() => {})
+        } else {
+          await loadConversations()
+        }
       } catch (err) {
         console.error('[BoardPage] Stream error:', err)
       } finally {
