@@ -2,7 +2,8 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { ConversationList } from '@/components/board/ConversationList'
 import { ReviewBanner } from '@/components/board/ReviewBanner'
 import { CuriaChambra } from '@/components/board/chamber/CuriaChambra'
@@ -25,6 +26,7 @@ export default function BoardPage() {
   const [strategies, setStrategies] = useState<Strategy[]>([])
   const [strategyProposal, setStrategyProposal] = useState<StrategyProposal | null>(null)
   const [userName, setUserName] = useState<string | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   useEffect(() => {
     loadConversations()
@@ -213,25 +215,63 @@ export default function BoardPage() {
   const chambraState = getChambraState({ isStreaming, hasMessages: messages.length > 0, streamingContent })
   const isHomeMode = messages.length === 0 && !isStreaming
 
+  function handleConversationUpdate(updated: Conversation) {
+    setConversations((prev) => prev.map((c) => c.id === updated.id ? updated : c))
+    // If archived the active conversation, clear it
+    if (updated.archived && activeId === updated.id) {
+      setActiveId(undefined)
+      setMessages([])
+    }
+  }
+
+  function handleConversationDelete(id: string) {
+    setConversations((prev) => prev.filter((c) => c.id !== id))
+    if (activeId === id) {
+      setActiveId(undefined)
+      setMessages([])
+    }
+  }
+
   return (
     <div className="flex h-screen" style={{ background: '#FDFBF9' }}>
       {/* Sidebar */}
-      <aside className="w-60 shrink-0 border-r border-[hsl(var(--border))]" style={{ background: '#F5F0EC' }}>
-        <ConversationList
-          conversations={conversations}
-          activeId={activeId}
-          onSelect={setActiveId}
-          onNew={() => handleNewConversation()}
-          loading={loadingConvs}
-          plans={plans}
-          onPlanSelect={(plan) => handleStartReview(plan.id)}
-          strategies={strategies}
-          onStrategySelect={handleStrategySelect}
-        />
+      <aside
+        className="shrink-0 border-r border-[hsl(var(--border))] transition-all duration-200 overflow-hidden"
+        style={{ width: sidebarOpen ? '15rem' : '0', background: '#F5F0EC' }}
+      >
+        <div className="w-60 h-full">
+          <ConversationList
+            conversations={conversations}
+            activeId={activeId}
+            onSelect={setActiveId}
+            onNew={() => handleNewConversation()}
+            loading={loadingConvs}
+            plans={plans}
+            onPlanSelect={(plan) => handleStartReview(plan.id)}
+            strategies={strategies}
+            onStrategySelect={handleStrategySelect}
+            onConversationUpdate={handleConversationUpdate}
+            onConversationDelete={handleConversationDelete}
+          />
+        </div>
       </aside>
 
       {/* Main */}
       <main className="flex flex-1 flex-col overflow-hidden" style={{ background: '#FDFBF9' }}>
+        {/* Topbar with sidebar toggle */}
+        <div className="flex items-center px-3 py-1.5 border-b border-[hsl(var(--border))]" style={{ minHeight: '40px' }}>
+          <button
+            onClick={() => setSidebarOpen((o) => !o)}
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-[#2B1A07]/40 hover:bg-[#2B1A07]/[0.06] hover:text-[#2B1A07]/70 transition-colors"
+            title={sidebarOpen ? 'Fechar sidebar' : 'Abrir sidebar'}
+          >
+            {sidebarOpen
+              ? <PanelLeftClose size={16} />
+              : <PanelLeftOpen size={16} />
+            }
+          </button>
+        </div>
+
         {/* Review banners */}
         {pendingReviews.map((plan) => (
           <ReviewBanner

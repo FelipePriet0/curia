@@ -1,6 +1,11 @@
 'use client'
 
-import { Plus, MessageSquare, ClipboardList, Calendar, Layers, ChevronRight } from 'lucide-react'
+import { useState, useRef, useEffect } from 'react'
+import {
+  Plus, Search, MessageSquare, MoreHorizontal,
+  Share2, Pin, PinOff, Pencil, Archive, Trash2, X, Check,
+  Layers, ClipboardList, Calendar, ChevronRight,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils/cn'
 import type { Conversation, Plan, Strategy } from '@/types'
@@ -15,8 +20,190 @@ interface ConversationListProps {
   onPlanSelect?: (plan: Plan) => void
   strategies?: Strategy[]
   onStrategySelect?: (strategy: Strategy) => void
+  onConversationUpdate?: (conv: Conversation) => void
+  onConversationDelete?: (id: string) => void
 }
 
+// ─── Conversation actions (API calls) ────────────────────────────────────────
+async function patchConversation(id: string, update: Record<string, unknown>): Promise<Conversation | null> {
+  const res = await fetch(`/api/conversations/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(update),
+  })
+  if (!res.ok) return null
+  return res.json()
+}
+
+async function deleteConversation(id: string): Promise<boolean> {
+  const res = await fetch(`/api/conversations/${id}`, { method: 'DELETE' })
+  return res.ok
+}
+
+// ─── 3-dot popover ───────────────────────────────────────────────────────────
+interface ConvMenuProps {
+  conv: Conversation
+  onClose: () => void
+  onRename: () => void
+  onPin: () => void
+  onArchive: () => void
+  onDelete: () => void
+  onShare: () => void
+}
+
+function ConvMenu({ conv, onClose, onRename, onPin, onArchive, onDelete, onShare }: ConvMenuProps) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose()
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [onClose])
+
+  const item = (icon: React.ReactNode, label: string, onClick: () => void, danger = false) => (
+    <button
+      onClick={() => { onClick(); onClose() }}
+      className={cn(
+        'flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs transition-colors text-left',
+        danger
+          ? 'text-red-600 hover:bg-red-50'
+          : 'text-[#2B1A07]/75 hover:bg-[#2B1A07]/[0.07] hover:text-[#2B1A07]'
+      )}
+    >
+      {icon}
+      {label}
+    </button>
+  )
+
+  return (
+    <div
+      ref={ref}
+      className="absolute right-0 top-7 z-50 w-48 rounded-xl border border-[hsl(var(--border))] bg-white py-1.5 shadow-lg"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {item(<Share2 size={13} />, 'Compartilhar', onShare)}
+      {item(conv.pinned ? <PinOff size={13} /> : <Pin size={13} />, conv.pinned ? 'Desafixar' : 'Fixar conversa', onPin)}
+      {item(<Pencil size={13} />, 'Renomear', onRename)}
+      <div className="mx-3 my-1 border-t border-[hsl(var(--border))]" />
+      {item(<Archive size={13} />, conv.archived ? 'Desarquivar' : 'Arquivar', onArchive)}
+      {item(<Trash2 size={13} />, 'Deletar', onDelete, true)}
+    </div>
+  )
+}
+
+// ─── Single conversation row ──────────────────────────────────────────────────
+interface ConvItemProps {
+  conv: Conversation
+  active: boolean
+  onSelect: () => void
+  onUpdate: (c: Conversation) => void
+  onDelete: () => void
+}
+
+function ConvItem({ conv, active, onSelect, onUpdate, onDelete }: ConvItemProps) {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [renaming, setRenaming] = useState(false)
+  const [renameVal, setRenameVal] = useState(conv.title)
+  const renameRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (renaming) renameRef.current?.select()
+  }, [renaming])
+
+  async function submitRename() {
+    const title = renameVal.trim()
+    if (!title || title === conv.title) { setRenaming(false); return }
+    const updated = await patchConversation(conv.id, { title })
+    if (updated) onUpdate(updated)
+    setRenaming(false)
+  }
+
+  async function handlePin() {
+    const updated = await patchConversation(conv.id, { pinned: !conv.pinned })
+    if (updated) onUpdate(updated)
+  }
+
+  async function handleArchive() {
+    const updated = await patchConversation(conv.id, { archived: !conv.archived })
+    if (updated) onUpdate(updated)
+  }
+
+  async function handleDelete() {
+    if (!confirm(`Deletar "${conv.title}"?`)) return
+    const ok = await deleteConversation(conv.id)
+    if (ok) onDelete()
+  }
+
+  function handleShare() {
+    navigator.clipboard.writeText(window.location.href).catch(() => {})
+  }
+
+  if (renaming) {
+    return (
+      <div className="flex items-center gap-1 rounded-xl px-2 py-1 bg-white border border-[rgba(255,111,30,0.4)]">
+        <input
+          ref={renameRef}
+          className="flex-1 min-w-0 bg-transparent text-sm text-[#2B1A07] outline-none font-curia-serif"
+          value={renameVal}
+          onChange={(e) => setRenameVal(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') submitRename()
+            if (e.key === 'Escape') setRenaming(false)
+          }}
+        />
+        <button onClick={submitRename} className="text-[#FF6F1E] hover:opacity-75"><Check size={13} /></button>
+        <button onClick={() => setRenaming(false)} className="text-[#2B1A07]/40 hover:opacity-75"><X size={13} /></button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="group relative">
+      <button
+        onClick={onSelect}
+        className={cn(
+          'w-full text-left rounded-xl px-3 py-2 font-curia-serif text-sm transition-all pr-8',
+          active
+            ? 'bg-[#FF6F1E] text-[#2B1A07] font-medium shadow-sm'
+            : 'text-[#2B1A07]/70 hover:bg-[#2B1A07]/[0.06] hover:text-[#2B1A07]'
+        )}
+      >
+        <span className="block truncate">{conv.title}</span>
+        {conv.pinned && (
+          <Pin size={9} className={cn('inline-block ml-1 -mt-0.5', active ? 'opacity-60' : 'text-[#C9A84C] opacity-70')} />
+        )}
+      </button>
+
+      {/* 3-dot button — visible on hover or when menu is open */}
+      <button
+        onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o) }}
+        className={cn(
+          'absolute right-1.5 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-lg transition-opacity',
+          active ? 'text-[#2B1A07]/60 hover:bg-black/10' : 'text-[#2B1A07]/40 hover:bg-[#2B1A07]/10',
+          menuOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+        )}
+      >
+        <MoreHorizontal size={13} />
+      </button>
+
+      {menuOpen && (
+        <ConvMenu
+          conv={conv}
+          onClose={() => setMenuOpen(false)}
+          onRename={() => setRenaming(true)}
+          onPin={handlePin}
+          onArchive={handleArchive}
+          onDelete={handleDelete}
+          onShare={handleShare}
+        />
+      )}
+    </div>
+  )
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
 export function ConversationList({
   conversations,
   activeId,
@@ -27,22 +214,50 @@ export function ConversationList({
   onPlanSelect,
   strategies = [],
   onStrategySelect,
+  onConversationUpdate,
+  onConversationDelete,
 }: ConversationListProps) {
+  const [search, setSearch] = useState('')
+
   const activePlans = plans.filter((p) => p.status === 'active')
+  const regularConvs = conversations.filter((c) => !c.strategy_id && !c.archived)
+  const strategyConvs = conversations.filter((c) => c.strategy_id && !c.archived)
+  const archivedConvs = conversations.filter((c) => c.archived)
 
-  // Conversations not linked to any strategy
-  const regularConversations = conversations.filter((c) => !c.strategy_id)
-
-  // Strategy conversations grouped by strategy_id
-  const strategyConversations = conversations.filter((c) => c.strategy_id)
-  const convsByStrategy = strategyConversations.reduce<Record<string, Conversation[]>>((acc, c) => {
+  const convsByStrategy = strategyConvs.reduce<Record<string, Conversation[]>>((acc, c) => {
     const sid = c.strategy_id!
     if (!acc[sid]) acc[sid] = []
     acc[sid].push(c)
     return acc
   }, {})
 
-  const isEmpty = !loading && conversations.length === 0 && strategies.length === 0 && activePlans.length === 0
+  // Filter by search
+  const filtered = (list: Conversation[]) =>
+    search ? list.filter((c) => c.title.toLowerCase().includes(search.toLowerCase())) : list
+
+  const pinnedConvs   = filtered(regularConvs.filter((c) => c.pinned))
+  const unpinnedConvs = filtered(regularConvs.filter((c) => !c.pinned))
+
+  const isEmpty = !loading && conversations.filter((c) => !c.archived).length === 0 && strategies.length === 0 && activePlans.length === 0
+
+  function handleUpdate(updated: Conversation) {
+    onConversationUpdate?.(updated)
+  }
+
+  function handleDelete(id: string) {
+    onConversationDelete?.(id)
+  }
+
+  const renderConv = (conv: Conversation) => (
+    <ConvItem
+      key={conv.id}
+      conv={conv}
+      active={activeId === conv.id}
+      onSelect={() => onSelect(conv.id)}
+      onUpdate={handleUpdate}
+      onDelete={() => handleDelete(conv.id)}
+    />
+  )
 
   return (
     <div className="flex h-full flex-col">
@@ -54,27 +269,41 @@ export function ConversationList({
         </Button>
       </div>
 
+      {/* Search */}
+      <div className="px-3 py-2 border-b border-[hsl(var(--border))]">
+        <div className="flex items-center gap-2 rounded-xl bg-[#2B1A07]/[0.05] px-3 py-1.5">
+          <Search className="h-3.5 w-3.5 shrink-0 text-[#2B1A07]/35" />
+          <input
+            type="text"
+            placeholder="Buscar conversa…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 bg-transparent text-xs text-[#2B1A07] placeholder-[#2B1A07]/35 outline-none font-curia-serif"
+          />
+          {search && (
+            <button onClick={() => setSearch('')} className="text-[#2B1A07]/35 hover:text-[#2B1A07]/60">
+              <X size={12} />
+            </button>
+          )}
+        </div>
+      </div>
+
       <div className="flex-1 overflow-y-auto flex flex-col">
-        {/* Strategies section */}
-        {strategies.length > 0 && (
+        {/* Strategies */}
+        {!search && strategies.length > 0 && (
           <div className="p-2 pb-0">
-            <p className="px-3 py-1.5 font-notably-alt text-[10px] tracking-wider text-[#2B1A07]/40">
-              Estratégias
-            </p>
+            <p className="px-3 py-1.5 font-notably-alt text-[10px] tracking-wider text-[#2B1A07]/40">Estratégias</p>
             <div className="space-y-1">
               {strategies.map((strategy) => {
-                const strategyConvs = convsByStrategy[strategy.id] ?? []
-                const hasActive = strategyConvs.some((c) => c.id === activeId)
-
+                const sConvs = convsByStrategy[strategy.id] ?? []
+                const hasActive = sConvs.some((c) => c.id === activeId)
                 return (
                   <div key={strategy.id}>
                     <button
                       onClick={() => onStrategySelect?.(strategy)}
                       className={cn(
                         'w-full text-left rounded-xl px-3 py-2 font-curia-serif text-sm transition-all',
-                        hasActive
-                          ? 'bg-[#FF6F1E]/15 text-[#2B1A07] font-medium'
-                          : 'text-[#2B1A07]/70 hover:bg-[#2B1A07]/[0.06] hover:text-[#2B1A07]'
+                        hasActive ? 'bg-[#FF6F1E]/15 text-[#2B1A07] font-medium' : 'text-[#2B1A07]/70 hover:bg-[#2B1A07]/[0.06] hover:text-[#2B1A07]'
                       )}
                     >
                       <div className="flex items-center gap-2">
@@ -83,24 +312,9 @@ export function ConversationList({
                         <ChevronRight className="h-3 w-3 shrink-0 text-[#2B1A07]/30" />
                       </div>
                     </button>
-
-                    {/* Conversations within this strategy */}
-                    {strategyConvs.length > 0 && (
+                    {sConvs.length > 0 && (
                       <div className="ml-4 mt-0.5 space-y-0.5 border-l border-[#FF6F1E]/20 pl-2">
-                        {strategyConvs.map((conv) => (
-                          <button
-                            key={conv.id}
-                            onClick={() => onSelect(conv.id)}
-                            className={cn(
-                              'w-full text-left rounded-lg px-2 py-1.5 font-curia-serif text-xs transition-all truncate',
-                              activeId === conv.id
-                                ? 'bg-[#FF6F1E] text-[#2B1A07] font-medium shadow-sm'
-                                : 'text-[#2B1A07]/55 hover:bg-[#2B1A07]/[0.06] hover:text-[#2B1A07]'
-                            )}
-                          >
-                            {conv.title}
-                          </button>
-                        ))}
+                        {sConvs.map((conv) => renderConv(conv))}
                       </div>
                     )}
                   </div>
@@ -111,23 +325,17 @@ export function ConversationList({
           </div>
         )}
 
-        {/* Active Plans section */}
-        {activePlans.length > 0 && (
+        {/* Active Plans */}
+        {!search && activePlans.length > 0 && (
           <div className="p-2 pb-0">
-            <p className="px-3 py-1.5 font-notably-alt text-[10px] tracking-wider text-[#2B1A07]/40">
-              Planos Ativos
-            </p>
+            <p className="px-3 py-1.5 font-notably-alt text-[10px] tracking-wider text-[#2B1A07]/40">Planos Ativos</p>
             <div className="space-y-1">
               {activePlans.map((plan) => {
                 const reviewDate = plan.review_date ? new Date(plan.review_date + 'T00:00:00') : null
-                const today = new Date()
-                today.setHours(0, 0, 0, 0)
-                const daysLeft = reviewDate
-                  ? Math.ceil((reviewDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-                  : null
+                const today = new Date(); today.setHours(0,0,0,0)
+                const daysLeft = reviewDate ? Math.ceil((reviewDate.getTime() - today.getTime()) / 86400000) : null
                 const overdue = daysLeft !== null && daysLeft < 0
                 const dueToday = daysLeft === 0
-
                 return (
                   <button
                     key={plan.id}
@@ -137,29 +345,14 @@ export function ConversationList({
                     <div className="flex items-start gap-2">
                       <ClipboardList className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#FF6F1E]" />
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs font-medium text-[#2B1A07]/80">
-                          {plan.title}
-                        </p>
+                        <p className="truncate text-xs font-medium text-[#2B1A07]/80">{plan.title}</p>
                         {reviewDate && (
-                          <p
-                            className={cn(
-                              'text-[10px]',
-                              overdue || dueToday
-                                ? 'text-[#FF6F1E] font-medium'
-                                : 'text-[#2B1A07]/45'
-                            )}
-                          >
-                            {overdue
-                              ? `Revisão atrasada`
-                              : dueToday
-                              ? 'Revisão hoje'
-                              : `Revisão em ${daysLeft}d`}
+                          <p className={cn('text-[10px]', overdue || dueToday ? 'text-[#FF6F1E] font-medium' : 'text-[#2B1A07]/45')}>
+                            {overdue ? 'Revisão atrasada' : dueToday ? 'Revisão hoje' : `Revisão em ${daysLeft}d`}
                           </p>
                         )}
                       </div>
-                      {(overdue || dueToday) && (
-                        <Calendar className="mt-0.5 h-3 w-3 shrink-0 text-[#FF6F1E]" />
-                      )}
+                      {(overdue || dueToday) && <Calendar className="mt-0.5 h-3 w-3 shrink-0 text-[#FF6F1E]" />}
                     </div>
                   </button>
                 )
@@ -169,7 +362,7 @@ export function ConversationList({
           </div>
         )}
 
-        {/* Regular Conversations */}
+        {/* Conversations */}
         {loading ? (
           <div className="p-3 space-y-1">
             {[...Array(4)].map((_, i) => (
@@ -177,7 +370,6 @@ export function ConversationList({
             ))}
           </div>
         ) : isEmpty ? (
-          /* ── Empty state: centered in sidebar ── */
           <div className="flex flex-1 flex-col items-center justify-center px-6 py-10 text-center">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#2B1A07]/[0.06]">
               <MessageSquare className="h-5 w-5 text-[#2B1A07]/35" />
@@ -197,21 +389,37 @@ export function ConversationList({
             </button>
           </div>
         ) : (
-          <nav className="p-2 space-y-1">
-            {regularConversations.map((conv) => (
-              <button
-                key={conv.id}
-                onClick={() => onSelect(conv.id)}
-                className={cn(
-                  'w-full text-left rounded-xl px-3 py-2 font-curia-serif text-sm transition-all truncate',
-                  activeId === conv.id
-                    ? 'bg-[#FF6F1E] text-[#2B1A07] font-medium shadow-sm'
-                    : 'text-[#2B1A07]/70 hover:bg-[#2B1A07]/[0.06] hover:text-[#2B1A07]'
+          <nav className="p-2 space-y-0.5">
+            {/* Pinned */}
+            {pinnedConvs.length > 0 && (
+              <>
+                <p className="px-3 py-1.5 font-notably-alt text-[10px] tracking-wider text-[#2B1A07]/40">Fixadas</p>
+                {pinnedConvs.map(renderConv)}
+                {unpinnedConvs.length > 0 && <div className="mx-1 my-1.5 border-t border-[hsl(var(--border))]" />}
+              </>
+            )}
+
+            {/* Regular */}
+            {unpinnedConvs.length > 0 && (
+              <>
+                {pinnedConvs.length > 0 && (
+                  <p className="px-3 py-1.5 font-notably-alt text-[10px] tracking-wider text-[#2B1A07]/40">Conversas</p>
                 )}
-              >
-                {conv.title}
-              </button>
-            ))}
+                {unpinnedConvs.map(renderConv)}
+              </>
+            )}
+
+            {/* Archived (collapsed) */}
+            {!search && archivedConvs.length > 0 && (
+              <details className="mt-2">
+                <summary className="cursor-pointer list-none px-3 py-1.5 font-notably-alt text-[10px] tracking-wider text-[#2B1A07]/30 hover:text-[#2B1A07]/50 transition-colors select-none">
+                  Arquivadas ({archivedConvs.length})
+                </summary>
+                <div className="mt-0.5 space-y-0.5">
+                  {archivedConvs.map(renderConv)}
+                </div>
+              </details>
+            )}
           </nav>
         )}
       </div>

@@ -24,6 +24,8 @@ export interface Conversation {
   strategy_id: string | null
   conversation_type: 'regular' | 'plan_origin' | 'plan_review' | 'strategy'
   title: string
+  pinned: boolean
+  archived: boolean
   created_at: string
   updated_at: string
 }
