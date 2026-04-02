@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { streamBoardResponse } from '@/lib/llm/client'
+import { streamBoardEvents } from '@/lib/llm/client'
 import { buildSystemPrompt } from '@/lib/llm/board-prompt'
-import { STRATEGY_PROPOSAL_MARKER } from '@/lib/llm/client'
 import type { LLMMessage } from '@/lib/llm/client'
-import type { PlanReviewContext, StrategyContext } from '@/types'
-import { isPlanRequest, hasDiagnosis, hasProblemCentral, stripStrategyMarker } from '@/lib/metrics/detectors'
+import type { QueryEvent } from '@/lib/llm/query-loop'
+import type { PlanReviewContext, StrategyContext, StrategyProposal } from '@/types'
+import { isPlanRequest, hasDiagnosis, hasProblemCentral } from '@/lib/metrics/detectors'
 import { trackEvent } from '@/lib/metrics/track'
 
-// GET /api/conversations/[id]/messages — fetch all messages in a conversation
+// GET /api/conversations/[id]/messages — buscar todas as mensagens
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -45,7 +45,7 @@ export async function GET(
   return NextResponse.json(data)
 }
 
-// POST /api/conversations/[id]/messages — send a message and stream response
+// POST /api/conversations/[id]/messages — enviar mensagem e stream NDJSON
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -102,7 +102,7 @@ export async function POST(
 
   const isFirstMessage = messages.filter((m) => m.role === 'assistant').length === 0
 
-  // Fetch plan context for review conversations
+  // Contexto de revisão de plano
   let planReview: PlanReviewContext | undefined
   if (conversation.conversation_type === 'plan_review' && conversation.plan_id) {
     const { data: plan } = await supabase
@@ -113,7 +113,7 @@ export async function POST(
     if (plan) planReview = plan as PlanReviewContext
   }
 
-  // Fetch strategy context (Plano 5)
+  // Contexto de estratégia
   let strategyContext: StrategyContext | undefined
   if (conversation.strategy_id) {
     const { data: strategy } = await supabase
@@ -152,36 +152,50 @@ export async function POST(
     }
   }
 
-  const llmStream = await streamBoardResponse({ system, messages })
+  const eventStream = streamBoardEvents({ system, messages, signal: req.signal })
 
-  let fullResponse = ''
-
+  // ── Readable stream: emite eventos NDJSON e salva no DB ao final ────────────
   const readable = new ReadableStream({
     async start(controller) {
       const encoder = new TextEncoder()
-      const reader = llmStream.getReader()
+      const reader = eventStream.getReader()
+
+      let fullText = ''
+      let strategyProposal: StrategyProposal | null = null
 
       try {
         while (true) {
           const { done, value } = await reader.read()
           if (done) break
-          fullResponse += value
+
+          // Parsear eventos para extrair texto e strategy proposal
+          const lines = value.split('\n')
+          for (const line of lines) {
+            const trimmed = line.trim()
+            if (!trimmed) continue
+            try {
+              const event = JSON.parse(trimmed) as QueryEvent
+              if (event.type === 'delta') fullText += event.text
+              if (event.type === 'done' && event.strategyProposal) {
+                strategyProposal = event.strategyProposal
+              }
+            } catch {}
+          }
+
           controller.enqueue(encoder.encode(value))
         }
       } finally {
         reader.releaseLock()
         controller.close()
 
-        // Strip strategy marker before saving to DB (marker is handled by front-end)
-        const contentToSave = stripStrategyMarker(fullResponse)
-
+        // ── Salvar resposta no DB ──────────────────────────────────────────────
         const { data: savedAssistant } = await supabase.from('messages').insert({
           conversation_id: id,
           role: 'assistant',
-          content: contentToSave,
+          content: fullText,
         }).select().single()
 
-        if (fullResponse && hasDiagnosis(fullResponse) && hasProblemCentral(fullResponse)) {
+        if (fullText && hasDiagnosis(fullText) && hasProblemCentral(fullText)) {
           await trackEvent(supabase as any, {
             userId: user.id,
             conversationId: id,
@@ -200,7 +214,7 @@ export async function POST(
 
   return new Response(readable, {
     headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
+      'Content-Type': 'application/x-ndjson; charset=utf-8',
       'X-Content-Type-Options': 'nosniff',
       'Transfer-Encoding': 'chunked',
     },

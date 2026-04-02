@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, forwardRef, useImperativeHandle } from 'react'
 import { ArrowUp, Plus } from 'lucide-react'
 
 interface CouncilInputProps {
@@ -9,9 +9,26 @@ interface CouncilInputProps {
   variant?: 'home' | 'chat'
 }
 
-export function CouncilInput({ onSend, isStreaming, variant = 'chat' }: CouncilInputProps) {
+export interface CouncilInputHandle {
+  focus: () => void
+  fill: (text: string) => void
+}
+
+export const CouncilInput = forwardRef<CouncilInputHandle, CouncilInputProps>(
+function CouncilInput({ onSend, isStreaming, variant = 'chat' }, ref) {
   const [value, setValue] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  useImperativeHandle(ref, () => ({
+    focus: () => textareaRef.current?.focus(),
+    fill: (text: string) => {
+      setValue(text)
+      setTimeout(() => {
+        textareaRef.current?.focus()
+        handleInput()
+      }, 0)
+    },
+  }))
 
   const handleSend = useCallback(() => {
     const text = value.trim()
@@ -83,4 +100,4 @@ export function CouncilInput({ onSend, isStreaming, variant = 'chat' }: CouncilI
       </div>
     </div>
   )
-}
+})

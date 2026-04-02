@@ -2,15 +2,22 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { useState, useEffect, useCallback, useRef, useReducer } from 'react'
+import { PanelLeftClose, PanelLeftOpen, GitFork, Compass, ShieldAlert, ClipboardCheck } from 'lucide-react'
 import { ConversationList } from '@/components/board/ConversationList'
 import { ReviewBanner } from '@/components/board/ReviewBanner'
 import { CuriaChambra } from '@/components/board/chamber/CuriaChambra'
 import { CouncilVerdict } from '@/components/board/chamber/CouncilVerdict'
-import { CouncilInput } from '@/components/board/chamber/CouncilInput'
+import { CouncilInput, type CouncilInputHandle } from '@/components/board/chamber/CouncilInput'
 import { getChambraState } from '@/components/board/chamber/chambraStates'
-import { hasStrategyProposal, extractStrategyProposal, stripStrategyMarker } from '@/lib/metrics/detectors'
+import type { QueryEvent } from '@/lib/llm/query-loop'
+import {
+  deliberationReducer,
+  getInitialDeliberationState,
+  contextBadgeLabel,
+  contextBadgeColor,
+  contextUsagePercent,
+} from '@/lib/deliberation/store'
 import { createClient } from '@/lib/supabase/client'
 import type { Conversation, Message, Plan, Strategy, StrategyProposal } from '@/types'
 
@@ -27,6 +34,11 @@ export default function BoardPage() {
   const [strategyProposal, setStrategyProposal] = useState<StrategyProposal | null>(null)
   const [userName, setUserName] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [deliberation, dispatchDeliberation] = useReducer(
+    deliberationReducer,
+    getInitialDeliberationState(),
+  )
+  const inputRef = useRef<CouncilInputHandle>(null)
 
   useEffect(() => {
     loadConversations()
@@ -84,6 +96,8 @@ export default function BoardPage() {
       setActiveId(undefined)
       setMessages([])
       setStrategyProposal(null)
+      // Focus input after React re-renders home mode
+      setTimeout(() => inputRef.current?.focus(), 50)
       return
     }
     // With strategyId: create immediately (needs the FK)
@@ -164,6 +178,7 @@ export default function BoardPage() {
       setIsStreaming(true)
       setStreamingContent('')
       setStrategyProposal(null)
+      dispatchDeliberation({ type: 'stream_start' })
 
       try {
         const res = await fetch(`/api/conversations/${convId}/messages`, {
@@ -177,25 +192,44 @@ export default function BoardPage() {
         const reader = res.body.getReader()
         const decoder = new TextDecoder()
         let full = ''
+        let lineBuffer = ''
+
+        const handleEvent = (event: QueryEvent) => {
+          // Propagar ao reducer (estado central)
+          dispatchDeliberation(event)
+
+          if (event.type === 'delta') {
+            full += event.text
+            setStreamingContent(full)
+          } else if (event.type === 'done' && event.strategyProposal) {
+            setStrategyProposal(event.strategyProposal)
+          }
+        }
 
         while (true) {
           const { done, value } = await reader.read()
           if (done) break
-          const chunk = decoder.decode(value, { stream: true })
-          full += chunk
-          setStreamingContent(full)
-        }
+          lineBuffer += decoder.decode(value, { stream: true })
 
-        if (hasStrategyProposal(full)) {
-          const proposal = extractStrategyProposal(full)
-          if (proposal) setStrategyProposal(proposal)
+          // Parsear linhas NDJSON completas
+          let newlineIdx: number
+          while ((newlineIdx = lineBuffer.indexOf('\n')) !== -1) {
+            const line = lineBuffer.slice(0, newlineIdx).trim()
+            lineBuffer = lineBuffer.slice(newlineIdx + 1)
+            if (!line) continue
+            try { handleEvent(JSON.parse(line) as QueryEvent) } catch {}
+          }
+        }
+        // Processar resto do buffer
+        if (lineBuffer.trim()) {
+          try { handleEvent(JSON.parse(lineBuffer.trim()) as QueryEvent) } catch {}
         }
 
         const assistantMsg: Message = {
           id: crypto.randomUUID(),
           conversation_id: convId!,
           role: 'assistant',
-          content: stripStrategyMarker(full),
+          content: full,
           created_at: new Date().toISOString(),
         }
         setMessages((prev) => [...prev, assistantMsg])
@@ -221,6 +255,7 @@ export default function BoardPage() {
       } finally {
         setIsStreaming(false)
         setStreamingContent('')
+        dispatchDeliberation({ type: 'stream_end' })
       }
     },
     [activeId]
@@ -259,7 +294,7 @@ export default function BoardPage() {
     <div className="flex h-screen" style={{ background: '#FDFBF9' }}>
       {/* Sidebar */}
       <aside
-        className="shrink-0 border-r border-[hsl(var(--border))] transition-all duration-200 overflow-hidden"
+        className="shrink-0 transition-all duration-200 overflow-hidden"
         style={{ width: sidebarOpen ? '15rem' : '0', background: '#F5F0EC' }}
       >
         <div className="w-60 h-full">
@@ -282,16 +317,13 @@ export default function BoardPage() {
       {/* Main */}
       <main className="flex flex-1 flex-col overflow-hidden" style={{ background: '#FDFBF9' }}>
         {/* Topbar with sidebar toggle */}
-        <div className="flex items-center px-3 py-1.5 border-b border-[hsl(var(--border))]" style={{ minHeight: '40px' }}>
+        <div className="flex items-center px-3 py-1.5" style={{ minHeight: '40px' }}>
           <button
             onClick={() => setSidebarOpen((o) => !o)}
             className="flex h-7 w-7 items-center justify-center rounded-lg text-[#2B1A07]/40 hover:bg-[#2B1A07]/[0.06] hover:text-[#2B1A07]/70 transition-colors"
             title={sidebarOpen ? 'Fechar sidebar' : 'Abrir sidebar'}
           >
-            {sidebarOpen
-              ? <PanelLeftClose size={16} />
-              : <PanelLeftOpen size={16} />
-            }
+            {sidebarOpen ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
           </button>
         </div>
 
@@ -309,32 +341,52 @@ export default function BoardPage() {
           /* ── HOME: Chamber + welcome + centered input ── */
           <div className="flex flex-1 flex-col min-h-0 items-center justify-center">
             <div className="w-full min-h-0" style={{ height: '38vh' }}>
-              <CuriaChambra state={chambraState} />
+              <CuriaChambra state={chambraState} activeCounselorIds={deliberation.activeCounselorIds} deliberation={deliberation} />
             </div>
             <div className="board-home-content">
               <div className="board-welcome">
                 <h1 className="board-welcome-title">
                   Olá{userName ? `, ${userName}` : ''}
                 </h1>
-                <p className="board-welcome-sub">
-                  Qual é o seu maior desafio estratégico hoje?
-                </p>
               </div>
-              <CouncilInput onSend={handleSend} isStreaming={isStreaming} variant="home" />
+              <p className="board-tribuna-label">
+                Apresente seu maior problema ao conselho.<br />Vamos resolvê-lo juntos.
+              </p>
+              <CouncilInput ref={inputRef} onSend={handleSend} isStreaming={isStreaming} variant="home" />
+              {/* Quick-start cards */}
+              <div className="board-quickstart-grid">
+                {[
+                  { icon: <GitFork size={14} />,       label: 'Tenho uma decisão difícil',    prompt: 'Preciso deliberar sobre uma decisão importante. ' },
+                  { icon: <Compass size={14} />,        label: 'Quero estruturar uma estratégia', prompt: 'Quero estruturar uma estratégia para ' },
+                  { icon: <ShieldAlert size={14} />,    label: 'Preciso mapear riscos',        prompt: 'Preciso identificar e mapear os riscos de ' },
+                  { icon: <ClipboardCheck size={14} />, label: 'Quero revisar um plano',       prompt: 'Quero revisar meu plano de ação para ' },
+                ].map(({ icon, label, prompt }) => (
+                  <button
+                    key={label}
+                    className="board-quickstart-card"
+                    onClick={() => inputRef.current?.fill(prompt)}
+                  >
+                    <span className="board-quickstart-icon">{icon}</span>
+                    <span className="board-quickstart-label">{label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         ) : (
           /* ── CHAT: Chamber (compact) + verdict + input ── */
           <>
             <div className="w-full" style={{ height: '28vh' }}>
-              <CuriaChambra state={chambraState} />
+              <CuriaChambra state={chambraState} activeCounselorIds={deliberation.activeCounselorIds} deliberation={deliberation} />
             </div>
-            <CouncilVerdict
-              messages={messages}
-              streamingContent={streamingContent}
-              isStreaming={isStreaming}
-            />
-            <CouncilInput onSend={handleSend} isStreaming={isStreaming} variant="chat" />
+            <div className="flex flex-1 flex-col min-h-0">
+              <CouncilVerdict
+                messages={messages}
+                streamingContent={streamingContent}
+                isStreaming={isStreaming}
+              />
+              <CouncilInput ref={inputRef} onSend={handleSend} isStreaming={isStreaming} variant="chat" />
+            </div>
           </>
         )}
       </main>

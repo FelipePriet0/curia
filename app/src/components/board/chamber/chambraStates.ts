@@ -19,27 +19,30 @@ export function getChambraState({
 
 export function getCounselorState(
   counselorId: string,
-  chambraState: ChambraState
+  chambraState: ChambraState,
+  activeCounselorIds?: Set<string>,
 ): CounselorState {
   if (chambraState === 'idle' || chambraState === 'verdict') return 'idle'
+
+  // Fase dos conselheiros: cada um anima quando está deliberando em paralelo
+  if (activeCounselorIds && activeCounselorIds.size > 0) {
+    return activeCounselorIds.has(counselorId) ? 'thinking' : 'active'
+  }
+
   if (chambraState === 'receiving') {
     return ['strategy', 'finance', 'growth'].includes(counselorId) ? 'active' : 'idle'
   }
-  // deliberating: all active, but with slight variation
+
+  // Fase de síntese: todos deliberando
   return 'thinking'
 }
 
-const DELIBERATION_KEYWORDS = [
-  'posicionamento', 'churn', 'LTV', 'CAC', 'flywheel',
-  'proposta de valor', 'unit economics', 'crescimento', 'risco',
-  'reposicionar', 'diferenciar', 'escalar', 'mercado', 'margem',
-  'retenção', 'estratégia', 'prioridade', 'gargalo', 'momentum',
-]
-
-let keywordIndex = 0
-
-export function getNextDeliberationKeyword(): string {
-  const kw = DELIBERATION_KEYWORDS[keywordIndex % DELIBERATION_KEYWORDS.length]
-  keywordIndex++
-  return kw
+/** Domain-specific keywords shown above each active counselor during deliberation */
+export const COUNSELOR_KEYWORDS: Record<string, string[]> = {
+  strategy:   ['posicionamento', 'vantagem competitiva', 'diagnóstico', 'framework'],
+  finance:    ['LTV/CAC', 'unit economics', 'margem', 'burn rate'],
+  growth:     ['PMF', 'flywheel', 'North Star', 'coortes'],
+  product:    ['jobs-to-be-done', 'aha moment', 'roadmap', 'churn'],
+  operations: ['gargalo', 'restrição', 'throughput', 'escala'],
+  brand:      ['percepção', 'mensagem', 'diferencial', 'voz'],
 }

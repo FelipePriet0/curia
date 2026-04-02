@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { COUNSELORS } from './counselors.config'
-import { getCounselorState, getNextDeliberationKeyword } from './chambraStates'
+import { getCounselorState, COUNSELOR_KEYWORDS } from './chambraStates'
 import type { ChambraState } from './chambraStates'
+import type { DeliberationState } from '@/lib/deliberation/store'
+import { contextBadgeLabel, contextBadgeColor, contextUsagePercent } from '@/lib/deliberation/store'
 
 // ─── Isometric Math ───────────────────────────────────────────────────────────
 // Origin (room center), scale factors
-const OX = 400, OY = 288
+const OX = 400, OY = 278
 const SX = 38   // screen px per iso X unit
 const SY = 21   // screen px per iso Y unit
 const SZ = 40   // screen px per iso Z unit (height)
@@ -24,6 +26,13 @@ function iso(ix: number, iy: number, iz = 0): [number, number] {
 function p(ix: number, iy: number, iz = 0): string {
   const [x, y] = iso(ix, iy, iz)
   return `${x.toFixed(1)},${y.toFixed(1)}`
+}
+
+/** Screen (sx, sy) → iso (ix, iy) at z=0 — back-projection */
+function screenToIso(sx: number, sy: number): [number, number] {
+  const u = (sx - OX) / SX  // ix - iy
+  const v = (sy - OY) / SY  // ix + iy
+  return [(u + v) / 2, (v - u) / 2]
 }
 
 // ─── Primitive: Isometric Box ─────────────────────────────────────────────────
@@ -46,13 +55,18 @@ function Box({ ix, iy, iz = 0, w, d, h, ct, cr, cl, opacity = 1 }: {
 }
 
 // ─── Scene constants ──────────────────────────────────────────────────────────
-const TABLE_H = 0.8   // table top height
-const TABLE_R = 1.30  // table radius in iso units
+const TABLE_H = 0.6   // table top height (raise to center among character bodies)
+const TABLE_R = 1.94  // table radius in iso units
 
 // Table ellipse in screen space
 const TABLE_RX = TABLE_R * SX * Math.SQRT2
 const TABLE_RY = TABLE_R * SY * Math.SQRT2
 const [TABLE_CX, TABLE_CY] = iso(0, 0, TABLE_H)
+
+// Seat ring is placed at ground level (OX, OY), independent of TABLE_H.
+// This lets the table height be tuned without displacing the characters.
+const SEAT_CX = OX
+const SEAT_CY = OY
 
 // Per-counselor 3-face colors [top=light, right=mid, left=shadow]
 // Light source: top-left → top face brightest, right face medium, left face deep shadow
@@ -65,20 +79,36 @@ const CHAR_COLORS: [string, string, string][] = [
   ['#D090E8', '#8840B8', '#420868'],  // Marca      — purple  (vibrant, distinctive)
 ]
 
-// Positions derived from screen-space: each seat ≈20px outside table ellipse edge,
-// then back-projected to iso coords so they appear symmetric around the table visually.
-// Back seats (ix+iy < 0 → drawn before table)
-const BACK_SEATS: [number, number, number, SeatConfig?][] = [
-  [-2.1, -2.1,  0],              // Estratégia — top center
-  [ 0.4, -2.0,  1, { arm: 'x' }],  // Finanças   — right
-  [-2.0,  0.4,  5, { arm: 'y' }],  // Marca      — left
+// ─── Seat layout ─────────────────────────────────────────────────────────────
+// Seats are defined by screen-space angle (0°=right, 90°=down/front, 270°=up/back).
+// Iso positions are derived from TABLE_RX/RY + SEAT_MARGIN, so they stay proportional
+// to the table size automatically — change TABLE_R and seats follow.
+const SEAT_MARGIN = 48  // px beyond table ellipse edge
+
+type SeatConfig = { arm?: 'x' | '-x' | 'x-back' | 'y' | '-y' | 'y-back' | 'diagonal'; eye?: 'x' | 'y' | 'diagonal' | null }
+
+const SEAT_DEFS: { angle: number; ci: number | null; config?: SeatConfig }[] = [
+  { angle: 295.7, ci: 0, config: { eye: 'y' } },                         // Estratégia — top (arm auto, eye y)
+  { angle: 347.1, ci: 1, config: { arm: 'x' } },                        // Finanças   — top-right
+  { angle:  38.6, ci: 2, config: { arm: 'y-back', eye: null } },           // Growth     — braço y-back (±Y faces, mãos apontam -X)
+  { angle:  90.0, ci: null },                                            // Founder    — bottom (empty)
+  { angle: 141.4, ci: 3, config: { arm: 'x-back', eye: null } },          // Produto    — braço x-back (sides, mãos apontam -Y)
+  { angle: 192.9, ci: 5, config: { arm: 'y' } },                        // Marca      — top-left
+  { angle: 244.3, ci: 4, config: { arm: 'y', eye: 'x' } },              // Operações  — top-left-up
 ]
-// Front seats (ix+iy > 0 → drawn after table)
-const FRONT_SEATS = [
-  [0.65, 0.65, null],  // Founder chair — bottom center, no counselor
-] as [number, number, number | null][]
-const sortedBack = [...BACK_SEATS].sort((a, b) => iso(a[0], a[1])[1] - iso(b[0], b[1])[1])
-const sortedFront = [...FRONT_SEATS].sort((a, b) => iso(a[0],a[1])[1] - iso(b[0],b[1])[1])
+
+// Derive iso positions from angles — seat ring centered at ground level (SEAT_CX/CY)
+const ALL_SEATS = SEAT_DEFS.map(def => {
+  const rad = (def.angle * Math.PI) / 180
+  const [ix, iy] = screenToIso(
+    SEAT_CX + Math.cos(rad) * (TABLE_RX + SEAT_MARGIN),
+    SEAT_CY + Math.sin(rad) * (TABLE_RY + SEAT_MARGIN),
+  )
+  return { ...def, ix, iy, isBack: ix + iy < 0 }
+})
+
+const sortedBack  = ALL_SEATS.filter(s =>  s.isBack).sort((a, b) => iso(a.ix, a.iy)[1] - iso(b.ix, b.iy)[1])
+const sortedFront = ALL_SEATS.filter(s => !s.isBack).sort((a, b) => iso(a.ix, a.iy)[1] - iso(b.ix, b.iy)[1])
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 function Chair({ ix, iy }: { ix: number; iy: number }) {
@@ -110,15 +140,23 @@ type Facing = 'toward-right' | 'toward-left' | 'toward-down' | 'toward-up'
 
 // Low-poly isometric character — fixed proportions, consistent lighting, NO rotation transforms.
 // Light source: top-left → top=bright, right=mid, left=deep shadow.
-// arm: 'x' → braços no eixo X (±X)  |  'y' → braços no eixo Y (±Y)
-// eye: 'x' → olhos na face +X       |  'y' → olhos na face +Y  |  null → sem olhos
+// arm: 'x'        → braços no eixo X: armL em -X, armR em +X  (mãos apontam +Y = front)
+//      '-x'       → espelho de 'x':   armL em +X, armR em -X
+//      'x-back'   → Left/Right faces, mãos apontam -Y (back) ← novo
+//      'y'        → braços no eixo Y: armL em -Y, armR em +Y
+//      '-y'       → espelho de 'y':   armL em +Y, armR em -Y
+//      'diagonal' → armL em -X, armR em -Y (simétrico na diagonal)
+// eye: 'x'        → olhos na face +X
+//      'y'        → olhos na face +Y
+//      'diagonal' → um olho em cada face (+X e +Y), perto da quina
+//      null       → sem olhos
 function IsoCharacter({
   ix, iy, shirt, arm, eye,
 }: {
   ix: number; iy: number
   shirt: [string, string, string]
-  arm: 'x' | 'y'
-  eye: 'x' | 'y' | null
+  arm: 'x' | '-x' | 'x-back' | 'y' | '-y' | 'y-back' | 'diagonal'
+  eye: 'x' | 'y' | 'diagonal' | null
 }) {
   const pants = ['#5A6E88', '#384E68', '#182840'] as [string, string, string]
   const skin  = ['#F8C880', '#D8944A', '#944820'] as [string, string, string]
@@ -134,21 +172,35 @@ function IsoCharacter({
   const hair  = { x: ix-0.17, y: iy-0.17, z: 1.26, w: 0.34, d: 0.34, h: 0.10 }
 
   // ── Arms: controlled by `arm` prop ───────────────────────────────────
-  const armY = arm === 'y'
-  const armL = armY
-    ? { x: ix-0.08, y: iy-0.36, z: 0.54, w: 0.34, d: 0.10, h: 0.18 }  // eixo Y, direção -Y
-    : { x: ix-0.36, y: iy-0.08, z: 0.54, w: 0.10, d: 0.34, h: 0.18 }  // eixo X, direção -X
-  const armR = armY
-    ? { x: ix-0.08, y: iy+0.22, z: 0.54, w: 0.34, d: 0.10, h: 0.18 }  // eixo Y, direção +Y
-    : { x: ix+0.22, y: iy-0.08, z: 0.54, w: 0.10, d: 0.34, h: 0.18 }  // eixo X, direção +X
+  const armL =
+    arm === 'y'        ? { x: ix-0.08, y: iy-0.36, z: 0.54, w: 0.34, d: 0.10, h: 0.18 }  // -Y side
+    : arm === '-y'     ? { x: ix-0.08, y: iy+0.22, z: 0.54, w: 0.34, d: 0.10, h: 0.18 }  // +Y side
+    : arm === '-x'     ? { x: ix+0.22, y: iy-0.08, z: 0.54, w: 0.10, d: 0.34, h: 0.18 }  // +X side
+    : arm === 'x-back' ? { x: ix-0.36, y: iy-0.42, z: 0.54, w: 0.10, d: 0.34, h: 0.18 }  // -X, arm aponta -Y (back)
+    : arm === 'y-back' ? { x: ix-0.42, y: iy-0.36, z: 0.54, w: 0.34, d: 0.10, h: 0.18 }  // -Y face, arm aponta -X (back)
+    :                    { x: ix-0.36, y: iy-0.08, z: 0.54, w: 0.10, d: 0.34, h: 0.18 }  // -X side (x, diagonal)
+
+  const armR =
+    arm === 'y'        ? { x: ix-0.08, y: iy+0.22, z: 0.54, w: 0.34, d: 0.10, h: 0.18 }  // +Y side
+    : arm === '-y'     ? { x: ix-0.08, y: iy-0.36, z: 0.54, w: 0.34, d: 0.10, h: 0.18 }  // -Y side
+    : arm === '-x'     ? { x: ix-0.36, y: iy-0.08, z: 0.54, w: 0.10, d: 0.34, h: 0.18 }  // -X side
+    : arm === 'x-back' ? { x: ix+0.22, y: iy-0.42, z: 0.54, w: 0.10, d: 0.34, h: 0.18 }  // +X, arm aponta -Y (back)
+    : arm === 'y-back' ? { x: ix-0.42, y: iy+0.22, z: 0.54, w: 0.34, d: 0.10, h: 0.18 }  // +Y face, arm aponta -X (back)
+    : arm === 'diagonal' ? { x: ix-0.08, y: iy-0.36, z: 0.54, w: 0.34, d: 0.10, h: 0.18 }  // -Y (diagonal)
+    :                      { x: ix+0.22, y: iy-0.08, z: 0.54, w: 0.10, d: 0.34, h: 0.18 }  // +X side (x)
 
   // ── Hands ─────────────────────────────────────────────────────────────
-  const handL = armY
-    ? { ix: armL.x + armL.w, iy: armL.y, iz: armL.z, w: 0.08, d: armL.d, h: 0.10 }
-    : { ix: armL.x,           iy: armL.y + armL.d, iz: armL.z, w: armL.w, d: 0.08, h: 0.10 }
-  const handR = armY
-    ? { ix: armR.x + armR.w, iy: armR.y, iz: armR.z, w: 0.08, d: armR.d, h: 0.10 }
-    : { ix: armR.x,           iy: armR.y + armR.d, iz: armR.z, w: armR.w, d: 0.08, h: 0.10 }
+  const yAxisArm = arm === 'y' || arm === '-y' || arm === 'diagonal'
+  const handL =
+    arm === 'x-back' ? { ix: armL.x,        iy: armL.y - 0.08, iz: armL.z, w: armL.w, d: 0.08,   h: 0.10 }  // mão ponta -Y
+    : arm === 'y-back' ? { ix: armL.x - 0.08, iy: armL.y,        iz: armL.z, w: 0.08,   d: armL.d, h: 0.10 }  // mão ponta -X
+    : yAxisArm ? { ix: armL.x + armL.w, iy: armL.y, iz: armL.z, w: 0.08, d: armL.d, h: 0.10 }
+    : { ix: armL.x, iy: armL.y + armL.d, iz: armL.z, w: armL.w, d: 0.08, h: 0.10 }
+  const handR =
+    arm === 'x-back' ? { ix: armR.x,        iy: armR.y - 0.08, iz: armR.z, w: armR.w, d: 0.08,   h: 0.10 }  // mão ponta -Y
+    : arm === 'y-back' ? { ix: armR.x - 0.08, iy: armR.y,        iz: armR.z, w: 0.08,   d: armR.d, h: 0.10 }  // mão ponta -X
+    : yAxisArm ? { ix: armR.x + armR.w, iy: armR.y, iz: armR.z, w: 0.08, d: armR.d, h: 0.10 }
+    : { ix: armR.x, iy: armR.y + armR.d, iz: armR.z, w: armR.w, d: 0.08, h: 0.10 }
 
   // ── Eyes: controlados por `eye` prop — independente dos braços ────────
   let eyePos: [[number, number], [number, number]] | null = null
@@ -161,6 +213,12 @@ function IsoCharacter({
     eyePos = [
       iso(head.x + head.w * 0.28, head.y + head.d, head.z + head.h * 0.62),
       iso(head.x + head.w * 0.72, head.y + head.d, head.z + head.h * 0.62),
+    ]
+  } else if (eye === 'diagonal') {
+    // Um olho em cada face perto da quina — ilusão de olhar para a câmera
+    eyePos = [
+      iso(head.x + head.w,        head.y + head.d * 0.82, head.z + head.h * 0.62),  // face +X, perto da quina
+      iso(head.x + head.w * 0.82, head.y + head.d,        head.z + head.h * 0.62),  // face +Y, perto da quina
     ]
   }
 
@@ -199,8 +257,6 @@ function IsoCharacter({
   )
 }
 
-type SeatConfig = { arm?: 'x' | 'y'; eye?: 'x' | 'y' | null }
-
 function CouncilMember({
   ix, iy, ci, state, chambraState, config,
 }: { ix: number; iy: number; ci: number; state: string; chambraState: ChambraState; config?: SeatConfig }) {
@@ -221,7 +277,7 @@ function CouncilMember({
     : (dy > 0 ? 'toward-down'  : 'toward-up')
 
   // Derive defaults from auto-calc, then apply per-seat overrides
-  const defaultArm: 'x' | 'y' = facing === 'toward-left' ? 'y' : 'x'
+  const defaultArm: 'x' | '-x' | 'x-back' | 'y' | '-y' | 'y-back' | 'diagonal' = facing === 'toward-left' ? 'y' : 'x'
   const defaultEye: 'x' | 'y' | null = (facing === 'toward-right' || facing === 'toward-down') ? 'x'
     : facing === 'toward-left' ? 'y' : null
   const arm = config?.arm ?? defaultArm
@@ -254,19 +310,29 @@ function CouncilMember({
 }
 
 // ─── Main Chamber ─────────────────────────────────────────────────────────────
-export function CuriaChambra({ state }: { state: ChambraState }) {
-  const [keywords, setKeywords] = useState<string[]>([])
+export function CuriaChambra({
+  state,
+  activeCounselorIds,
+  deliberation,
+}: {
+  state: ChambraState
+  activeCounselorIds?: Set<string>
+  deliberation?: DeliberationState
+}) {
+  const [kwTick, setKwTick] = useState(0)
 
   useEffect(() => {
-    if (state !== 'deliberating') { setKeywords([]); return }
-    const add = () => setKeywords(prev => [...prev, getNextDeliberationKeyword()].slice(-5))
-    add()
-    const t = setInterval(add, 1800)
+    if (state === 'idle' || state === 'verdict') { setKwTick(0); return }
+    const t = setInterval(() => setKwTick(n => n + 1), 1800)
     return () => clearInterval(t)
   }, [state])
 
-  const isActive  = state === 'deliberating' || state === 'receiving'
-  const isVerdict = state === 'verdict'
+  const isActive          = state === 'deliberating' || state === 'receiving'
+  const isVerdict         = state === 'verdict'
+  const isCounselorsPhase = deliberation?.phase === 'counselors'
+  const phaseLabel = deliberation?.phase === 'counselors' ? 'Conselheiros deliberam…'
+    : deliberation?.phase === 'synthesis' ? 'Sintetizando parecer…'
+    : null
 
   const stateLabel: Record<ChambraState, string> = {
     idle:         'Conselho disponível',
@@ -277,7 +343,7 @@ export function CuriaChambra({ state }: { state: ChambraState }) {
 
   return (
     <div className="curia-chamber-wrapper">
-      <svg viewBox="230 120 340 280" className="curia-chamber-svg" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="200 88 400 305" className="curia-chamber-svg" xmlns="http://www.w3.org/2000/svg">
         <defs>
           {/* Warm wood surface gradient — matches reference */}
           <radialGradient id="mt-grad" cx="40%" cy="36%" r="62%">
@@ -299,12 +365,45 @@ export function CuriaChambra({ state }: { state: ChambraState }) {
         {/* ════════════════════════════════════════════════════════════
             BACK CHARACTERS + CHAIRS
         ════════════════════════════════════════════════════════════ */}
-        {sortedBack.map(([six, siy, ci, cfg]) => {
-          const csState = getCounselorState(COUNSELORS[ci].id, state)
+        {sortedBack.map(({ ix: six, iy: siy, ci, config: cfg }) => {
+          const counselorId = COUNSELORS[ci!].id
+          const csState = getCounselorState(counselorId, state, activeCounselorIds)
+          const isActiveC = activeCounselorIds?.has(counselorId) ?? false
+          const brief = deliberation?.counselorBriefs.get(counselorId)
+          const showChip = isCounselorsPhase && (isActiveC || !!brief)
+          const [chipX, chipY] = iso(six, siy, 1.95)
+          const counselorColor = COUNSELORS[ci!].color
+
           return (
             <g key={ci}>
               <Chair ix={six} iy={siy} />
               <CouncilMember ix={six} iy={siy} ci={ci} state={csState} chambraState={state} config={cfg} />
+              {showChip && (() => {
+                const kws = COUNSELOR_KEYWORDS[counselorId] ?? []
+                const chipText = brief
+                  ? brief.slice(0, 34) + (brief.length > 34 ? '…' : '')
+                  : (kws[kwTick % kws.length] ?? '')
+                const chipW = Math.max(chipText.length * 5.0 + 14, 36)
+                return (
+                  <g className={brief ? 'counselor-brief-chip' : 'keyword-chip'}>
+                    <rect
+                      x={chipX - chipW / 2} y={chipY - 9}
+                      width={chipW} height={13}
+                      rx="6.5" fill="#F5F0EC"
+                      stroke={counselorColor} strokeWidth="0.8" opacity="0.96"
+                    />
+                    <text
+                      x={chipX} y={chipY}
+                      textAnchor="middle" fontSize="7"
+                      fill={counselorColor} opacity="0.95"
+                      fontFamily="Inter, ui-sans-serif, sans-serif"
+                      letterSpacing="0.04em"
+                    >
+                      {chipText}
+                    </text>
+                  </g>
+                )
+              })()}
             </g>
           )
         })}
@@ -350,49 +449,74 @@ export function CuriaChambra({ state }: { state: ChambraState }) {
           className={isActive ? 'table-center-pulse' : ''}
         />
 
-        {/* Floating keywords during deliberation */}
-        {state === 'deliberating' && keywords.map((kw, i) => {
-          const kwx = TABLE_CX + (i % 3 - 1) * 58
-          const kwy = TABLE_CY - 14 - Math.floor(i / 3) * 20
-          return (
-            <g key={`${kw}-${i}`} className="keyword-chip" style={{ animationDelay: `${i * 0.12}s` }}>
-              <rect
-                x={kwx - kw.length * 3 - 7} y={kwy - 10}
-                width={kw.length * 6 + 14} height={15}
-                rx="7.5" fill="#F5F0EC" stroke="#C9A84C" strokeWidth="0.8" opacity="0.96"
-              />
-              <text
-                x={kwx} y={kwy}
-                textAnchor="middle" fontSize="8"
-                fill="#C9A84C" opacity="0.95"
-                fontFamily="Inter, ui-sans-serif, sans-serif"
-                letterSpacing="0.04em"
-              >
-                {kw}
-              </text>
-            </g>
-          )
-        })}
+        {/* Floating keywords during synthesis (suppressed during counselors phase) */}
+        {state === 'deliberating' && !isCounselorsPhase && (() => {
+          const SYNTHESIS_KW = ['posicionamento','churn','LTV/CAC','flywheel','unit economics','crescimento','estratégia','prioridade','gargalo','momentum']
+          return Array.from({ length: Math.min(kwTick + 1, 5) }, (_, i) => {
+            const kw = SYNTHESIS_KW[(kwTick - i + SYNTHESIS_KW.length * 10) % SYNTHESIS_KW.length]
+            const kwx = TABLE_CX + (i % 3 - 1) * 58
+            const kwy = TABLE_CY - 14 - Math.floor(i / 3) * 20
+            return (
+              <g key={`${i}-${kw}`} className="keyword-chip" style={{ animationDelay: `${i * 0.12}s` }}>
+                <rect
+                  x={kwx - kw.length * 3 - 7} y={kwy - 10}
+                  width={kw.length * 6 + 14} height={15}
+                  rx="7.5" fill="#F5F0EC" stroke="#C9A84C" strokeWidth="0.8" opacity="0.96"
+                />
+                <text
+                  x={kwx} y={kwy}
+                  textAnchor="middle" fontSize="8"
+                  fill="#C9A84C" opacity="0.95"
+                  fontFamily="Inter, ui-sans-serif, sans-serif"
+                  letterSpacing="0.04em"
+                >
+                  {kw}
+                </text>
+              </g>
+            )
+          })
+        })()}
 
         {/* ════════════════════════════════════════════════════════════
             FRONT CHARACTERS + CHAIRS
         ════════════════════════════════════════════════════════════ */}
-        {sortedFront.map(([six, siy, ci]) => {
+        {sortedFront.map(({ ix: six, iy: siy, ci, config: cfg }) => {
           if (ci === null) {
-            // Founder chair — empty seat, no counselor
             return <g key="founder"><Chair ix={six} iy={siy} /></g>
           }
-          const csState = getCounselorState(COUNSELORS[ci].id, state)
+          const csState = getCounselorState(COUNSELORS[ci].id, state, activeCounselorIds)
           return (
             <g key={ci}>
               <Chair ix={six} iy={siy} />
-              <CouncilMember ix={six} iy={siy} ci={ci} state={csState} chambraState={state} />
+              <CouncilMember ix={six} iy={siy} ci={ci} state={csState} chambraState={state} config={cfg} />
             </g>
           )
         })}
 
 
       </svg>
+
+      {/* ── Phase label ── */}
+      {phaseLabel && (
+        <div className="curia-phase-label">
+          <span className="curia-state-dot dot-active" />
+          {phaseLabel}
+        </div>
+      )}
+
+      {/* ── Token budget badge (AppState pattern: estado observável visível) ── */}
+      {deliberation && (() => {
+        const label = contextBadgeLabel(deliberation)
+        if (!label) return null
+        const pct   = contextUsagePercent(deliberation)
+        const color = contextBadgeColor(pct)
+        return (
+          <div className="curia-context-badge" style={{ '--badge-color': color } as React.CSSProperties}>
+            <span className="curia-context-bar" style={{ width: `${Math.min(100, pct)}%`, background: color }} />
+            <span className="curia-context-label">{label}</span>
+          </div>
+        )
+      })()}
     </div>
   )
 }

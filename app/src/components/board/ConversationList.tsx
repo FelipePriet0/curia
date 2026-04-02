@@ -4,9 +4,10 @@ import { useState, useRef, useEffect } from 'react'
 import {
   Plus, Search, MessageSquare, MoreHorizontal,
   Share2, Pin, PinOff, Pencil, Archive, Trash2, X, Check,
-  Layers, ClipboardList, Calendar, ChevronRight,
+  Layers, ClipboardList, Calendar, ChevronRight, Copy, Link2, CheckCheck, Folder,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils/cn'
 import type { Conversation, Plan, Strategy } from '@/types'
 
@@ -40,6 +41,148 @@ async function deleteConversation(id: string): Promise<boolean> {
   return res.ok
 }
 
+// ─── Delete confirmation dialog ──────────────────────────────────────────────
+interface DeleteDialogProps {
+  conv: Conversation
+  onConfirm: () => void
+  onCancel: () => void
+}
+
+function DeleteDialog({ conv, onConfirm, onCancel }: DeleteDialogProps) {
+  return (
+    <Dialog open onClose={onCancel}>
+      <DialogHeader>
+        <DialogTitle>Deletar conversa?</DialogTitle>
+        <DialogDescription>
+          A conversa <span className="font-medium text-[#2B1A07]/75">&ldquo;{conv.title}&rdquo;</span> será removida permanentemente. Esta ação não pode ser desfeita.
+        </DialogDescription>
+      </DialogHeader>
+      <DialogFooter>
+        <button
+          onClick={onCancel}
+          className="rounded-xl border border-[hsl(var(--border))] px-4 py-2 text-sm font-medium text-[#2B1A07]/70 transition-colors hover:bg-[#2B1A07]/[0.05] hover:text-[#2B1A07] font-curia-serif"
+        >
+          Cancelar
+        </button>
+        <button
+          onClick={onConfirm}
+          className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 font-curia-serif"
+        >
+          Deletar conversa
+        </button>
+      </DialogFooter>
+    </Dialog>
+  )
+}
+
+// ─── Share dialog (ChatGPT-style) ─────────────────────────────────────────────
+type ShareState = 'idle' | 'creating' | 'ready'
+
+interface ShareDialogProps {
+  conv: Conversation
+  onClose: () => void
+}
+
+function ShareDialog({ conv, onClose }: ShareDialogProps) {
+  const [state, setState] = useState<ShareState>('idle')
+  const [shareUrl, setShareUrl] = useState('')
+  const [copied, setCopied] = useState(false)
+
+  async function createLink() {
+    setState('creating')
+    // TODO: call POST /api/conversations/{conv.id}/share to generate a real public link
+    await new Promise((r) => setTimeout(r, 600))
+    const url = `${window.location.origin}/share/${conv.id}`
+    setShareUrl(url)
+    setState('ready')
+  }
+
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch { /* noop */ }
+  }
+
+  return (
+    <Dialog open onClose={onClose}>
+      <DialogHeader>
+        <DialogTitle>Compartilhar conversa</DialogTitle>
+        <DialogDescription>
+          Crie um link público para esta conversa. Qualquer pessoa com o link poderá visualizá-la.
+        </DialogDescription>
+      </DialogHeader>
+
+      <DialogBody>
+        {/* Conversation preview chip */}
+        <div className="flex items-center gap-2.5 rounded-xl bg-[#2B1A07]/[0.04] px-3.5 py-2.5 mb-4">
+          <MessageSquare size={14} className="shrink-0 text-[#FF6F1E]" />
+          <span className="text-sm font-medium text-[#2B1A07]/80 font-curia-serif truncate">{conv.title}</span>
+        </div>
+
+        {state === 'idle' && (
+          <p className="text-xs text-[#2B1A07]/45 font-curia-serif text-center py-2">
+            Nenhum link criado ainda.
+          </p>
+        )}
+
+        {state === 'creating' && (
+          <div className="flex items-center justify-center gap-2 py-3">
+            <span className="h-4 w-4 rounded-full border-2 border-[#FF6F1E] border-t-transparent animate-spin" />
+            <span className="text-xs text-[#2B1A07]/50 font-curia-serif">Gerando link…</span>
+          </div>
+        )}
+
+        {state === 'ready' && (
+          <div className="flex items-center gap-2 rounded-xl border border-[hsl(var(--border))] bg-[#2B1A07]/[0.03] px-3.5 py-2.5">
+            <Link2 size={13} className="shrink-0 text-[#2B1A07]/35" />
+            <span className="flex-1 truncate text-xs text-[#2B1A07]/60 font-curia-serif">{shareUrl}</span>
+            <button
+              onClick={copyLink}
+              className="ml-1 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-[#2B1A07]/[0.07] text-[#2B1A07]/70 hover:text-[#2B1A07] font-curia-serif"
+            >
+              {copied ? <CheckCheck size={13} className="text-green-600" /> : <Copy size={13} />}
+              {copied ? 'Copiado!' : 'Copiar'}
+            </button>
+          </div>
+        )}
+
+        <p className="mt-3 text-[11px] text-[#2B1A07]/35 font-curia-serif leading-relaxed">
+          O link dará acesso somente à leitura desta conversa. Você poderá revogá-lo a qualquer momento.
+        </p>
+      </DialogBody>
+
+      <DialogFooter className="border-t border-[hsl(var(--border))]">
+        <button
+          onClick={onClose}
+          className="rounded-xl border border-[hsl(var(--border))] px-4 py-2 text-sm font-medium text-[#2B1A07]/70 transition-colors hover:bg-[#2B1A07]/[0.05] hover:text-[#2B1A07] font-curia-serif"
+        >
+          Fechar
+        </button>
+        {state === 'ready' ? (
+          <button
+            onClick={copyLink}
+            className="flex items-center gap-2 rounded-xl bg-[#FF6F1E] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 font-curia-serif"
+          >
+            {copied ? <CheckCheck size={14} /> : <Copy size={14} />}
+            {copied ? 'Link copiado!' : 'Copiar link'}
+          </button>
+        ) : (
+          <button
+            onClick={createLink}
+            disabled={state === 'creating'}
+            className="flex items-center gap-2 rounded-xl bg-[#FF6F1E] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 font-curia-serif"
+          >
+            <Link2 size={14} />
+            Criar link
+          </button>
+        )}
+      </DialogFooter>
+    </Dialog>
+  )
+}
+
 // ─── 3-dot popover ───────────────────────────────────────────────────────────
 interface ConvMenuProps {
   conv: Conversation
@@ -62,9 +205,9 @@ function ConvMenu({ conv, onClose, onRename, onPin, onArchive, onDelete, onShare
     return () => document.removeEventListener('mousedown', handler)
   }, [onClose])
 
-  const item = (icon: React.ReactNode, label: string, onClick: () => void, danger = false) => (
+  const item = (icon: React.ReactNode, label: string, onClick: () => void, danger = false, skipClose = false) => (
     <button
-      onClick={() => { onClick(); onClose() }}
+      onClick={() => { onClick(); if (!skipClose) onClose() }}
       className={cn(
         'flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs transition-colors text-left',
         danger
@@ -83,12 +226,12 @@ function ConvMenu({ conv, onClose, onRename, onPin, onArchive, onDelete, onShare
       className="absolute right-0 top-7 z-50 w-48 rounded-xl border border-[hsl(var(--border))] bg-white py-1.5 shadow-lg"
       onClick={(e) => e.stopPropagation()}
     >
-      {item(<Share2 size={13} />, 'Compartilhar', onShare)}
+      {item(<Share2 size={13} />, 'Compartilhar', onShare, false, true)}
       {item(conv.pinned ? <PinOff size={13} /> : <Pin size={13} />, conv.pinned ? 'Desafixar' : 'Fixar conversa', onPin)}
       {item(<Pencil size={13} />, 'Renomear', onRename)}
       <div className="mx-3 my-1 border-t border-[hsl(var(--border))]" />
       {item(<Archive size={13} />, conv.archived ? 'Desarquivar' : 'Arquivar', onArchive)}
-      {item(<Trash2 size={13} />, 'Deletar', onDelete, true)}
+      {item(<Trash2 size={13} />, 'Deletar', onDelete, true, true)}
     </div>
   )
 }
@@ -106,6 +249,8 @@ function ConvItem({ conv, active, onSelect, onUpdate, onDelete }: ConvItemProps)
   const [menuOpen, setMenuOpen] = useState(false)
   const [renaming, setRenaming] = useState(false)
   const [renameVal, setRenameVal] = useState(conv.title)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showShareDialog, setShowShareDialog] = useState(false)
   const renameRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -130,14 +275,14 @@ function ConvItem({ conv, active, onSelect, onUpdate, onDelete }: ConvItemProps)
     if (updated) onUpdate(updated)
   }
 
-  async function handleDelete() {
-    if (!confirm(`Deletar "${conv.title}"?`)) return
+  async function confirmDelete() {
     const ok = await deleteConversation(conv.id)
     if (ok) onDelete()
+    setShowDeleteDialog(false)
   }
 
   function handleShare() {
-    navigator.clipboard.writeText(window.location.href).catch(() => {})
+    setShowShareDialog(true)
   }
 
   if (renaming) {
@@ -166,14 +311,17 @@ function ConvItem({ conv, active, onSelect, onUpdate, onDelete }: ConvItemProps)
         className={cn(
           'w-full text-left rounded-xl px-3 py-2 font-curia-serif text-sm transition-all pr-8',
           active
-            ? 'bg-[#FF6F1E] text-[#2B1A07] font-medium shadow-sm'
-            : 'text-[#2B1A07]/70 hover:bg-[#2B1A07]/[0.06] hover:text-[#2B1A07]'
+            ? 'bg-black/30 text-[#2B1A07] font-medium'
+            : 'text-[#2B1A07]/70 hover:bg-black/[0.30] hover:text-[#2B1A07]'
         )}
       >
-        <span className="block truncate">{conv.title}</span>
-        {conv.pinned && (
-          <Pin size={9} className={cn('inline-block ml-1 -mt-0.5', active ? 'opacity-60' : 'text-[#C9A84C] opacity-70')} />
-        )}
+        <span className="flex items-center gap-2 min-w-0">
+          <Folder size={15} strokeWidth={2.5} className={cn('shrink-0', active ? 'opacity-70' : 'text-[#2B1A07]/35')} />
+          <span className="truncate">{conv.title}</span>
+          {conv.pinned && (
+            <Pin size={9} className={cn('shrink-0 ml-0.5', active ? 'opacity-60' : 'text-[#C9A84C] opacity-70')} />
+          )}
+        </span>
       </button>
 
       {/* 3-dot button — visible on hover or when menu is open */}
@@ -195,8 +343,23 @@ function ConvItem({ conv, active, onSelect, onUpdate, onDelete }: ConvItemProps)
           onRename={() => setRenaming(true)}
           onPin={handlePin}
           onArchive={handleArchive}
-          onDelete={handleDelete}
-          onShare={handleShare}
+          onDelete={() => { setMenuOpen(false); setShowDeleteDialog(true) }}
+          onShare={() => { setMenuOpen(false); setShowShareDialog(true) }}
+        />
+      )}
+
+      {showDeleteDialog && (
+        <DeleteDialog
+          conv={conv}
+          onConfirm={confirmDelete}
+          onCancel={() => setShowDeleteDialog(false)}
+        />
+      )}
+
+      {showShareDialog && (
+        <ShareDialog
+          conv={conv}
+          onClose={() => setShowShareDialog(false)}
         />
       )}
     </div>
@@ -262,7 +425,7 @@ export function ConversationList({
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[hsl(var(--border))]">
+      <div className="flex items-center justify-between px-4 py-3">
         <span className="font-curia-rounded text-[#2B1A07] text-2xl leading-none">Curia</span>
         <Button size="icon" variant="ghost" onClick={onNew} title="Nova consulta">
           <Plus className="h-4 w-4" />
@@ -270,7 +433,7 @@ export function ConversationList({
       </div>
 
       {/* Search */}
-      <div className="px-3 py-2 border-b border-[hsl(var(--border))]">
+      <div className="px-3 py-2">
         <div className="flex items-center gap-2 rounded-xl bg-[#2B1A07]/[0.05] px-3 py-1.5">
           <Search className="h-3.5 w-3.5 shrink-0 text-[#2B1A07]/35" />
           <input
@@ -374,19 +537,9 @@ export function ConversationList({
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#2B1A07]/[0.06]">
               <MessageSquare className="h-5 w-5 text-[#2B1A07]/35" />
             </div>
-            <p className="font-curia-serif text-sm text-[#2B1A07]/60 leading-relaxed mb-1">
-              Você ainda não tem nenhuma consulta aberta.
+            <p className="font-curia-serif text-sm text-[#2B1A07]/60 leading-relaxed">
+              Você ainda não tem nenhuma conversa aberta.
             </p>
-            <p className="font-curia-serif text-xs text-[#2B1A07]/38 mb-5">
-              Traga um desafio estratégico ao Conselho.
-            </p>
-            <button
-              onClick={onNew}
-              className="flex items-center gap-1.5 rounded-xl bg-[#FF6F1E] px-4 py-2 text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              Começar agora
-            </button>
           </div>
         ) : (
           <nav className="p-2 space-y-0.5">
