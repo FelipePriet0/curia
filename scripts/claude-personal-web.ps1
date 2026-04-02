@@ -1,4 +1,4 @@
-param([Parameter(ValueFromRemainingArguments = $true)] [string[]]$Args)
+]param([Parameter(ValueFromRemainingArguments = $true)] [string[]]$Args)
 
 # Isola diretórios de configuração/dados para esta conta
 $env:XDG_CONFIG_HOME = (Join-Path $PSScriptRoot "..\.claude-config-personal")
