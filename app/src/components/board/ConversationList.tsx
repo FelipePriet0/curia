@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import {
   Plus, Search, MessageSquare, MoreHorizontal,
   Share2, Pin, PinOff, Pencil, Archive, Trash2, X, Check,
-  Layers, ClipboardList, Calendar, ChevronRight, Copy, Link2, CheckCheck, Folder,
+  Layers, ClipboardList, Calendar, ChevronRight, Copy, Link2, CheckCheck, Folder, LogOut,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter } from '@/components/ui/dialog'
@@ -189,6 +189,40 @@ function ShareDialog({ conv, onClose }: ShareDialogProps) {
             Criar link
           </button>
         )}
+      </DialogFooter>
+    </Dialog>
+  )
+}
+
+// ─── Logout confirmation dialog ───────────────────────────────────────────────
+interface LogoutDialogProps {
+  onConfirm: () => void
+  onCancel: () => void
+}
+
+function LogoutDialog({ onConfirm, onCancel }: LogoutDialogProps) {
+  return (
+    <Dialog open onClose={onCancel}>
+      <DialogHeader>
+        <DialogTitle>Sair da Curia?</DialogTitle>
+        <DialogDescription>
+          Você será desconectado desta sessão e retornará à tela inicial.
+        </DialogDescription>
+      </DialogHeader>
+      <DialogFooter>
+        <button
+          onClick={onCancel}
+          className="rounded-xl border border-[hsl(var(--border))] px-4 py-2 text-sm font-medium text-[#2B1A07]/70 transition-colors hover:bg-[#2B1A07]/[0.05] hover:text-[#2B1A07] font-curia-serif"
+        >
+          Cancelar
+        </button>
+        <button
+          onClick={onConfirm}
+          className="inline-flex items-center gap-2 rounded-xl bg-[#FF6F1E] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 font-curia-serif"
+        >
+          <LogOut size={14} />
+          Sair
+        </button>
       </DialogFooter>
     </Dialog>
   )
@@ -394,6 +428,7 @@ export function ConversationList({
   onLogout,
 }: ConversationListProps) {
   const [search, setSearch] = useState('')
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false)
 
   const activePlans = plans.filter((p) => p.status === 'active')
   const regularConvs = conversations.filter((c) => !c.strategy_id && !c.archived)
@@ -641,13 +676,21 @@ export function ConversationList({
             <span className="truncate font-curia-serif text-xs text-[#2B1A07]/70">{userName ?? 'Você'}</span>
           </div>
           <button
-            onClick={onLogout}
-            className="rounded-lg border border-[#2B1A07]/15 bg-white px-2 py-1 text-[11px] font-curia-serif text-[#2B1A07]/70 shadow-sm transition-colors hover:border-[#FF6F1E]/40 hover:text-[#2B1A07]"
+            onClick={() => setShowLogoutDialog(true)}
+            className="rounded-lg border border-[#2B1A07]/15 bg-white p-1.5 text-[#2B1A07]/70 shadow-sm transition-colors hover:border-[#FF6F1E]/40 hover:text-[#2B1A07]"
+            title="Sair"
+            aria-label="Sair"
           >
-            Sair
+            <LogOut size={14} />
           </button>
         </div>
       </div>
+      {showLogoutDialog && (
+        <LogoutDialog
+          onCancel={() => setShowLogoutDialog(false)}
+          onConfirm={() => { setShowLogoutDialog(false); onLogout?.() }}
+        />
+      )}
     </div>
   )
 }
