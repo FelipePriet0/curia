@@ -872,9 +872,9 @@ function Pricing() {
             <p className="mt-1 text-sm text-[#2B1A07]/70"><NoWidows>Para começar com o básico.</NoWidows></p>
             <p className="mt-6 text-3xl font-bold text-[#2B1A07]">R$0<span className="text-base font-medium text-[#2B1A07]/70">/mês</span></p>
             <ul className="mt-6 space-y-2 text-sm text-[#2B1A07]/80">
-              <li>• 1 Board</li>
-              <li>• Mensagens limitadas</li>
-              <li>• Sem cartão de crédito</li>
+              <li>• Acesso limitado ao modelo avançado de raciocínio: Curia Strategist</li>
+              <li>• Mensagens e uploads limitados</li>
+              <li>• Memória e contexto limitados</li>
             </ul>
             <Link href="/signup" className="mt-6 inline-block">
               <Button className="w-full bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">Montar meu Board</Button>
@@ -890,10 +890,12 @@ function Pricing() {
             </h3>
             <p className="mt-1 text-sm text-[#2B1A07]/70"><NoWidows>Para operar com mais intensidade.</NoWidows></p>
             <p className="mt-6 text-3xl font-bold text-[#2B1A07]">R$99<span className="text-base font-medium text-[#2B1A07]/70">/mês</span></p>
-            <ul className="mt-6 space-y-2 text-sm text-[#2B1A07]/80">
-              <li>• Até 3 Boards</li>
-              <li>• Mensagens ilimitadas</li>
-              <li>• Prioridade no suporte</li>
+            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.12em] text-[#2B1A07]/50">Tudo do Starter, mais:</p>
+            <ul className="mt-3 space-y-2 text-sm text-[#2B1A07]/80">
+              <li>• Mais acesso ao modelo avançado de raciocínio: Curia Strategist</li>
+              <li>• Mais mensagens e uploads</li>
+              <li>• Memória e contexto ampliados</li>
+              <li>• Acesso antecipado a novos recursos</li>
             </ul>
             <Link href="/signup" className="mt-6 inline-block">
               <Button className="w-full bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">Montar meu Board</Button>
