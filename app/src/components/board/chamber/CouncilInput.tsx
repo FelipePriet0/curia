@@ -85,7 +85,13 @@ function CouncilInput({ onSend, isStreaming, variant = 'chat' }, ref) {
                 className="council-tool-btn"
                 title="Adicionar arquivos ou fotos"
                 disabled={isStreaming}
-                onClick={() => setAttachOpen((o) => !o)}
+                onClick={() =>
+                  setAttachOpen((o) => {
+                    const next = !o
+                    if (next) setModelOpen(false)
+                    return next
+                  })
+                }
                 aria-haspopup="menu"
                 aria-expanded={attachOpen}
               >
@@ -136,7 +142,13 @@ function CouncilInput({ onSend, isStreaming, variant = 'chat' }, ref) {
             <div className="relative">
               <button
                 type="button"
-                onClick={() => setModelOpen((o) => !o)}
+                onClick={() =>
+                  setModelOpen((o) => {
+                    const next = !o
+                    if (next) setAttachOpen(false)
+                    return next
+                  })
+                }
                 className="council-model-badge inline-flex items-center gap-1"
                 disabled={isStreaming}
                 aria-haspopup="menu"

@@ -5,6 +5,7 @@ import {
   Plus, Search, MessageSquare, MoreHorizontal,
   Share2, Pin, PinOff, Pencil, Archive, Trash2, X, Check,
   Layers, ClipboardList, Calendar, ChevronRight, Copy, Link2, CheckCheck, Folder, LogOut,
+  PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter } from '@/components/ui/dialog'
@@ -29,6 +30,8 @@ interface ConversationListProps {
   onConversationDelete?: (id: string) => void
   userName?: string
   onLogout?: () => void
+  onToggleSidebar?: () => void
+  sidebarOpen?: boolean
 }
 
 // ─── Conversation actions (API calls) ────────────────────────────────────────
@@ -500,7 +503,18 @@ export function ConversationList({
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3">
-        <span className="font-curia-rounded text-[#2B1A07] text-2xl leading-none">Curia</span>
+        <div className="flex items-center gap-2">
+          {onToggleSidebar && (
+            <button
+              onClick={onToggleSidebar}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-[#2B1A07]/40 hover:bg-[#2B1A07]/[0.06] hover:text-[#2B1A07]/70 transition-colors"
+              title={sidebarOpen ? 'Fechar sidebar' : 'Abrir sidebar'}
+            >
+              {sidebarOpen ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
+            </button>
+          )}
+          <span className="font-curia-rounded text-[#2B1A07] text-2xl leading-none">Curia</span>
+        </div>
         <Button size="icon" variant="ghost" onClick={onNew} title="Nova consulta">
           <Plus className="h-4 w-4" />
         </Button>

@@ -331,6 +331,8 @@ export default function BoardPage() {
             onConversationUpdate={handleConversationUpdate}
             onConversationDelete={handleConversationDelete}
             userName={userName ?? undefined}
+            onToggleSidebar={() => setSidebarOpen((o) => !o)}
+            sidebarOpen={sidebarOpen}
             onLogout={async () => {
               const sb = createClient()
               await sb.auth.signOut()
@@ -343,16 +345,18 @@ export default function BoardPage() {
 
       {/* Main */}
       <main className="flex flex-1 flex-col overflow-hidden" style={{ background: '#FDFBF9' }}>
-        {/* Topbar with sidebar toggle */}
-        <div className="flex items-center px-3 py-1.5" style={{ minHeight: '40px' }}>
-          <button
-            onClick={() => setSidebarOpen((o) => !o)}
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-[#2B1A07]/40 hover:bg-[#2B1A07]/[0.06] hover:text-[#2B1A07]/70 transition-colors"
-            title={sidebarOpen ? 'Fechar sidebar' : 'Abrir sidebar'}
-          >
-            {sidebarOpen ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
-          </button>
-        </div>
+        {/* When sidebar is closed, show a compact open button in main area */}
+        {!sidebarOpen && (
+          <div className="flex items-center px-3 py-1.5" style={{ minHeight: '40px' }}>
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-[#2B1A07]/40 hover:bg-[#2B1A07]/[0.06] hover:text-[#2B1A07]/70 transition-colors"
+              title="Abrir sidebar"
+            >
+              <PanelLeftOpen size={16} />
+            </button>
+          </div>
+        )}
 
         {/* Review banners */}
         {pendingReviews.map((plan) => (
