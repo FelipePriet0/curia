@@ -311,7 +311,7 @@ export function CuriaChambra({
 
   useEffect(() => {
     if (state === 'idle' || state === 'verdict') { setKwTick(0); return }
-    const t = setInterval(() => setKwTick(n => n + 1), 1800)
+    const t = setInterval(() => setKwTick(n => n + 1), 3600)
     return () => clearInterval(t)
   }, [state])
 
@@ -396,20 +396,16 @@ export function CuriaChambra({
                 )
               })()}
 
-              {/* Speech bubble near counselor during active deliberation */}
+              {/* Speech bubble — empty, just the bubble shape */}
               {state !== 'idle' && state !== 'verdict' && (() => {
-                const kws = COUNSELOR_KEYWORDS[counselorId] || []
-                if (kws.length === 0) return null
-                const kw = kws[(kwTick + (ci ?? 0)) % kws.length]
                 const [bx, by] = iso(six, siy, 2.2)
-                const w = Math.max(40, Math.min(110, kw.length * 6 + 18))
-                const h = 16
-                const rx = 8
+                const w = 28
+                const h = 14
+                const rx = 7
                 return (
-                  <g className="curia-speech-bubble" opacity={isActiveC ? 1 : 0.78}>
-                    <rect x={bx - w/2} y={by - h - 8} width={w} height={h} rx={rx} ry={rx} fill="#FFFFFF" stroke={counselorColor} strokeWidth="0.8" />
-                    <path d={`M ${bx} ${by - 8} l -4 -6 l 8 0 z`} fill={counselorColor} opacity="0.9" />
-                    <text x={bx} y={by - 8 - 4} textAnchor="middle" fontSize="8" fill="#2B1A07" fontFamily="Inter, ui-sans-serif, sans-serif">{kw}</text>
+                  <g className="curia-speech-bubble" opacity={isActiveC ? 0.85 : 0.45}>
+                    <rect x={bx - w/2} y={by - h - 8} width={w} height={h} rx={rx} ry={rx} fill="#FFFFFF" stroke={counselorColor} strokeWidth="0.7" />
+                    <path d={`M ${bx - 3} ${by - 8} l 3 5 l 3 -5 z`} fill="#FFFFFF" stroke={counselorColor} strokeWidth="0.7" strokeLinejoin="round" />
                   </g>
                 )
               })()}
@@ -499,19 +495,14 @@ export function CuriaChambra({
               <Chair ix={six} iy={siy} />
               <CouncilMember ix={six} iy={siy} ci={ci} state={csState} chambraState={state} config={cfg} />
               {state !== 'idle' && state !== 'verdict' && (() => {
-                const counselorId = COUNSELORS[ci].id
-                const kws = COUNSELOR_KEYWORDS[counselorId] || []
-                if (kws.length === 0) return null
-                const kw = kws[(kwTick + (ci ?? 0)) % kws.length]
                 const [bx, by] = iso(six, siy, 2.2)
-                const w = Math.max(40, Math.min(110, kw.length * 6 + 18))
-                const h = 16
-                const rx = 8
+                const w = 28
+                const h = 14
+                const rx = 7
                 return (
-                  <g className="curia-speech-bubble" opacity={0.9}>
-                    <rect x={bx - w/2} y={by - h - 8} width={w} height={h} rx={rx} ry={rx} fill="#FFFFFF" stroke={COUNSELORS[ci].color} strokeWidth="0.8" />
-                    <path d={`M ${bx} ${by - 8} l -4 -6 l 8 0 z`} fill={COUNSELORS[ci].color} opacity="0.9" />
-                    <text x={bx} y={by - 8 - 4} textAnchor="middle" fontSize="8" fill="#2B1A07" fontFamily="Inter, ui-sans-serif, sans-serif">{kw}</text>
+                  <g className="curia-speech-bubble" opacity={0.8}>
+                    <rect x={bx - w/2} y={by - h - 8} width={w} height={h} rx={rx} ry={rx} fill="#FFFFFF" stroke={COUNSELORS[ci].color} strokeWidth="0.7" />
+                    <path d={`M ${bx - 3} ${by - 8} l 3 5 l 3 -5 z`} fill="#FFFFFF" stroke={COUNSELORS[ci].color} strokeWidth="0.7" strokeLinejoin="round" />
                   </g>
                 )
               })()}

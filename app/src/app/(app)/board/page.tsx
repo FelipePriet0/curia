@@ -66,15 +66,16 @@ export default function BoardPage() {
     setStrategyProposal(null)
   }, [activeId])
 
-  async function loadConversations() {
-    setLoadingConvs(true)
+  async function loadConversations(silent = false) {
+    if (!silent) setLoadingConvs(true)
     const res = await fetch('/api/conversations')
     if (res.ok) {
       const data = await res.json()
       setConversations(data)
-      if (data.length > 0 && !activeId) setActiveId(data[0].id)
+      // Auto-select first only on initial load (when nothing is active)
+      setActiveId((cur) => (cur ? cur : data.length > 0 ? data[0].id : undefined))
     }
-    setLoadingConvs(false)
+    if (!silent) setLoadingConvs(false)
   }
 
   async function loadPlans() {
@@ -236,7 +237,7 @@ export default function BoardPage() {
         }
         setMessages((prev) => [...prev, assistantMsg])
 
-        // After first message: generate AI title in background and update sidebar
+        // After first message: generate AI title in background
         if (isFirstMessage) {
           const fid = convId
           fetch(`/api/conversations/${fid}/title`, { method: 'POST' })
@@ -249,9 +250,9 @@ export default function BoardPage() {
               }
             })
             .catch(() => {})
-        } else {
-          await loadConversations()
         }
+        // Always refresh sidebar so conversation appears with up-to-date data
+        await loadConversations(true)
       } catch (err) {
         console.error('[BoardPage] Stream error:', err)
       } finally {
@@ -402,12 +403,14 @@ export default function BoardPage() {
                   isStreaming={isStreaming}
                 />
               </div>
-              <div className="px-4 pb-2 mt-auto">
-                <CouncilInput ref={inputRef} onSend={handleSend} isStreaming={isStreaming} variant="chat" />
-                <p className="mt-2 text-center font-curia-serif text-[11px] text-[#2B1A07]/40">
-                  A Curia pode cometer erros. Confira informações importantes.{' '}
-                  <a href="/cookies" className="underline hover:opacity-80">Consulte as Preferências de cookies</a>.
-                </p>
+              <div className="mt-auto px-4 pb-4">
+                <div className="mx-auto w-full max-w-2xl">
+                  <CouncilInput ref={inputRef} onSend={handleSend} isStreaming={isStreaming} variant="chat" />
+                  <p className="mt-2 text-center font-curia-serif text-[11px] text-[#2B1A07]/40">
+                    A Curia pode cometer erros. Confira informações importantes.{' '}
+                    <a href="/cookies" className="underline hover:opacity-80">Consulte as Preferências de cookies</a>.
+                  </p>
+                </div>
               </div>
             </div>
           </>
