@@ -774,7 +774,7 @@ function Footer() {
                 <a href="#como-funciona" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Como funciona</a>
               </li>
               <li>
-                <a href="#pricing" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Pricing</a>
+                <a href="#pricing" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Preços</a>
               </li>
               <li>
                 <Link href="/login" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Entrar</Link>
@@ -857,12 +857,12 @@ function Pricing() {
   return (
     <section id="pricing" className="bg-[#FDFBF9] px-6 py-28">
       <div className="mx-auto max-w-6xl text-center font-curia-serif">
-        <h2 className="mb-3 text-3xl font-curia-rounded text-[#2B1A07] md:text-5xl tracking-[-0.02em]"><NoWidows>Pricing</NoWidows></h2>
+        <h2 className="mb-3 text-3xl font-curia-rounded text-[#2B1A07] md:text-5xl tracking-[-0.02em]"><NoWidows>Planos</NoWidows></h2>
         <p className="mx-auto mb-12 max-w-2xl text-[#2B1A07]/70">
           <NoWidows>Escolha um plano que funciona para o seu estágio.</NoWidows>
         </p>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:max-w-2xl md:mx-auto">
           {/* Curia Starter */}
           <div className="rounded-2xl border border-[#2B1A07]/15 bg-[#2B1A07]/5 p-6 text-left">
             <h3 className="text-2xl text-[#2B1A07]">
@@ -900,23 +900,6 @@ function Pricing() {
             </Link>
           </div>
 
-          {/* Curia Enterprise */}
-          <div className="rounded-2xl border border-[#2B1A07]/15 bg-[#2B1A07]/5 p-6 text-left">
-            <h3 className="text-2xl text-[#2B1A07]">
-              <span className="font-curia-rounded">Curia </span>
-              <span className="font-curia-script text-[#FF6F1E]">Enterprise</span>
-            </h3>
-            <p className="mt-1 text-sm text-[#2B1A07]/70"><NoWidows>Para times e empresas.</NoWidows></p>
-            <p className="mt-6 text-3xl font-bold text-[#2B1A07]">R$299<span className="text-base font-medium text-[#2B1A07]/70">/mês</span></p>
-            <ul className="mt-6 space-y-2 text-sm text-[#2B1A07]/80">
-              <li>• Boards ilimitados</li>
-              <li>• Workspace compartilhado</li>
-              <li>• Suporte dedicado</li>
-            </ul>
-            <Link href="/signup" className="mt-6 inline-block">
-              <Button className="w-full bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">Falar com vendas</Button>
-            </Link>
-          </div>
         </div>
       </div>
     </section>
