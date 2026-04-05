@@ -282,6 +282,17 @@ export function LoginForm() {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) throw error
+      try {
+        const pending = localStorage.getItem('curia_terms_pending_accept')
+        if (pending) {
+          await fetch('/api/terms/accept', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ terms_version: process.env.NEXT_PUBLIC_TERMS_VERSION || '1.0' }),
+          })
+          localStorage.removeItem('curia_terms_pending_accept')
+        }
+      } catch {}
       window.location.replace('/board')
     } catch (err: unknown) {
       setError(ptError(err instanceof Error ? err.message : 'Erro desconhecido'))
@@ -408,11 +419,25 @@ export function SignupForm() {
 
       // Session imediata (email confirmation desabilitado no Supabase)
       if (data.session) {
+        try {
+          await fetch('/api/terms/accept', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ terms_version: process.env.NEXT_PUBLIC_TERMS_VERSION || '1.0' }),
+          })
+        } catch {}
         window.location.replace('/board')
         return
       }
 
       // Precisa confirmar e-mail
+      try {
+        // Marcar aceite para registrar no primeiro login
+        localStorage.setItem('curia_terms_pending_accept', JSON.stringify({
+          version: (process as any).env?.NEXT_PUBLIC_TERMS_VERSION || '1.0',
+          ts: Date.now(),
+        }))
+      } catch {}
       setShowConfirm(true)
     } catch (err: unknown) {
       setError(ptError(err instanceof Error ? err.message : 'Erro desconhecido'))
@@ -423,6 +448,12 @@ export function SignupForm() {
   async function handleGoogle() {
     setGoogleLoading(true)
     setError(null)
+    if (!terms) {
+      setError('Aceite os Termos de Uso para continuar.')
+      setGoogleLoading(false)
+      return
+    }
+    try { localStorage.setItem('curia_terms_pending_accept', JSON.stringify({ version: (process as any).env?.NEXT_PUBLIC_TERMS_VERSION || '1.0', ts: Date.now() })) } catch {}
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: `${window.location.origin}/board` },
@@ -496,10 +527,10 @@ export function SignupForm() {
             className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#2B1A07]/20 accent-[#FF6F1E]"
           />
           <span className="font-curia-serif text-xs text-[#2B1A07]/60 leading-relaxed">
-            Concordo com os{' '}
-            <a href="#" className="text-[#FF6F1E] hover:underline">Termos de Uso</a>
+            Li e concordo com os{' '}
+            <a href="/terms" target="_blank" className="text-[#FF6F1E] hover:underline">Termos de Uso</a>
             {' '}e a{' '}
-            <a href="#" className="text-[#FF6F1E] hover:underline">Política de Privacidade</a>.
+            <a href="/privacy" target="_blank" className="text-[#FF6F1E] hover:underline">Política de Privacidade</a>.
           </span>
         </label>
 

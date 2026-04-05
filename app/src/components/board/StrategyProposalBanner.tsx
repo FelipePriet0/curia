@@ -54,6 +54,9 @@ export function StrategyProposalBanner({
               <p className="mt-0.5 font-curia-serif text-xs text-[#2B1A07]/60 truncate">
                 {proposal.name}
               </p>
+              <p className="mt-2 font-curia-serif text-[11px] text-[#2B1A07]/50">
+                Revise criticamente antes de implementar. Este conteúdo não substitui assessoria profissional.
+              </p>
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2">

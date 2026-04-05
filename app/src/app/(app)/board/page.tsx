@@ -21,6 +21,7 @@ import {
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import type { Conversation, Message, Plan, Strategy, StrategyProposal } from '@/types'
+import { ContextDisclaimer } from '@/components/ui/ContextDisclaimer'
 
 export default function BoardPage() {
   const router = useRouter()
@@ -58,6 +59,22 @@ export default function BoardPage() {
       }
     }
     fetchUser()
+  }, [])
+
+  // On first load after auth (including OAuth redirect), persist pending terms acceptance
+  useEffect(() => {
+    try {
+      const pending = localStorage.getItem('curia_terms_pending_accept')
+      if (pending) {
+        fetch('/api/terms/accept', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ terms_version: process.env.NEXT_PUBLIC_TERMS_VERSION || '1.0' }),
+        })
+          .then(() => localStorage.removeItem('curia_terms_pending_accept'))
+          .catch(() => {})
+      }
+    } catch {}
   }, [])
 
   useEffect(() => {
@@ -396,6 +413,13 @@ export default function BoardPage() {
               <CuriaChambra state={chambraState} activeCounselorIds={deliberation.activeCounselorIds} deliberation={deliberation} />
             </div>
             <div className="flex flex-1 flex-col min-h-0">
+              {(messages.length > 0 || isStreaming) && (
+                <div className="px-4 pt-3">
+                  <div className="mx-auto max-w-3xl">
+                    <ContextDisclaimer />
+                  </div>
+                </div>
+              )}
               <div className="flex-1 overflow-y-auto">
                 <CouncilVerdict
                   messages={messages}

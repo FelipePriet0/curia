@@ -41,6 +41,9 @@ export default async function SharedPage({ params }: { params: { token: string }
       <div className="mb-6">
         <span className="font-curia-rounded text-[#2B1A07] text-3xl leading-none">Curia</span>
         <p className="mt-2 font-curia-serif text-sm text-[#2B1A07]/50">Conversa compartilhada — somente leitura</p>
+        <p className="mt-2 font-curia-serif text-[11px] text-[#2B1A07]/45">
+          Revise criticamente antes de implementar. Este conteúdo não substitui assessoria profissional.
+        </p>
         <h1 className="mt-4 font-curia-rounded text-xl text-[#2B1A07]">{data.title}</h1>
       </div>
       <div className="space-y-4">

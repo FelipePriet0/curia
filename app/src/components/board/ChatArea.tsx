@@ -7,6 +7,7 @@ import { ChatInput } from './ChatInput'
 import { PlanScheduler } from './PlanScheduler'
 import { StrategyProposalBanner } from './StrategyProposalBanner'
 import { hasNextSteps } from '@/lib/metrics/detectors'
+import { ContextDisclaimer } from '@/components/ui/ContextDisclaimer'
 import type { Message, StrategyProposal } from '@/types'
 
 interface ChatAreaProps {
@@ -57,6 +58,13 @@ export function ChatArea({
     lastAssistantMsg != null &&
     hasNextSteps(lastAssistantMsg.content)
 
+  const isSensitiveContext = (
+    conversationType === 'plan_origin' ||
+    conversationType === 'plan_review' ||
+    conversationType === 'strategy' ||
+    showScheduler
+  )
+
   return (
     <div className="flex h-full flex-col">
       {/* Messages */}
@@ -69,6 +77,9 @@ export function ChatArea({
           )
         ) : (
           <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
+            {isSensitiveContext && (
+              <ContextDisclaimer />
+            )}
             {messages.map((msg, idx) => {
               const isLastAssistant =
                 msg.role === 'assistant' &&

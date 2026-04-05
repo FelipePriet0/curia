@@ -4,12 +4,13 @@ import { useState, useRef, useEffect } from 'react'
 import {
   Plus, Search, MessageSquare, MoreHorizontal,
   Share2, Pin, PinOff, Pencil, Archive, Trash2, X, Check,
-  Layers, ClipboardList, Calendar, ChevronRight, Copy, Link2, CheckCheck, Folder, User,
+  Layers, ClipboardList, Calendar, ChevronRight, Copy, Link2, CheckCheck, Folder,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils/cn'
 import type { Conversation, Plan, Strategy } from '@/types'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 // Feature flags (temporary)
 const SHARE_ENABLED = true
@@ -620,8 +621,22 @@ export function ConversationList({
       <div className="mt-2 border-t border-[hsl(var(--border))] px-3 py-3">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#2B1A07]/[0.06]">
-              <User className="h-3.5 w-3.5 text-[#2B1A07]/60" />
+            <div className="relative">
+              <Avatar className="h-7 w-7 rounded-lg">
+                {/* Caso exista imagem do usuário algum dia: */}
+                {/* <AvatarImage src="/avatar.jpg" alt={userName ?? 'Você'} /> */}
+                <AvatarFallback>
+                  {(userName ?? 'Você')
+                    .split(' ')
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((s) => s[0]!.toUpperCase())
+                    .join('')}
+                </AvatarFallback>
+              </Avatar>
+              <span className="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-emerald-500 border-2 border-white">
+                <span className="sr-only">Online</span>
+              </span>
             </div>
             <span className="truncate font-curia-serif text-xs text-[#2B1A07]/70">{userName ?? 'Você'}</span>
           </div>
