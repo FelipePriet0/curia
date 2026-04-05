@@ -195,7 +195,7 @@ export interface QueryLoopParams {
   system: string
   messages: Array<{ role: 'user' | 'assistant'; content: string }>
   openai: OpenAI
-  anthropic: Anthropic
+  anthropic?: Anthropic
   signal?: AbortSignal
 }
 
@@ -229,7 +229,7 @@ export async function* queryLoop(params: QueryLoopParams): AsyncGenerator<QueryE
   // ── autoCompact: sumário real via Haiku se contexto está longo ───────────────
   // Inspirado no Playbook do Agentfriend: dispara a ~60% da janela efetiva,
   // antes do counselor phase, para que os conselheiros já recebam contexto enxuto.
-  const compactResult = await autoCompact(params.messages, anthropic)
+  const compactResult = anthropic ? await autoCompact(params.messages, anthropic).catch(() => null) : null
   if (compactResult) {
     history = compactResult.messages.map((m) => ({
       role: m.role as 'user' | 'assistant',
@@ -258,11 +258,13 @@ export async function* queryLoop(params: QueryLoopParams): AsyncGenerator<QueryE
     .join('\n')
 
   const briefs: CounselorBriefs = new Map()
-  for await (const event of runCounselorPhase(lastUserMsg, recentContext, anthropic)) {
-    if (event.type === 'counselor_end' && event.brief) {
-      briefs.set(event.counselorId, event.brief)
+  if (anthropic) {
+    for await (const event of runCounselorPhase(lastUserMsg, recentContext, anthropic)) {
+      if (event.type === 'counselor_end' && event.brief) {
+        briefs.set(event.counselorId, event.brief)
+      }
+      yield event
     }
-    yield event
   }
 
   // Injetar briefs no system prompt da síntese (não polui o histórico)
@@ -287,7 +289,7 @@ export async function* queryLoop(params: QueryLoopParams): AsyncGenerator<QueryE
     }
 
     // ── 3a. Claude fallback (sem tool calls) ─────────────────────────────────
-    if (useClaude) {
+    if (useClaude && anthropic) {
       try {
         const claudeMessages = history.map((m) => ({
           role: (m as any).role as 'user' | 'assistant',
@@ -381,9 +383,14 @@ export async function* queryLoop(params: QueryLoopParams): AsyncGenerator<QueryE
         continue  // retry este turno
       }
 
-      // Qualquer outro erro: ativar fallback para Claude
-      console.warn('[QueryLoop] OpenAI falhou, ativando Claude fallback:', err)
-      useClaude = true
+      // Qualquer outro erro: ativar fallback para Claude se disponível; senão finalize
+      if (anthropic) {
+        console.warn('[QueryLoop] OpenAI falhou, ativando Claude fallback:', err)
+        useClaude = true
+        continue
+      }
+      yield { type: 'error', code: 'model_error', message: String(err) }
+      yield { type: 'done', reason: 'model_error', strategyProposal }
       continue
     }
 

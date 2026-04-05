@@ -292,19 +292,7 @@ function CouncilMember({
         <IsoCharacter ix={ix} iy={iy} shirt={[ct, cr, cl]} arm={arm} eye={eye} />
       </g>
 
-      {/* Specialty label (unchanged) */}
-      <text
-        x={lx} y={ly}
-        textAnchor="middle"
-        fontSize="7"
-        fill={COUNSELORS[ci].color}
-        opacity={isActive ? 0.85 : 0.38}
-        fontFamily="Inter, ui-sans-serif, sans-serif"
-        letterSpacing="0.07em"
-        style={{ textTransform: 'uppercase', userSelect: 'none' }}
-      >
-        {COUNSELORS[ci].label}
-      </text>
+      {/* Counselor label hidden per UX direction */}
     </g>
   )
 }
@@ -343,7 +331,7 @@ export function CuriaChambra({
 
   return (
     <div className="curia-chamber-wrapper">
-      <svg viewBox="200 88 400 305" className="curia-chamber-svg" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="170 60 460 360" className="curia-chamber-svg" xmlns="http://www.w3.org/2000/svg">
         <defs>
           {/* Warm wood surface gradient — matches reference */}
           <radialGradient id="mt-grad" cx="40%" cy="36%" r="62%">
@@ -366,13 +354,16 @@ export function CuriaChambra({
             BACK CHARACTERS + CHAIRS
         ════════════════════════════════════════════════════════════ */}
         {sortedBack.map(({ ix: six, iy: siy, ci, config: cfg }) => {
-          const counselorId = COUNSELORS[ci!].id
+          if (ci === null) {
+            return <g key="founder-back"><Chair ix={six} iy={siy} /></g>
+          }
+          const counselorId = COUNSELORS[ci].id
           const csState = getCounselorState(counselorId, state, activeCounselorIds)
           const isActiveC = activeCounselorIds?.has(counselorId) ?? false
           const brief = deliberation?.counselorBriefs.get(counselorId)
           const showChip = isCounselorsPhase && (isActiveC || !!brief)
           const [chipX, chipY] = iso(six, siy, 1.95)
-          const counselorColor = COUNSELORS[ci!].color
+          const counselorColor = COUNSELORS[ci].color
 
           return (
             <g key={ci}>
@@ -401,6 +392,24 @@ export function CuriaChambra({
                     >
                       {chipText}
                     </text>
+                  </g>
+                )
+              })()}
+
+              {/* Speech bubble near counselor during active deliberation */}
+              {state !== 'idle' && state !== 'verdict' && (() => {
+                const kws = COUNSELOR_KEYWORDS[counselorId] || []
+                if (kws.length === 0) return null
+                const kw = kws[(kwTick + (ci ?? 0)) % kws.length]
+                const [bx, by] = iso(six, siy, 2.2)
+                const w = Math.max(40, Math.min(110, kw.length * 6 + 18))
+                const h = 16
+                const rx = 8
+                return (
+                  <g className="curia-speech-bubble" opacity={isActiveC ? 1 : 0.78}>
+                    <rect x={bx - w/2} y={by - h - 8} width={w} height={h} rx={rx} ry={rx} fill="#FFFFFF" stroke={counselorColor} strokeWidth="0.8" />
+                    <path d={`M ${bx} ${by - 8} l -4 -6 l 8 0 z`} fill={counselorColor} opacity="0.9" />
+                    <text x={bx} y={by - 8 - 4} textAnchor="middle" fontSize="8" fill="#2B1A07" fontFamily="Inter, ui-sans-serif, sans-serif">{kw}</text>
                   </g>
                 )
               })()}
@@ -489,6 +498,23 @@ export function CuriaChambra({
             <g key={ci}>
               <Chair ix={six} iy={siy} />
               <CouncilMember ix={six} iy={siy} ci={ci} state={csState} chambraState={state} config={cfg} />
+              {state !== 'idle' && state !== 'verdict' && (() => {
+                const counselorId = COUNSELORS[ci].id
+                const kws = COUNSELOR_KEYWORDS[counselorId] || []
+                if (kws.length === 0) return null
+                const kw = kws[(kwTick + (ci ?? 0)) % kws.length]
+                const [bx, by] = iso(six, siy, 2.2)
+                const w = Math.max(40, Math.min(110, kw.length * 6 + 18))
+                const h = 16
+                const rx = 8
+                return (
+                  <g className="curia-speech-bubble" opacity={0.9}>
+                    <rect x={bx - w/2} y={by - h - 8} width={w} height={h} rx={rx} ry={rx} fill="#FFFFFF" stroke={COUNSELORS[ci].color} strokeWidth="0.8" />
+                    <path d={`M ${bx} ${by - 8} l -4 -6 l 8 0 z`} fill={COUNSELORS[ci].color} opacity="0.9" />
+                    <text x={bx} y={by - 8 - 4} textAnchor="middle" fontSize="8" fill="#2B1A07" fontFamily="Inter, ui-sans-serif, sans-serif">{kw}</text>
+                  </g>
+                )
+              })()}
             </g>
           )
         })}
@@ -496,13 +522,7 @@ export function CuriaChambra({
 
       </svg>
 
-      {/* ── Phase label ── */}
-      {phaseLabel && (
-        <div className="curia-phase-label">
-          <span className="curia-state-dot dot-active" />
-          {phaseLabel}
-        </div>
-      )}
+      {/* Phase label hidden per UX direction */}
 
       {/* ── Token budget badge (AppState pattern: estado observável visível) ── */}
       {deliberation && (() => {
