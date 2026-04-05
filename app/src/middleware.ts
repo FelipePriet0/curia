@@ -30,7 +30,9 @@ export async function middleware(request: NextRequest) {
   const isProtected = request.nextUrl.pathname.startsWith('/board')
   const isAuthPage =
     request.nextUrl.pathname.startsWith('/login') ||
-    request.nextUrl.pathname.startsWith('/signup')
+    request.nextUrl.pathname.startsWith('/signup') ||
+    request.nextUrl.pathname.startsWith('/forgot-password') ||
+    request.nextUrl.pathname.startsWith('/reset-password')
 
   // Not logged in trying to access protected route → redirect to login
   if (!user && isProtected) {
@@ -50,5 +52,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/board', '/board/:path*', '/login', '/signup'],
+  matcher: ['/board', '/board/:path*', '/login', '/signup', '/forgot-password', '/reset-password'],
 }
