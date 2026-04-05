@@ -4,12 +4,15 @@ import { useState, useRef, useEffect } from 'react'
 import {
   Plus, Search, MessageSquare, MoreHorizontal,
   Share2, Pin, PinOff, Pencil, Archive, Trash2, X, Check,
-  Layers, ClipboardList, Calendar, ChevronRight, Copy, Link2, CheckCheck, Folder,
+  Layers, ClipboardList, Calendar, ChevronRight, Copy, Link2, CheckCheck, Folder, User,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils/cn'
 import type { Conversation, Plan, Strategy } from '@/types'
+
+// Feature flags (temporary)
+const SHARE_ENABLED = true
 
 interface ConversationListProps {
   conversations: Conversation[]
@@ -23,6 +26,8 @@ interface ConversationListProps {
   onStrategySelect?: (strategy: Strategy) => void
   onConversationUpdate?: (conv: Conversation) => void
   onConversationDelete?: (id: string) => void
+  userName?: string
+  onLogout?: () => void
 }
 
 // ─── Conversation actions (API calls) ────────────────────────────────────────
@@ -90,11 +95,16 @@ function ShareDialog({ conv, onClose }: ShareDialogProps) {
 
   async function createLink() {
     setState('creating')
-    // TODO: call POST /api/conversations/{conv.id}/share to generate a real public link
-    await new Promise((r) => setTimeout(r, 600))
-    const url = `${window.location.origin}/share/${conv.id}`
-    setShareUrl(url)
-    setState('ready')
+    try {
+      const res = await fetch(`/api/conversations/${conv.id}/share`, { method: 'POST' })
+      if (!res.ok) throw new Error('Falha ao criar link público')
+      const data = await res.json()
+      const url = `${window.location.origin}${data.url}`
+      setShareUrl(url)
+      setState('ready')
+    } catch {
+      setState('idle')
+    }
   }
 
   async function copyLink() {
@@ -226,7 +236,7 @@ function ConvMenu({ conv, onClose, onRename, onPin, onArchive, onDelete, onShare
       className="absolute right-0 top-7 z-50 w-48 rounded-xl border border-[hsl(var(--border))] bg-white py-1.5 shadow-lg"
       onClick={(e) => e.stopPropagation()}
     >
-      {item(<Share2 size={13} />, 'Compartilhar', onShare, false, true)}
+      {SHARE_ENABLED && item(<Share2 size={13} />, 'Compartilhar', onShare, false, true)}
       {item(conv.pinned ? <PinOff size={13} /> : <Pin size={13} />, conv.pinned ? 'Desafixar' : 'Fixar conversa', onPin)}
       {item(<Pencil size={13} />, 'Renomear', onRename)}
       <div className="mx-3 my-1 border-t border-[hsl(var(--border))]" />
@@ -379,6 +389,8 @@ export function ConversationList({
   onStrategySelect,
   onConversationUpdate,
   onConversationDelete,
+  userName,
+  onLogout,
 }: ConversationListProps) {
   const [search, setSearch] = useState('')
 
@@ -575,6 +587,24 @@ export function ConversationList({
             )}
           </nav>
         )}
+      </div>
+
+      {/* Sidebar footer: user + logout */}
+      <div className="mt-2 border-t border-[hsl(var(--border))] px-3 py-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#2B1A07]/[0.06]">
+              <User className="h-3.5 w-3.5 text-[#2B1A07]/60" />
+            </div>
+            <span className="truncate font-curia-serif text-xs text-[#2B1A07]/70">{userName ?? 'Você'}</span>
+          </div>
+          <button
+            onClick={onLogout}
+            className="rounded-lg border border-[#2B1A07]/15 bg-white px-2 py-1 text-[11px] font-curia-serif text-[#2B1A07]/70 shadow-sm transition-colors hover:border-[#FF6F1E]/40 hover:text-[#2B1A07]"
+          >
+            Sair
+          </button>
+        </div>
       </div>
     </div>
   )

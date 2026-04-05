@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback, forwardRef, useImperativeHandle } from 'react'
-import { ArrowUp, Plus } from 'lucide-react'
+import { ArrowUp, Plus, ChevronDown, Check, Paperclip, Image as ImageIcon } from 'lucide-react'
 
 interface CouncilInputProps {
   onSend: (text: string) => void
@@ -18,6 +18,12 @@ export const CouncilInput = forwardRef<CouncilInputHandle, CouncilInputProps>(
 function CouncilInput({ onSend, isStreaming, variant = 'chat' }, ref) {
   const [value, setValue] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  // Single model popover: Curia Strategist
+  const [modelOpen, setModelOpen] = useState(false)
+  // Attachments popover
+  const [attachOpen, setAttachOpen] = useState(false)
+  const [attachments, setAttachments] = useState<File[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useImperativeHandle(ref, () => ({
     focus: () => textareaRef.current?.focus(),
@@ -74,15 +80,87 @@ function CouncilInput({ onSend, isStreaming, variant = 'chat' }, ref) {
         />
         <div className="council-input-footer">
           <div className="council-input-tools">
-            <button
-              className="council-tool-btn"
-              title="Adicionar contexto"
-              disabled={isStreaming}
-              onClick={(e) => e.preventDefault()}
-            >
-              <Plus size={15} strokeWidth={2} />
-            </button>
-            <span className="council-model-badge">Sonnet 4.6</span>
+            <div className="relative">
+              <button
+                className="council-tool-btn"
+                title="Adicionar arquivos ou fotos"
+                disabled={isStreaming}
+                onClick={() => setAttachOpen((o) => !o)}
+                aria-haspopup="menu"
+                aria-expanded={attachOpen}
+              >
+                <Plus size={15} strokeWidth={2} />
+              </button>
+              {attachOpen && (
+                <div
+                  role="menu"
+                  className="absolute left-0 mt-1 w-52 rounded-lg border border-[hsl(var(--border))] bg-white py-1 shadow-lg z-50"
+                >
+                  <button
+                    role="menuitem"
+                    onClick={() => {
+                      setAttachOpen(false)
+                      fileInputRef.current?.click()
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-1.5 text-xs font-curia-serif text-[#2B1A07]/80 hover:bg-[#2B1A07]/[0.06]"
+                  >
+                    <Paperclip size={13} />
+                    Adicionar arquivos ou fotos
+                  </button>
+                </div>
+              )}
+            </div>
+            {/* Hidden file input (supports múltiplos e pastas em navegadores compatíveis) */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              // @ts-ignore — atributos não padronizados para seleção de pastas
+              webkitdirectory=""
+              // @ts-ignore
+              directory=""
+              accept="*/*,image/*"
+              className="hidden"
+              onChange={(e) => {
+                const files = Array.from(e.target.files || [])
+                if (files.length) setAttachments((prev) => [...prev, ...files])
+                // reset para permitir selecionar o mesmo arquivo novamente
+                e.currentTarget.value = ''
+              }}
+            />
+            {attachments.length > 0 && (
+              <span className="ml-2 rounded-md border border-[#2B1A07]/15 bg-white px-2 py-0.5 text-[10px] text-[#2B1A07]/70 font-curia-serif">
+                {attachments.length} anexo{attachments.length > 1 ? 's' : ''}
+              </span>
+            )}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setModelOpen((o) => !o)}
+                className="council-model-badge inline-flex items-center gap-1"
+                disabled={isStreaming}
+                aria-haspopup="menu"
+                aria-expanded={modelOpen}
+              >
+                Curia Strategist
+                <ChevronDown size={12} />
+              </button>
+              {modelOpen && (
+                <div
+                  role="menu"
+                  className="absolute left-0 mt-1 w-44 rounded-lg border border-[hsl(var(--border))] bg-white py-1 shadow-lg z-50"
+                >
+                  <button
+                    role="menuitem"
+                    onClick={() => setModelOpen(false)}
+                    className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-xs font-curia-serif text-[#2B1A07]/80 hover:bg-[#2B1A07]/[0.06] font-medium"
+                  >
+                    Curia Strategist
+                    <Check size={12} className="text-[#FF6F1E]" />
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
           <button
             className="council-send-round"

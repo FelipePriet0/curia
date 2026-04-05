@@ -56,6 +56,32 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* ─── Counselor animations (breathe / active / thinking) ─── */
+.counselor-breathe-0 { animation: curia-bob 3.2s ease-in-out infinite; }
+.counselor-breathe-1 { animation: curia-bob 2.8s ease-in-out infinite; }
+.counselor-breathe-2 { animation: curia-bob 3.6s ease-in-out infinite; }
+.counselor-active    { animation: curia-bob 2.2s ease-in-out infinite; }
+.counselor-thinking  { animation: curia-bob-quick 1.4s ease-in-out infinite; }
+
+@keyframes curia-bob {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-3px); }
+}
+@keyframes curia-bob-quick {
+  0%, 100% { transform: translateY(0px) scale(1.0); }
+  50%      { transform: translateY(-4px) scale(1.01); }
+}
+
+/* Floating keyword chips (center) */
+.keyword-chip { animation: chip-appear 0.35s ease both; }
+
+/* Speech bubbles near counselors */
+.curia-speech-bubble { animation: bubble-float 2.4s ease-in-out infinite; }
+@keyframes bubble-float {
+  0%, 100% { transform: translateY(0px); opacity: 0.95; }
+  50%      { transform: translateY(-4px); opacity: 1; }
+}
+
 /* ─── Phase label ─── */
 .curia-phase-label {
   position: absolute;
@@ -89,6 +115,7 @@
   height: 100%;
   width: auto;
   max-width: 100%;
+  overflow: visible;
 }
 
 .curia-state-label {

@@ -19,9 +19,11 @@ import {
   contextUsagePercent,
 } from '@/lib/deliberation/store'
 import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
 import type { Conversation, Message, Plan, Strategy, StrategyProposal } from '@/types'
 
 export default function BoardPage() {
+  const router = useRouter()
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeId, setActiveId] = useState<string | undefined>()
   const [messages, setMessages] = useState<Message[]>([])
@@ -310,6 +312,13 @@ export default function BoardPage() {
             onStrategySelect={handleStrategySelect}
             onConversationUpdate={handleConversationUpdate}
             onConversationDelete={handleConversationDelete}
+            userName={userName ?? undefined}
+            onLogout={async () => {
+              const sb = createClient()
+              await sb.auth.signOut()
+              router.push('/')
+              router.refresh()
+            }}
           />
         </div>
       </aside>
@@ -340,19 +349,25 @@ export default function BoardPage() {
         {isHomeMode ? (
           /* ── HOME: Chamber + welcome + centered input ── */
           <div className="flex flex-1 flex-col min-h-0 items-center justify-center">
-            <div className="w-full min-h-0" style={{ height: '38vh' }}>
+            <div className="w-full min-h-0 relative" style={{ height: '38vh' }}>
+              {userName && (
+                <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-2 md:-top-3">
+                  <span className="font-curia-script text-[#FF6F1E] text-2xl md:text-4xl leading-none">
+                    Olá, {userName}
+                  </span>
+                </div>
+              )}
               <CuriaChambra state={chambraState} activeCounselorIds={deliberation.activeCounselorIds} deliberation={deliberation} />
             </div>
             <div className="board-home-content">
-              <div className="board-welcome">
-                <h1 className="board-welcome-title">
-                  Olá{userName ? `, ${userName}` : ''}
-                </h1>
+              {/* Removed home subtitle per UX request */}
+              <div className="w-full px-4">
+                <CouncilInput ref={inputRef} onSend={handleSend} isStreaming={isStreaming} variant="home" />
+                <p className="mt-2 text-center font-curia-serif text-[11px] text-[#2B1A07]/40">
+                  A Curia pode cometer erros. Confira informações importantes.{' '}
+                  <a href="/cookies" className="underline hover:opacity-80">Consulte as Preferências de cookies</a>.
+                </p>
               </div>
-              <p className="board-tribuna-label">
-                Apresente seu maior problema ao conselho.<br />Vamos resolvê-lo juntos.
-              </p>
-              <CouncilInput ref={inputRef} onSend={handleSend} isStreaming={isStreaming} variant="home" />
               {/* Quick-start cards */}
               <div className="board-quickstart-grid">
                 {[
@@ -380,12 +395,20 @@ export default function BoardPage() {
               <CuriaChambra state={chambraState} activeCounselorIds={deliberation.activeCounselorIds} deliberation={deliberation} />
             </div>
             <div className="flex flex-1 flex-col min-h-0">
-              <CouncilVerdict
-                messages={messages}
-                streamingContent={streamingContent}
-                isStreaming={isStreaming}
-              />
-              <CouncilInput ref={inputRef} onSend={handleSend} isStreaming={isStreaming} variant="chat" />
+              <div className="flex-1 overflow-y-auto">
+                <CouncilVerdict
+                  messages={messages}
+                  streamingContent={streamingContent}
+                  isStreaming={isStreaming}
+                />
+              </div>
+              <div className="px-4 pb-2 mt-auto">
+                <CouncilInput ref={inputRef} onSend={handleSend} isStreaming={isStreaming} variant="chat" />
+                <p className="mt-2 text-center font-curia-serif text-[11px] text-[#2B1A07]/40">
+                  A Curia pode cometer erros. Confira informações importantes.{' '}
+                  <a href="/cookies" className="underline hover:opacity-80">Consulte as Preferências de cookies</a>.
+                </p>
+              </div>
             </div>
           </>
         )}
