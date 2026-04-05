@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AI Board — Your Virtual Strategic Advisor",
-  description: "AI-powered strategic board for small and medium businesses.",
+  title: "Curia — Seu Board Estratégico de IA",
+  description: "Board consultivo de IA para empresas em crescimento.",
 };
 
 export default function RootLayout({
@@ -12,8 +12,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="pt-BR" translate="no">
       <head>
+        <meta name="google" content="notranslate" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
