@@ -5,9 +5,9 @@ import { createAdmin } from '@/lib/supabase/admin'
 // POST /api/conversations/[id]/share — create a public share token
 export async function POST(
   _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  const { id } = await params
+  const { id } = params
   const supabase = await createClient()
   const admin = createAdmin()
 
@@ -40,9 +40,9 @@ export async function POST(
 // DELETE /api/conversations/[id]/share — revoke all active share links for this conversation
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  const { id } = await params
+  const { id } = params
   const supabase = await createClient()
   const admin = createAdmin()
 
@@ -73,4 +73,3 @@ function generateToken(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(24))
   return Buffer.from(bytes).toString('base64url')
 }
-

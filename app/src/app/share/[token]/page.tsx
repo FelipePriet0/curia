@@ -1,20 +1,31 @@
 import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 
 export const dynamic = 'force-dynamic'
 
-export async function generateMetadata({ params }: { params: Promise<{ token: string }> }): Promise<Metadata> {
-  const { token } = await params
+export async function generateMetadata({ params }: { params: { token: string } }): Promise<Metadata> {
+  // We could fetch the title here, but keep static to avoid blocking
+  void params
   return { title: `Curia — Conversa Compartilhada` }
 }
 
 async function getShared(token: string) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/api/share/${token}`, { cache: 'no-store' })
-  if (!res.ok) return null
-  return res.json()
+  try {
+    const h = headers()
+    const proto = h.get('x-forwarded-proto') ?? 'http'
+    const host = h.get('x-forwarded-host') ?? h.get('host')
+    const originEnv = process.env.NEXT_PUBLIC_BASE_URL
+    const origin = originEnv && originEnv.length > 0 ? originEnv : `${proto}://${host}`
+    const res = await fetch(`${origin}/api/share/${token}`, { cache: 'no-store' })
+    if (!res.ok) return null
+    return res.json()
+  } catch {
+    return null
+  }
 }
 
-export default async function SharedPage({ params }: { params: Promise<{ token: string }> }) {
-  const { token } = await params
+export default async function SharedPage({ params }: { params: { token: string } }) {
+  const { token } = params
   const data = await getShared(token)
   if (!data) {
     return (
@@ -47,4 +58,3 @@ export default async function SharedPage({ params }: { params: Promise<{ token: 
     </div>
   )
 }
-

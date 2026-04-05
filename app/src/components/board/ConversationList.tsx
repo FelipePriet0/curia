@@ -406,9 +406,35 @@ export function ConversationList({
     return acc
   }, {})
 
-  // Filter by search
-  const filtered = (list: Conversation[]) =>
-    search ? list.filter((c) => c.title.toLowerCase().includes(search.toLowerCase())) : list
+  // Filter by search (case and accent insensitive)
+  function normalizeText(text: string) {
+    return text
+      .normalize('NFD') // split accents from letters
+      .replace(/[\u0300-\u036f]/g, '') // remove diacritics
+      .toLowerCase()
+  }
+
+  const hasSearch = !!search.trim()
+  const q = normalizeText(search.trim())
+
+  const filtered = (list: Conversation[]) => {
+    if (!hasSearch || !q) return list
+    return list.filter((c) => normalizeText(c.title).includes(q))
+  }
+
+  // Filter strategies and plans when searching
+  const visibleStrategies = hasSearch
+    ? strategies.filter((s) => {
+        const nameMatch = normalizeText(s.name).includes(q)
+        const sConvs = convsByStrategy[s.id] ?? []
+        const anyConvMatch = sConvs.some((c) => normalizeText(c.title).includes(q))
+        return nameMatch || anyConvMatch
+      })
+    : strategies
+
+  const visibleActivePlans = hasSearch
+    ? activePlans.filter((p) => normalizeText(p.title).includes(q))
+    : activePlans
 
   const pinnedConvs   = filtered(regularConvs.filter((c) => c.pinned))
   const unpinnedConvs = filtered(regularConvs.filter((c) => !c.pinned))
@@ -465,12 +491,13 @@ export function ConversationList({
 
       <div className="flex-1 overflow-y-auto flex flex-col">
         {/* Strategies */}
-        {!search && strategies.length > 0 && (
+        {visibleStrategies.length > 0 && (
           <div className="p-2 pb-0">
             <p className="px-3 py-1.5 font-notably-alt text-[10px] tracking-wider text-[#2B1A07]/40">Estratégias</p>
             <div className="space-y-1">
-              {strategies.map((strategy) => {
-                const sConvs = convsByStrategy[strategy.id] ?? []
+              {visibleStrategies.map((strategy) => {
+                const sConvsAll = convsByStrategy[strategy.id] ?? []
+                const sConvs = hasSearch ? filtered(sConvsAll) : sConvsAll
                 const hasActive = sConvs.some((c) => c.id === activeId)
                 return (
                   <div key={strategy.id}>
@@ -501,11 +528,11 @@ export function ConversationList({
         )}
 
         {/* Active Plans */}
-        {!search && activePlans.length > 0 && (
+        {visibleActivePlans.length > 0 && (
           <div className="p-2 pb-0">
             <p className="px-3 py-1.5 font-notably-alt text-[10px] tracking-wider text-[#2B1A07]/40">Planos Ativos</p>
             <div className="space-y-1">
-              {activePlans.map((plan) => {
+              {visibleActivePlans.map((plan) => {
                 const reviewDate = plan.review_date ? new Date(plan.review_date + 'T00:00:00') : null
                 const today = new Date(); today.setHours(0,0,0,0)
                 const daysLeft = reviewDate ? Math.ceil((reviewDate.getTime() - today.getTime()) / 86400000) : null
