@@ -180,7 +180,7 @@ export default function BoardPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ title: text.slice(0, 60) }),
         })
-        if (!res.ok) return
+        if (!res.ok) { console.error('[BoardPage] Failed to create conversation:', res.status); return }
         const conv = await res.json()
         convId = conv.id
         setConversations((prev) => [conv, ...prev])
@@ -215,15 +215,13 @@ export default function BoardPage() {
         let lineBuffer = ''
 
         const handleEvent = (event: QueryEvent) => {
-          // Propagar ao reducer (estado central)
-          dispatchDeliberation(event)
-
           if (event.type === 'delta') {
             full += event.text
             setStreamingContent(full)
           } else if (event.type === 'done' && event.strategyProposal) {
             setStrategyProposal(event.strategyProposal)
           }
+          dispatchDeliberation(event)
         }
 
         while (true) {

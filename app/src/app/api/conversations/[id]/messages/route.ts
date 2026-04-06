@@ -1,3 +1,5 @@
+export const maxDuration = 300
+
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { streamBoardEvents } from '@/lib/llm/client'
@@ -215,8 +217,9 @@ export async function POST(
   return new Response(readable, {
     headers: {
       'Content-Type': 'application/x-ndjson; charset=utf-8',
+      'Cache-Control': 'no-cache, no-transform',
+      'X-Accel-Buffering': 'no',
       'X-Content-Type-Options': 'nosniff',
-      'Transfer-Encoding': 'chunked',
     },
   })
 }
