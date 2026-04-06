@@ -42,6 +42,7 @@ export default function BoardPage() {
     getInitialDeliberationState(),
   )
   const inputRef = useRef<CouncilInputHandle>(null)
+  const isSendingRef = useRef(false)
 
   useEffect(() => {
     loadConversations()
@@ -78,6 +79,7 @@ export default function BoardPage() {
   }, [])
 
   useEffect(() => {
+    if (isSendingRef.current) return  // handleSend is managing messages directly
     if (activeId) loadMessages(activeId)
     else setMessages([])
     setStrategyProposal(null)
@@ -180,12 +182,14 @@ export default function BoardPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ title: text.slice(0, 60) }),
         })
-        if (!res.ok) { console.error('[BoardPage] Failed to create conversation:', res.status); return }
+        if (!res.ok) { console.error('[CURIA] create conversation failed:', res.status); return }
         const conv = await res.json()
         convId = conv.id
+        isSendingRef.current = true  // block loadMessages race before setActiveId
         setConversations((prev) => [conv, ...prev])
         setActiveId(convId)
       }
+      console.log('[CURIA] sending to convId:', convId)
 
       const userMsg: Message = {
         id: crypto.randomUUID(),
@@ -207,6 +211,7 @@ export default function BoardPage() {
           body: JSON.stringify({ message: text }),
         })
 
+        console.log('[CURIA] POST status:', res.status, 'ok:', res.ok)
         if (!res.ok || !res.body) throw new Error('Stream failed')
 
         const reader = res.body.getReader()
@@ -214,9 +219,12 @@ export default function BoardPage() {
         let full = ''
         let lineBuffer = ''
 
+        let deltaCount = 0
         const handleEvent = (event: QueryEvent) => {
           if (event.type === 'delta') {
             full += event.text
+            deltaCount++
+            if (deltaCount <= 3) console.log('[CURIA] delta #' + deltaCount, event.text.slice(0, 40))
             setStreamingContent(full)
           } else if (event.type === 'done' && event.strategyProposal) {
             setStrategyProposal(event.strategyProposal)
@@ -243,6 +251,7 @@ export default function BoardPage() {
           try { handleEvent(JSON.parse(lineBuffer.trim()) as QueryEvent) } catch {}
         }
 
+        console.log('[CURIA] stream done. deltas:', deltaCount, 'full length:', full.length)
         const assistantMsg: Message = {
           id: crypto.randomUUID(),
           conversation_id: convId!,
@@ -269,8 +278,9 @@ export default function BoardPage() {
         // Always refresh sidebar so conversation appears with up-to-date data
         await loadConversations(true)
       } catch (err) {
-        console.error('[BoardPage] Stream error:', err)
+        console.error('[CURIA] stream error:', err)
       } finally {
+        isSendingRef.current = false
         setIsStreaming(false)
         setStreamingContent('')
         dispatchDeliberation({ type: 'stream_end' })
