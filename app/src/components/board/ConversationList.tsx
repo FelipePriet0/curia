@@ -429,6 +429,8 @@ export function ConversationList({
   onConversationDelete,
   userName,
   onLogout,
+  onToggleSidebar,
+  sidebarOpen,
 }: ConversationListProps) {
   const [search, setSearch] = useState('')
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)

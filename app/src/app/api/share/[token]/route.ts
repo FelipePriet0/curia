@@ -4,9 +4,9 @@ import { createAdmin } from '@/lib/supabase/admin'
 // GET /api/share/[token] — public, read-only snapshot
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
-  const { token } = params
+  const { token } = await params
   const admin = createAdmin()
 
   // Resolve the conversation by token (must not be revoked)

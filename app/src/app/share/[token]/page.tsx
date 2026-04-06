@@ -3,15 +3,14 @@ import { headers } from 'next/headers'
 
 export const dynamic = 'force-dynamic'
 
-export async function generateMetadata({ params }: { params: { token: string } }): Promise<Metadata> {
-  // We could fetch the title here, but keep static to avoid blocking
+export async function generateMetadata({ params }: { params: Promise<{ token: string }> }): Promise<Metadata> {
   void params
   return { title: `Curia — Conversa Compartilhada` }
 }
 
 async function getShared(token: string) {
   try {
-    const h = headers()
+    const h = await headers()
     const proto = h.get('x-forwarded-proto') ?? 'http'
     const host = h.get('x-forwarded-host') ?? h.get('host')
     const originEnv = process.env.NEXT_PUBLIC_BASE_URL
@@ -24,8 +23,8 @@ async function getShared(token: string) {
   }
 }
 
-export default async function SharedPage({ params }: { params: { token: string } }) {
-  const { token } = params
+export default async function SharedPage({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params
   const data = await getShared(token)
   if (!data) {
     return (
