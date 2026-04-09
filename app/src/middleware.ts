@@ -13,9 +13,7 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          )
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
@@ -27,22 +25,47 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  const isProtected = request.nextUrl.pathname.startsWith('/board')
-  const isAuthPage =
-    request.nextUrl.pathname.startsWith('/login') ||
-    request.nextUrl.pathname.startsWith('/signup') ||
-    request.nextUrl.pathname.startsWith('/forgot-password') ||
-    request.nextUrl.pathname.startsWith('/reset-password')
+  const { pathname } = request.nextUrl
 
-  // Not logged in trying to access protected route → redirect to login
-  if (!user && isProtected) {
+  const isProtected   = pathname.startsWith('/board')
+  const isOnboarding  = pathname.startsWith('/onboarding')
+  const isAuthPage    =
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/signup') ||
+    pathname.startsWith('/forgot-password') ||
+    pathname.startsWith('/reset-password')
+
+  const onboardingDone = user?.user_metadata?.onboarding_completed === true
+
+  // ── Not logged in ──────────────────────────────────────────────────────────
+
+  if (!user) {
+    if (isProtected || isOnboarding) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    }
+    return supabaseResponse
+  }
+
+  // ── Logged in ──────────────────────────────────────────────────────────────
+
+  // Already authed → skip auth pages
+  if (isAuthPage) {
     const url = request.nextUrl.clone()
-    url.pathname = '/login'
+    url.pathname = onboardingDone ? '/board' : '/onboarding'
     return NextResponse.redirect(url)
   }
 
-  // Already logged in trying to access auth pages → redirect to board
-  if (user && isAuthPage) {
+  // Trying to access board without completing onboarding
+  if (isProtected && !onboardingDone) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/onboarding'
+    return NextResponse.redirect(url)
+  }
+
+  // Onboarding already done → skip it
+  if (isOnboarding && onboardingDone) {
     const url = request.nextUrl.clone()
     url.pathname = '/board'
     return NextResponse.redirect(url)
@@ -52,5 +75,13 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/board', '/board/:path*', '/login', '/signup', '/forgot-password', '/reset-password'],
+  matcher: [
+    '/board',
+    '/board/:path*',
+    '/onboarding',
+    '/login',
+    '/signup',
+    '/forgot-password',
+    '/reset-password',
+  ],
 }

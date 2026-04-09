@@ -31,7 +31,7 @@ export function LandingPage() {
       <HowItWorks />
       <Authority />
       <BigTechs />
-      <Pricing />
+      <FinalCTA />
       <Footer />
     </div>
   )
@@ -133,6 +133,9 @@ function Hero() {
             </Button>
           </Link>
         </div>
+        <p className="mt-4 text-xs text-[#2B1A07]/50 font-curia-serif">
+          14 dias grátis · Sem cartão de crédito
+        </p>
       </div>
 
       {/* Video demo placeholder */}
@@ -735,15 +738,15 @@ function FinalCTA() {
       <div className="relative mx-auto max-w-xl">
         <h2 className="mb-4 text-4xl font-curia-serif-display tracking-tight text-[#2B1A07] md:text-5xl"><NoWidows>Fortaleça suas decisões</NoWidows></h2>
         <p className="mb-10 text-lg text-[#2B1A07]/70 font-curia-serif">
-          <NoWidows>Acesso gratuito. Sem formulários, sem setup.</NoWidows>
+          <NoWidows>Comece grátis. Sem cartão de crédito. Sem setup.</NoWidows>
         </p>
         <Link href="/signup">
-          <Button size="lg">
+          <Button size="lg" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
             Montar meu Board agora <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </Link>
         <p className="mt-4 text-xs text-[#2B1A07]/60 font-curia-serif">
-          <NoWidows>Sem cartão de crédito · Leva menos de 2 minutos</NoWidows>
+          <NoWidows>14 dias grátis · Sem cartão de crédito · Leva menos de 2 minutos</NoWidows>
         </p>
       </div>
     </section>
@@ -772,9 +775,6 @@ function Footer() {
             <ul className="space-y-2 text-sm">
               <li>
                 <a href="#como-funciona" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Como funciona</a>
-              </li>
-              <li>
-                <a href="#pricing" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Preços</a>
               </li>
               <li>
                 <Link href="/login" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Entrar</Link>
@@ -851,59 +851,3 @@ function Footer() {
   )
 }
 
-// ─── Pricing ─────────────────────────────────────────────────────────────────
-
-function Pricing() {
-  return (
-    <section id="pricing" className="bg-[#FDFBF9] px-6 py-28">
-      <div className="mx-auto max-w-6xl text-center font-curia-serif">
-        <h2 className="mb-3 text-3xl font-curia-rounded text-[#2B1A07] md:text-5xl tracking-[-0.02em]"><NoWidows>Planos</NoWidows></h2>
-        <p className="mx-auto mb-12 max-w-2xl text-[#2B1A07]/70">
-          <NoWidows>Escolha um plano que funciona para o seu estágio.</NoWidows>
-        </p>
-
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:max-w-2xl md:mx-auto">
-          {/* Curia Starter */}
-          <div className="rounded-2xl border border-[#2B1A07]/15 bg-[#2B1A07]/5 p-6 text-left">
-            <h3 className="text-2xl text-[#2B1A07]">
-              <span className="font-curia-rounded">Curia </span>
-              <span className="font-curia-script text-[#FF6F1E]">Starter</span>
-            </h3>
-            <p className="mt-1 text-sm text-[#2B1A07]/70"><NoWidows>Para começar com o básico.</NoWidows></p>
-            <p className="mt-6 text-3xl font-bold text-[#2B1A07]">R$0<span className="text-base font-medium text-[#2B1A07]/70">/mês</span></p>
-            <ul className="mt-6 space-y-2 text-sm text-[#2B1A07]/80">
-              <li>• Acesso limitado ao modelo avançado de raciocínio: Curia Strategist</li>
-              <li>• Mensagens e uploads limitados</li>
-              <li>• Memória e contexto limitados</li>
-            </ul>
-            <Link href="/signup" className="mt-6 inline-block">
-              <Button className="w-full bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">Montar meu Board</Button>
-            </Link>
-          </div>
-
-          {/* Curia Strategist — Mais popular */}
-          <div className="rounded-2xl border border-[#2B1A07]/15 bg-[#2B1A07]/10 p-6 text-left ring-1 ring-[#2B1A07]/10">
-            <div className="mb-2 text-sm font-curia-script text-[#FF6F1E]">Mais popular</div>
-            <h3 className="text-2xl text-[#2B1A07]">
-              <span className="font-curia-rounded">Curia </span>
-              <span className="font-curia-script text-[#FF6F1E]">Strategist</span>
-            </h3>
-            <p className="mt-1 text-sm text-[#2B1A07]/70"><NoWidows>Para operar com mais intensidade.</NoWidows></p>
-            <p className="mt-6 text-3xl font-bold text-[#2B1A07]">R$99<span className="text-base font-medium text-[#2B1A07]/70">/mês</span></p>
-            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.12em] text-[#2B1A07]/50">Tudo do Starter, mais:</p>
-            <ul className="mt-3 space-y-2 text-sm text-[#2B1A07]/80">
-              <li>• Mais acesso ao modelo avançado de raciocínio: Curia Strategist</li>
-              <li>• Mais mensagens e uploads</li>
-              <li>• Memória e contexto ampliados</li>
-              <li>• Acesso antecipado a novos recursos</li>
-            </ul>
-            <Link href="/signup" className="mt-6 inline-block">
-              <Button className="w-full bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">Montar meu Board</Button>
-            </Link>
-          </div>
-
-        </div>
-      </div>
-    </section>
-  )
-}
