@@ -9,6 +9,196 @@ import { QuotesCarousel } from '@/components/ui/quotes-carousel'
 import { ScrollTimeline } from '@/components/ui/scroll-timeline'
 import { NoWidows, noWidows } from '@/components/ui/no-widows'
 
+// ─── Hero Demo — animated fake product ───────────────────────────────────────
+
+const DEMO_Q = 'Nosso churn subiu para 8% este mês. Quais são as causas mais prováveis?'
+const DEMO_R = 'Três vetores dominam esse padrão: onboarding incompleto nos primeiros 7 dias responde por ~60% dos cancelamentos. Clientes que não ativam a função principal churnam 3× mais rápido. Ausência de check-in estruturado nas contas acima de R$500/mês. Priorize nessa ordem antes de qualquer campanha de retenção.'
+const DEMO_CONVOS = ['Análise de churn Q1', 'Estratégia de expansão', 'Review financeiro', 'Posicionamento de marca']
+const DEMO_BOARDS = [
+  { name: 'Estratégia', cls: 'bg-[#FF6F1E]' },
+  { name: 'Finanças',   cls: 'bg-emerald-600' },
+  { name: 'Produto',    cls: 'bg-blue-600' },
+  { name: 'Crescimento',cls: 'bg-purple-600' },
+]
+
+type DemoPhase = 'idle' | 'typing' | 'thinking' | 'counselors' | 'streaming' | 'done'
+
+function HeroDemo() {
+  const [phase, setPhase]           = useState<DemoPhase>('idle')
+  const [typed, setTyped]           = useState('')
+  const [counselors, setCounselors] = useState(0)
+  const [streamed, setStreamed]      = useState('')
+  const alive = useRef(true)
+
+  useEffect(() => {
+    alive.current = true
+
+    function go() {
+      if (!alive.current) return
+      setPhase('idle'); setTyped(''); setCounselors(0); setStreamed('')
+
+      // 1 — start typing
+      const t1 = setTimeout(() => {
+        if (!alive.current) return
+        setPhase('typing')
+        let i = 0
+        const tick = setInterval(() => {
+          if (!alive.current) { clearInterval(tick); return }
+          i++
+          setTyped(DEMO_Q.slice(0, i))
+          if (i >= DEMO_Q.length) {
+            clearInterval(tick)
+            // 2 — submitted → thinking
+            setTimeout(() => {
+              if (!alive.current) return
+              setPhase('thinking'); setTyped('')
+              // 3 — counselors appear
+              setTimeout(() => {
+                if (!alive.current) return
+                setPhase('counselors')
+                DEMO_BOARDS.forEach((_, idx) => {
+                  setTimeout(() => {
+                    if (!alive.current) return
+                    setCounselors(idx + 1)
+                  }, idx * 380)
+                })
+                // 4 — stream response
+                const streamDelay = DEMO_BOARDS.length * 380 + 700
+                setTimeout(() => {
+                  if (!alive.current) return
+                  setPhase('streaming')
+                  const words = DEMO_R.split(' ')
+                  let w = 0
+                  const stream = setInterval(() => {
+                    if (!alive.current) { clearInterval(stream); return }
+                    w++
+                    setStreamed(words.slice(0, w).join(' '))
+                    if (w >= words.length) {
+                      clearInterval(stream)
+                      setPhase('done')
+                      setTimeout(go, 3500)
+                    }
+                  }, 55)
+                }, streamDelay)
+              }, 900)
+            }, 500)
+          }
+        }, 32)
+      }, 1200)
+      return t1
+    }
+
+    const t = go()
+    return () => { alive.current = false; clearTimeout(t) }
+  }, [])
+
+  const showQuestion  = phase !== 'idle'
+  const showThinking  = phase === 'thinking'
+  const showCounselors= ['counselors','streaming','done'].includes(phase)
+  const showResponse  = ['streaming','done'].includes(phase)
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-[#2B1A07]/12 shadow-2xl" style={{ background: '#FDFBF9' }}>
+      {/* Window chrome */}
+      <div className="flex items-center gap-2 border-b border-[#2B1A07]/10 bg-[#F5EDE0]/60 px-4 py-2.5">
+        <div className="flex gap-1.5">
+          <div className="h-3 w-3 rounded-full bg-red-400/70" />
+          <div className="h-3 w-3 rounded-full bg-amber-300/70" />
+          <div className="h-3 w-3 rounded-full bg-emerald-400/70" />
+        </div>
+        <span className="mx-auto font-curia-serif text-xs text-[#2B1A07]/50">Curia — Board Room</span>
+      </div>
+
+      {/* App layout */}
+      <div className="flex" style={{ height: '420px' }}>
+
+        {/* Sidebar */}
+        <div className="flex w-44 shrink-0 flex-col border-r border-[#2B1A07]/08" style={{ background: '#1C0F06' }}>
+          <div className="px-3 pt-4 pb-2">
+            <p className="font-curia-serif text-[10px] font-semibold uppercase tracking-[0.15em] text-white/30">Conversas</p>
+          </div>
+          {DEMO_CONVOS.map((c, i) => (
+            <div
+              key={c}
+              className={`mx-2 mb-0.5 rounded-lg px-2.5 py-2 transition-all ${i === 0 ? 'bg-[#FF6F1E]/20' : ''}`}
+            >
+              <p className={`font-curia-serif text-xs leading-tight ${i === 0 ? 'text-white/90' : 'text-white/35'}`}>
+                {c}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Main chat */}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          {/* Messages */}
+          <div className="flex-1 space-y-4 overflow-hidden px-5 py-5">
+
+            {/* User message */}
+            {showQuestion && (
+              <div className="flex justify-end">
+                <div className="max-w-[75%] rounded-2xl rounded-tr-sm bg-[#2B1A07] px-4 py-2.5">
+                  <p className="font-curia-serif text-xs leading-relaxed text-white/90">{DEMO_Q}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Thinking indicator */}
+            {showThinking && (
+              <div className="flex items-center gap-2">
+                <div className="flex gap-1">
+                  {[0,1,2].map(i => (
+                    <div key={i} className="h-1.5 w-1.5 rounded-full bg-[#FF6F1E]/60 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                  ))}
+                </div>
+                <p className="font-curia-serif text-xs text-[#2B1A07]/40">Board deliberando...</p>
+              </div>
+            )}
+
+            {/* Counselors */}
+            {showCounselors && (
+              <div className="flex flex-wrap gap-1.5">
+                {DEMO_BOARDS.slice(0, counselors).map(b => (
+                  <div key={b.name} className="flex items-center gap-1.5 rounded-full border border-[#2B1A07]/10 bg-white px-2.5 py-1 shadow-sm">
+                    <div className={`h-2 w-2 rounded-full ${b.cls}`} />
+                    <span className="font-curia-serif text-[10px] font-medium text-[#2B1A07]/70">{b.name}</span>
+                    {phase !== 'done' && <div className="h-1.5 w-1.5 animate-spin rounded-full border border-[#2B1A07]/20 border-t-[#2B1A07]/60" />}
+                    {phase === 'done' && <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* AI response */}
+            {showResponse && (
+              <div className="max-w-[85%]">
+                <p className="font-curia-serif text-xs leading-relaxed text-[#2B1A07]/80">
+                  {streamed}
+                  {phase === 'streaming' && <span className="ml-0.5 inline-block h-3 w-0.5 animate-pulse bg-[#2B1A07]/60" />}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Input bar */}
+          <div className="border-t border-[#2B1A07]/08 px-4 py-3">
+            <div className="flex items-center gap-2 rounded-xl border border-[#2B1A07]/15 bg-white px-3 py-2 shadow-sm">
+              <p className="flex-1 font-curia-serif text-xs text-[#2B1A07]/80">
+                {typed}
+                {phase === 'typing' && <span className="ml-px inline-block h-3 w-px animate-pulse bg-[#2B1A07]/60" />}
+                {phase === 'idle' && <span className="text-[#2B1A07]/30">Pergunte ao seu Board...</span>}
+              </p>
+              <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg transition-colors ${phase === 'typing' && typed.length > 5 ? 'bg-[#FF6F1E]' : 'bg-[#2B1A07]/10'}`}>
+                <ArrowRight className={`h-3 w-3 ${phase === 'typing' && typed.length > 5 ? 'text-white' : 'text-[#2B1A07]/40'}`} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Logo ─────────────────────────────────────────────────────────────────────
 
 function CuriaLogo({ size = 'md' }: { size?: 'sm' | 'md' }) {
@@ -136,29 +326,9 @@ function Hero() {
         </div>
       </div>
 
-      {/* Video demo placeholder */}
+      {/* Live product demo */}
       <div className="relative mx-auto mt-16 max-w-3xl">
-        <div className="overflow-hidden rounded-[var(--brand-radius-xl)] border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-2xl">
-          <div className="flex items-center gap-2 border-b border-[hsl(var(--border))] bg-[hsl(var(--muted))] px-4 py-3">
-            <div className="flex gap-1.5">
-              <div className="h-3 w-3 rounded-full bg-[hsl(var(--brand-danger))] opacity-70" />
-              <div className="h-3 w-3 rounded-full bg-[hsl(var(--brand-warning))] opacity-70" />
-              <div className="h-3 w-3 rounded-full bg-[hsl(var(--brand-success))] opacity-70" />
-            </div>
-                <span className="mx-auto text-xs text-[#2B1A07]/60">Curia — Board Room</span>
-          </div>
-          {/* Video placeholder — substituir por <video> ou <iframe> */}
-          <div className="flex aspect-video items-center justify-center bg-[hsl(var(--muted))]">
-            <div className="flex flex-col items-center gap-3 text-[#2B1A07]/60">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-[hsl(var(--border))] bg-[hsl(var(--card))]">
-                <svg className="h-6 w-6 translate-x-0.5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </div>
-              <span className="text-sm">Demo em breve</span>
-            </div>
-          </div>
-        </div>
+        <HeroDemo />
       </div>
     </section>
   )
