@@ -108,16 +108,17 @@ function Hero() {
         </div>
 
         {/* H1 */}
-        <h1 className="mb-6 text-5xl leading-[1.05] text-[#2B1A07] md:text-7xl font-curia-rounded">
-          <span className="block mx-auto max-w-[18ch]"><NoWidows>O conselho de toda</NoWidows></span>
-          <span className="block mx-auto max-w-[28ch] md:whitespace-nowrap text-[#2B1A07]"><NoWidows>empresa de sucesso,</NoWidows></span>
-          <span className="block mx-auto max-w-[32ch] font-curia-script text-[#FF6F1E]"><NoWidows>no seu computador</NoWidows></span>
+        <h1 className="mb-6 text-4xl leading-[1.1] text-[#2B1A07] md:text-6xl font-curia-rounded">
+          <span className="block mx-auto max-w-[34ch]"><NoWidows>Grandes empresas pagam milhões por conselheiros estratégicos.</NoWidows></span>
+          <span className="block mx-auto max-w-[34ch]">
+            <NoWidows>Agora você também tem —</NoWidows>{' '}
+            <span className="font-curia-script text-[#FF6F1E]">no seu computador</span>
+          </span>
         </h1>
 
-        {/* Subtitle */}
-        <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-[#2B1A07]/70 font-curia-serif">
-          <span className="block"><NoWidows>Grandes empresas pagam milhões por conselheiros estratégicos.</NoWidows></span>
-          <span className="block"><NoWidows>Agora você também tem — com orçamento de startup.</NoWidows></span>
+        {/* Oferta */}
+        <p className="mx-auto mb-10 font-curia-serif text-sm text-[#2B1A07]/50">
+          14 dias grátis · Sem cartão de crédito
         </p>
 
         {/* CTAs */}
@@ -127,15 +128,12 @@ function Hero() {
               Ver como funciona
             </Button>
           </a>
-          <Link href="/signup">
+          <a href="#fortalecer-decisoes">
             <Button size="lg" className="w-full sm:w-auto bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
               Montar meu board <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-          </Link>
+          </a>
         </div>
-        <p className="mt-4 text-xs text-[#2B1A07]/50 font-curia-serif">
-          14 dias grátis · Sem cartão de crédito
-        </p>
       </div>
 
       {/* Video demo placeholder */}
@@ -729,7 +727,7 @@ function BigTechs() {
 
 function FinalCTA() {
   return (
-    <section className="relative overflow-hidden px-6 py-28 text-center">
+    <section id="fortalecer-decisoes" className="relative overflow-hidden px-6 py-28 text-center">
       {/* Glow */}
       <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center">
         <div className="h-[400px] w-[400px] rounded-full bg-[hsl(var(--secondary))] opacity-[0.05] blur-3xl" />
@@ -738,7 +736,7 @@ function FinalCTA() {
       <div className="relative mx-auto max-w-xl">
         <h2 className="mb-4 text-4xl font-curia-serif-display tracking-tight text-[#2B1A07] md:text-5xl"><NoWidows>Fortaleça suas decisões</NoWidows></h2>
         <p className="mb-10 text-lg text-[#2B1A07]/70 font-curia-serif">
-          <NoWidows>Comece grátis. Sem cartão de crédito. Sem setup.</NoWidows>
+          <NoWidows>14 dias grátis · Sem cartão de crédito</NoWidows>
         </p>
         <Link href="/signup">
           <Button size="lg" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
@@ -746,7 +744,7 @@ function FinalCTA() {
           </Button>
         </Link>
         <p className="mt-4 text-xs text-[#2B1A07]/60 font-curia-serif">
-          <NoWidows>14 dias grátis · Sem cartão de crédito · Leva menos de 2 minutos</NoWidows>
+          <NoWidows>Leva menos de 2 minutos</NoWidows>
         </p>
       </div>
     </section>
