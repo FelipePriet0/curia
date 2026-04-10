@@ -416,7 +416,7 @@ function Hero() {
         </h1>
 
         {/* Oferta */}
-        <p className="mx-auto mb-10 font-curia-serif text-sm text-[#2B1A07]/50">
+        <p className="mx-auto mb-10 font-curia-serif text-2xl text-[#2B1A07]/50">
           Teste grátis por 14 dias.
         </p>
 
@@ -820,7 +820,7 @@ function BoardHomePreview() {
     <div className="flex flex-col items-center w-full">
       {/* Greeting texts — above the chamber in normal flow */}
       <div className="flex flex-col items-center text-center pointer-events-none">
-        <span className="font-curia-script text-[#FF6F1E] text-3xl md:text-4xl leading-none">
+        <span className="font-curia-script text-[#2B1A07] text-3xl md:text-4xl leading-none">
           Olá, Empresário
         </span>
         <span className="font-curia-script text-[#FF6F1E] text-lg md:text-2xl leading-snug mt-2 whitespace-nowrap">
@@ -1045,8 +1045,6 @@ function Pricing() {
               <span className="font-curia-rounded">Curia </span>
               <span className="font-curia-script text-[#FF6F1E]">Starter</span>
             </h3>
-            <p className="mt-1 font-curia-serif text-sm text-[#2B1A07]/70">Grátis para sempre</p>
-
             {/* Price */}
             <p className="mt-6 font-curia-rounded text-3xl font-bold text-[#2B1A07]">R$0<span className="text-base font-medium text-[#2B1A07]/70">/mês</span></p>
 
