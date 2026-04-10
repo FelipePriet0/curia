@@ -80,16 +80,7 @@ export async function POST(
   // Buscar dados completos da empresa do banco — inclui métricas e diagnóstico do onboarding
   const { data: companyRow } = await supabase
     .from('companies')
-    .select([
-      'company_name', 'industry', 'business_type', 'business_model', 'monetization',
-      'product_description', 'average_ticket', 'team_size', 'founded_period', 'capital_stage',
-      'mrr', 'churn_rate', 'cac', 'ltv',
-      'monthly_revenue', 'gross_margin', 'max_capacity',
-      'gmv', 'take_rate', 'marketplace_weak_side',
-      'active_customers', 'icp_defined', 'icp_description', 'acquisition_channel',
-      'main_bottleneck', 'main_bottleneck_detail',
-      'diagnosed_stage', 'diagnostic_summary', 'priority_ladder',
-    ].join(', '))
+    .select('company_name, industry, business_type, business_model, monetization, product_description, average_ticket, team_size, founded_period, capital_stage, mrr, churn_rate, cac, ltv, monthly_revenue, gross_margin, max_capacity, gmv, take_rate, marketplace_weak_side, active_customers, icp_defined, icp_description, acquisition_channel, main_bottleneck, main_bottleneck_detail, diagnosed_stage, diagnostic_summary, priority_ladder')
     .eq('user_id', user.id)
     .maybeSingle()
 
