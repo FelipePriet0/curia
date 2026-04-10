@@ -136,7 +136,9 @@ Regras:
     messages: [{ role: 'user', content: prompt }],
   })
 
-  const text = (response.content[0] as { type: string; text: string }).text.trim()
+  const raw = (response.content[0] as { type: string; text: string }).text.trim()
+  // Strip markdown code fences if present (```json ... ``` or ``` ... ```)
+  const text = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
   return JSON.parse(text) as DiagnosisResult
 }
 
@@ -212,7 +214,8 @@ export async function POST(req: NextRequest) {
       priority_ladder:    diagnosis.priority_ladder,
     })
   } catch (err) {
-    console.error('[POST /api/onboarding]', err)
-    return NextResponse.json({ error: 'Internal error' }, { status: 500 })
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[POST /api/onboarding]', msg, err)
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }
