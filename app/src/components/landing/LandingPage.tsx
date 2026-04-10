@@ -331,6 +331,7 @@ export function LandingPage() {
       <HowItWorks />
       <Authority />
       <BigTechs />
+      <Pricing />
       <FinalCTA />
       <Footer />
     </div>
@@ -409,10 +410,9 @@ function Hero() {
 
         {/* H1 */}
         <h1 className="mb-6 text-4xl leading-[1.1] text-[#2B1A07] md:text-6xl font-curia-rounded">
-          <span className="block mx-auto max-w-[34ch]"><NoWidows>Grandes empresas pagam milhões por conselheiros estratégicos.</NoWidows></span>
-          <span className="block mx-auto max-w-[34ch]">
-            <NoWidows>Agora você também tem —</NoWidows>{' '}
-            <span className="font-curia-script text-[#FF6F1E]">no seu computador</span>
+          <span className="block mx-auto max-w-[32ch]">
+            <NoWidows>Os conselheiros estratégicos das grandes empresas —</NoWidows>{' '}
+            <span className="font-curia-script text-[#FF6F1E]">no seu computador.</span>
           </span>
         </h1>
 
@@ -999,6 +999,71 @@ function BigTechs() {
 }
 
 // ─── Final CTA ────────────────────────────────────────────────────────────────
+
+// ─── Pricing ──────────────────────────────────────────────────────────────────
+
+const STARTER_FEATURES = [
+  'Board estratégico completo',
+  '6 conselheiros de IA especializados',
+  'Diagnóstico de empresa no onboarding',
+  'Consultas ilimitadas',
+  'Histórico de conversas',
+]
+
+function Pricing() {
+  return (
+    <section id="planos" className="bg-[#FDFBF9] px-6 py-28">
+      <div className="mx-auto max-w-5xl text-center">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-[#2B1A07]/60">Planos</p>
+        <h2 className="mb-4 text-3xl font-curia-rounded text-[#2B1A07] md:text-5xl tracking-[-0.02em]">
+          <NoWidows>Comece agora, sem risco</NoWidows>
+        </h2>
+        <p className="mb-14 text-lg text-[#2B1A07]/70 font-curia-serif">
+          <NoWidows>14 dias grátis · Sem cartão de crédito · Cancele quando quiser</NoWidows>
+        </p>
+
+        {/* Single card — Starter */}
+        <div className="mx-auto max-w-sm">
+          <div className="relative overflow-hidden rounded-2xl border border-[#2B1A07]/12 bg-white px-8 py-10 shadow-lg shadow-[#2B1A07]/06">
+            {/* Badge */}
+            <span className="mb-6 inline-block rounded-full bg-[#FF6F1E]/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-[#FF6F1E]">
+              Curia Starter
+            </span>
+
+            {/* Price */}
+            <div className="mb-2 flex items-end justify-center gap-1">
+              <span className="font-curia-rounded text-6xl text-[#2B1A07]">R$0</span>
+            </div>
+            <p className="mb-8 font-curia-serif text-sm text-[#2B1A07]/50">Grátis para sempre</p>
+
+            {/* CTA */}
+            <Link href="/signup" className="block w-full">
+              <Button size="lg" className="w-full bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
+                Criar minha conta <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+
+            {/* Features */}
+            <ul className="mt-8 space-y-3 text-left">
+              {STARTER_FEATURES.map((feat) => (
+                <li key={feat} className="flex items-start gap-3 font-curia-serif text-sm text-[#2B1A07]/80">
+                  <svg viewBox="0 0 16 16" className="mt-0.5 h-4 w-4 shrink-0 text-[#FF6F1E]" fill="none">
+                    <circle cx="8" cy="8" r="7.5" stroke="currentColor" strokeOpacity="0.3" />
+                    <path d="M4.5 8l2.5 2.5 4.5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  {feat}
+                </li>
+              ))}
+            </ul>
+
+            {/* Glow accent */}
+            <div aria-hidden className="pointer-events-none absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-[#FF6F1E] opacity-[0.06] blur-2xl" />
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
 
 function FinalCTA() {
   return (
