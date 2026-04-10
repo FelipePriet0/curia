@@ -8,6 +8,7 @@ import { FloatingNav } from '@/components/ui/floating-navbar'
 import { QuotesCarousel } from '@/components/ui/quotes-carousel'
 import { ScrollTimeline } from '@/components/ui/scroll-timeline'
 import { NoWidows, noWidows } from '@/components/ui/no-widows'
+import { CuriaChambra } from '@/components/board/chamber/CuriaChambra'
 
 // ─── Hero Demo — animated fake product ───────────────────────────────────────
 
@@ -816,65 +817,82 @@ function Authority() {
 
 // ─── Meet Curia ──────────────────────────────────────────────────────────────
 
-function MeetCuria() {
+function BoardHomePreview() {
   return (
-    <section id="conheca" className="relative overflow-hidden bg-[#FDFBF9] px-6 py-28">
-
-      {/* ── Background board UI (decorative, no card border) ── */}
-      <div
-        aria-hidden
-        className="pointer-events-none select-none absolute right-[-2%] top-1/2 -translate-y-1/2 w-[52%] opacity-[0.13]"
-      >
-        {/* Chrome bar */}
-        <div className="flex items-center gap-2 border-b border-[#2B1A07]/10 bg-[#F5EDE0]/60 px-5 py-3">
-          <div className="flex gap-1.5">
-            <div className="h-3 w-3 rounded-full bg-red-400/70" />
-            <div className="h-3 w-3 rounded-full bg-amber-300/70" />
-            <div className="h-3 w-3 rounded-full bg-emerald-400/70" />
-          </div>
-          <span className="mx-auto font-curia-serif text-sm text-[#2B1A07]/40">Curia — Board Room</span>
+    <div className="flex flex-col items-center w-full">
+      {/* Chamber with greeting overlay — mirrors board home state exactly */}
+      <div className="relative w-full" style={{ height: 300 }}>
+        <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-2 z-10">
+          <span className="font-curia-script text-[#FF6F1E] text-3xl md:text-4xl leading-none">
+            Olá, Empresário
+          </span>
         </div>
-        {/* App body */}
-        <div className="flex flex-col items-center gap-5 px-8 pb-8 pt-10">
-          <div className="text-center">
-            <h3 className="font-curia-rounded text-3xl text-[#2B1A07]">Olá, Empresário</h3>
-            <p className="mt-2 font-curia-serif text-base text-[#2B1A07]/60">O que você deseja resolver hoje?</p>
-          </div>
-          <ChamberSVG className="w-full max-w-[420px]" />
-          <div className="w-full">
-            <div className="flex items-center gap-2 rounded-xl border border-[#2B1A07]/20 bg-white px-5 py-4">
-              <span className="flex-1 font-curia-serif text-sm text-[#2B1A07]/30">Apresente seu desafio ao Board...</span>
-              <ArrowRight className="h-4 w-4 text-[#2B1A07]/30" />
+        <CuriaChambra state="idle" />
+      </div>
+
+      {/* Subtitle — larger, primary color */}
+      <p className="mt-3 font-curia-rounded text-xl md:text-2xl text-[#FF6F1E] text-center">
+        O que você deseja resolver hoje?
+      </p>
+
+      {/* Static input bar — CouncilInput home style */}
+      <div className="mt-5 w-full max-w-md">
+        <div className="council-input-box pointer-events-none select-none" style={{ opacity: 0.85 }}>
+          <textarea
+            readOnly
+            rows={2}
+            className="council-textarea council-textarea-home"
+            placeholder="Conte-nos o seu maior desafio, vamos resolvê-lo juntos."
+            style={{ resize: 'none' }}
+          />
+          <div className="council-input-footer">
+            <div className="council-input-tools">
+              <span className="council-model-badge inline-flex items-center gap-1 text-xs">
+                Curia Strategist
+              </span>
+            </div>
+            <div className="council-send-round opacity-30">
+              <ArrowRight className="h-3.5 w-3.5" />
             </div>
           </div>
         </div>
       </div>
+    </div>
+  )
+}
 
-      {/* ── Gradient overlays ── */}
-      <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(to right, #FDFBF9 36%, rgba(253,251,249,0.85) 52%, transparent)' }} />
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#FDFBF9] to-transparent" />
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#FDFBF9] to-transparent" />
+function MeetCuria() {
+  return (
+    <section id="conheca" className="bg-[#FDFBF9] px-6 py-24">
+      <div className="mx-auto max-w-6xl">
+        <div className="grid items-center gap-8 md:grid-cols-2 md:gap-10">
 
-      {/* ── Content ── */}
-      <div className="relative z-10 mx-auto max-w-6xl">
-        <div className="max-w-xl">
-          <h2 className="mb-5 text-3xl font-curia-rounded text-[#2B1A07] md:text-5xl tracking-[-0.02em]"><NoWidows>Conheça a Curia</NoWidows></h2>
-          <p className="text-lg leading-relaxed text-[#2B1A07]/80 font-curia-serif">
-            <NoWidows>Curia é o seu conselho consultivo de IA, disponível 24 horas por dia. Estratégico, preciso e sempre pronto para orientar suas decisões.</NoWidows>
-          </p>
-          <p className="mt-4 text-lg leading-relaxed text-[#2B1A07]/70 font-curia-serif">
-            <NoWidows>Criada para dar a empresas em crescimento o mesmo nível de inteligência que antes só as grandes tinham acesso.</NoWidows>
-          </p>
-          <div className="mt-8 flex items-center gap-3">
-            <a href="#como-funciona">
-              <Button variant="outline" size="lg">Ver como funciona</Button>
-            </a>
-            <Link href="/signup">
-              <Button size="lg" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
-                Montar meu board <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
+          {/* Left: Copy */}
+          <div>
+            <h2 className="mb-5 text-3xl font-curia-rounded text-[#2B1A07] md:text-5xl tracking-[-0.02em]"><NoWidows>Conheça a Curia</NoWidows></h2>
+            <p className="text-lg leading-relaxed text-[#2B1A07]/80 font-curia-serif">
+              <NoWidows>Curia é o seu conselho consultivo de IA, disponível 24 horas por dia. Estratégico, preciso e sempre pronto para orientar suas decisões.</NoWidows>
+            </p>
+            <p className="mt-4 text-lg leading-relaxed text-[#2B1A07]/70 font-curia-serif">
+              <NoWidows>Criada para dar a empresas em crescimento o mesmo nível de inteligência que antes só as grandes tinham acesso.</NoWidows>
+            </p>
+            <div className="mt-8 flex items-center gap-3">
+              <a href="#como-funciona">
+                <Button variant="outline" size="lg">Ver como funciona</Button>
+              </a>
+              <Link href="/signup">
+                <Button size="lg" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
+                  Montar meu board <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
           </div>
+
+          {/* Right: Board home UI (no card frame) */}
+          <div className="relative">
+            <BoardHomePreview />
+          </div>
+
         </div>
       </div>
     </section>
