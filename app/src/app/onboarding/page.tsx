@@ -384,10 +384,20 @@ function Step4({ form, update }: { form: FormData; update: (k: keyof FormData, v
 }
 
 function Step5({ form, update }: { form: FormData; update: (k: keyof FormData, v: string) => void }) {
+  const selected = form.main_bottleneck ? form.main_bottleneck.split(',') : []
+
+  function toggle(value: string) {
+    const next = selected.includes(value)
+      ? selected.filter(v => v !== value)
+      : [...selected, value]
+    update('main_bottleneck', next.join(','))
+  }
+
   return (
     <div className="space-y-5">
       <div>
-        <Label>Qual é o maior gargalo hoje? *</Label>
+        <Label>Quais são os maiores gargalos hoje? *</Label>
+        <p className="mb-3 font-curia-serif text-xs text-[#2B1A07]/50">Selecione todos que se aplicam.</p>
         <div className="grid grid-cols-1 gap-2">
           {[
             { label: 'Aquisição de clientes',     value: 'acquisition',   desc: 'Difícil trazer novos clientes' },
@@ -396,23 +406,26 @@ function Step5({ form, update }: { form: FormData; update: (k: keyof FormData, v
             { label: 'Capital / runway',           value: 'capital',       desc: 'Pressão financeira ou runway curto' },
             { label: 'Time / operação',            value: 'team_ops',      desc: 'Execução, contratação ou processos' },
             { label: 'Marca / posicionamento',     value: 'brand',         desc: 'Comunicar valor, ser reconhecido' },
-          ].map(opt => (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => update('main_bottleneck', opt.value === form.main_bottleneck ? '' : opt.value)}
-              className={`rounded-xl border px-4 py-3 text-left shadow-sm transition-all ${
-                form.main_bottleneck === opt.value
-                  ? 'bg-[#2B1A07] text-white border-[#2B1A07]'
-                  : 'bg-white border-[#2B1A07]/15 text-[#2B1A07]/80 hover:border-[#2B1A07]/40'
-              }`}
-            >
-              <span className="block font-curia-serif text-sm font-medium">{opt.label}</span>
-              <span className={`block font-curia-serif text-xs mt-0.5 ${form.main_bottleneck === opt.value ? 'text-white/70' : 'text-[#2B1A07]/50'}`}>
-                {opt.desc}
-              </span>
-            </button>
-          ))}
+          ].map(opt => {
+            const active = selected.includes(opt.value)
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => toggle(opt.value)}
+                className={`rounded-xl border px-4 py-3 text-left shadow-sm transition-all ${
+                  active
+                    ? 'bg-[#2B1A07] text-white border-[#2B1A07]'
+                    : 'bg-white border-[#2B1A07]/15 text-[#2B1A07]/80 hover:border-[#2B1A07]/40'
+                }`}
+              >
+                <span className="block font-curia-serif text-sm font-medium">{opt.label}</span>
+                <span className={`block font-curia-serif text-xs mt-0.5 ${active ? 'text-white/70' : 'text-[#2B1A07]/50'}`}>
+                  {opt.desc}
+                </span>
+              </button>
+            )
+          })}
         </div>
       </div>
       <div>
