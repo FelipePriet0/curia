@@ -360,7 +360,7 @@ function Nav() {
             </Link>
             <Link href="/signup">
               <Button size="md" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
-                Montar meu Board <ArrowRight className="ml-1.5 h-4 w-4" />
+                Comece agora <ArrowRight className="ml-1.5 h-4 w-4" />
               </Button>
             </Link>
           </div>
@@ -380,7 +380,7 @@ function Nav() {
             </Link>
             <Link href="/signup">
               <button className="rounded-full bg-[#FF6F1E] px-4 py-1.5 text-sm font-semibold text-[#2B1A07] hover:opacity-90 transition-opacity">
-                Montar meu Board
+                Comece agora
               </button>
             </Link>
           </div>
@@ -409,16 +409,15 @@ function Hero() {
         </div>
 
         {/* H1 */}
-        <h1 className="mb-6 text-4xl leading-[1.1] text-[#2B1A07] md:text-6xl font-curia-rounded">
-          <span className="block mx-auto max-w-[32ch]">
-            <NoWidows>Os conselheiros estratégicos das grandes empresas —</NoWidows>{' '}
-            <span className="font-curia-script text-[#FF6F1E]">no seu computador.</span>
-          </span>
+        <h1 className="mb-6 text-4xl leading-[1.15] text-[#2B1A07] md:text-6xl font-curia-rounded">
+          <span className="block">Os conselheiros estratégicos</span>
+          <span className="block">das grandes empresas</span>
+          <span className="block font-curia-script text-[#FF6F1E]">trabalhando para você</span>
         </h1>
 
         {/* Oferta */}
         <p className="mx-auto mb-10 font-curia-serif text-sm text-[#2B1A07]/50">
-          14 dias grátis · Sem cartão de crédito
+          Teste grátis por 14 dias.
         </p>
 
         {/* CTAs */}
@@ -428,11 +427,11 @@ function Hero() {
               Ver como funciona
             </Button>
           </a>
-          <a href="#fortalecer-decisoes">
+          <Link href="/signup">
             <Button size="lg" className="w-full sm:w-auto bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
-              Montar meu board <ArrowRight className="ml-2 h-4 w-4" />
+              Comece agora <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-          </a>
+          </Link>
         </div>
       </div>
 
@@ -824,13 +823,13 @@ function BoardHomePreview() {
         <span className="font-curia-script text-[#FF6F1E] text-3xl md:text-4xl leading-none">
           Olá, Empresário
         </span>
-        <span className="font-curia-script text-[#FF6F1E] text-lg md:text-2xl leading-snug mt-1 whitespace-nowrap">
+        <span className="font-curia-script text-[#FF6F1E] text-lg md:text-2xl leading-snug mt-2 whitespace-nowrap">
           O que você deseja resolver hoje?
         </span>
       </div>
 
       {/* Chamber — pushed below the greeting */}
-      <div className="w-full mt-3" style={{ height: 280 }}>
+      <div className="w-full mt-2" style={{ height: 280 }}>
         <CuriaChambra state="idle" />
       </div>
 
@@ -881,7 +880,7 @@ function MeetCuria() {
               </a>
               <Link href="/signup">
                 <Button size="lg" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
-                  Montar meu board <ArrowRight className="ml-2 h-4 w-4" />
+                  Comece agora <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
             </div>
@@ -1134,7 +1133,7 @@ function Footer() {
             <p className="text-sm text-[#2B1A07]/70 mb-4 font-curia-serif">Leva menos de 2 minutos.</p>
             <Link href="/signup">
               <Button size="md" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90 w-full sm:w-auto">
-                Montar meu board
+                Comece agora
               </Button>
             </Link>
           </div>
