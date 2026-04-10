@@ -333,7 +333,6 @@ export function LandingPage() {
       <Authority />
       <BigTechs />
       <Pricing />
-      <FinalCTA />
       <Footer />
     </div>
   )
@@ -820,16 +819,18 @@ function Authority() {
 function BoardHomePreview() {
   return (
     <div className="flex flex-col items-center w-full">
-      {/* Chamber with greeting overlay — mirrors board home state exactly */}
-      <div className="relative w-full" style={{ height: 300 }}>
-        <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-2 z-10 flex flex-col items-center text-center">
-          <span className="font-curia-script text-[#FF6F1E] text-3xl md:text-4xl leading-none">
-            Olá, Empresário
-          </span>
-          <span className="font-curia-script text-[#FF6F1E] text-xl md:text-2xl leading-snug mt-1">
-            O que você deseja resolver hoje?
-          </span>
-        </div>
+      {/* Greeting texts — above the chamber in normal flow */}
+      <div className="flex flex-col items-center text-center pointer-events-none">
+        <span className="font-curia-script text-[#FF6F1E] text-3xl md:text-4xl leading-none">
+          Olá, Empresário
+        </span>
+        <span className="font-curia-script text-[#FF6F1E] text-lg md:text-2xl leading-snug mt-1 whitespace-nowrap">
+          O que você deseja resolver hoje?
+        </span>
+      </div>
+
+      {/* Chamber — pushed below the greeting */}
+      <div className="w-full mt-3" style={{ height: 280 }}>
         <CuriaChambra state="idle" />
       </div>
 
@@ -1030,12 +1031,11 @@ function Pricing() {
   return (
     <section id="planos" className="bg-[#FDFBF9] px-6 py-28">
       <div className="mx-auto max-w-5xl text-center">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-[#2B1A07]/60">Planos</p>
         <h2 className="mb-4 text-3xl font-curia-rounded text-[#2B1A07] md:text-5xl tracking-[-0.02em]">
-          <NoWidows>Comece agora, sem risco</NoWidows>
+          <NoWidows>Fortaleça suas decisões</NoWidows>
         </h2>
         <p className="mb-14 text-lg text-[#2B1A07]/70 font-curia-serif">
-          <NoWidows>14 dias grátis · Sem cartão de crédito · Cancele quando quiser</NoWidows>
+          <NoWidows>Teste grátis por 14 dias · Sem cadastrar seu cartão.</NoWidows>
         </p>
 
         {/* Single card — Starter */}
@@ -1075,32 +1075,6 @@ function Pricing() {
             <div aria-hidden className="pointer-events-none absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-[#FF6F1E] opacity-[0.06] blur-2xl" />
           </div>
         </div>
-      </div>
-    </section>
-  )
-}
-
-function FinalCTA() {
-  return (
-    <section id="fortalecer-decisoes" className="relative overflow-hidden px-6 py-28 text-center">
-      {/* Glow */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <div className="h-[400px] w-[400px] rounded-full bg-[hsl(var(--secondary))] opacity-[0.05] blur-3xl" />
-      </div>
-
-      <div className="relative mx-auto max-w-xl">
-        <h2 className="mb-4 text-4xl font-curia-serif-display tracking-tight text-[#2B1A07] md:text-5xl"><NoWidows>Fortaleça suas decisões</NoWidows></h2>
-        <p className="mb-10 text-lg text-[#2B1A07]/70 font-curia-serif">
-          <NoWidows>14 dias grátis · Sem cartão de crédito</NoWidows>
-        </p>
-        <Link href="/signup">
-          <Button size="lg" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
-            Montar meu Board agora <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </Link>
-        <p className="mt-4 text-xs text-[#2B1A07]/60 font-curia-serif">
-          <NoWidows>Leva menos de 2 minutos</NoWidows>
-        </p>
       </div>
     </section>
   )
