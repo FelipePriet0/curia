@@ -199,6 +199,116 @@ function HeroDemo() {
   )
 }
 
+// ─── Board Mockup — home state sem sidebar ────────────────────────────────────
+
+function ChamberSVG() {
+  // 6 posições de assento ao redor da mesa isométrica
+  const seats = [
+    { cx: 150, cy: 52  }, // topo
+    { cx: 210, cy: 76  }, // topo-direita
+    { cx: 210, cy: 128 }, // baixo-direita
+    { cx: 150, cy: 154 }, // baixo
+    { cx: 90,  cy: 128 }, // baixo-esquerda
+    { cx: 90,  cy: 76  }, // topo-esquerda
+  ]
+
+  return (
+    <svg viewBox="0 0 300 210" className="w-full max-w-[260px]" aria-hidden>
+      <defs>
+        <radialGradient id="mg" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stopColor="#FF6F1E" stopOpacity="0.5" />
+          <stop offset="100%" stopColor="#FF6F1E" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="fg" cx="50%" cy="30%" r="70%">
+          <stop offset="0%"   stopColor="#F8F0E6" />
+          <stop offset="100%" stopColor="#EDD9BF" />
+        </radialGradient>
+      </defs>
+
+      {/* Plataforma isométrica — face superior */}
+      <path d="M 150 35 L 268 98 L 150 162 L 32 98 Z"
+            fill="url(#fg)" stroke="#2B1A07" strokeOpacity="0.08" strokeWidth="1" />
+
+      {/* Face lateral direita */}
+      <path d="M 268 98 L 150 162 L 150 192 L 268 128 Z"
+            fill="#DFC8A8" stroke="none" />
+
+      {/* Face lateral esquerda */}
+      <path d="M 32 98 L 150 162 L 150 192 L 32 128 Z"
+            fill="#CEB895" stroke="none" />
+
+      {/* Linha divisória plataforma */}
+      <line x1="150" y1="162" x2="150" y2="192" stroke="#2B1A07" strokeOpacity="0.06" strokeWidth="1" />
+
+      {/* Mesa central (oval isométrica) */}
+      <ellipse cx="150" cy="98" rx="48" ry="28"
+               fill="#2B1A07" fillOpacity="0.05"
+               stroke="#2B1A07" strokeOpacity="0.12" strokeWidth="1"
+               transform="rotate(-0 150 98)" />
+
+      {/* Glow central */}
+      <circle cx="150" cy="98" r="34" fill="url(#mg)" />
+      <circle cx="150" cy="98" r="12" fill="#FF6F1E" fillOpacity="0.18" />
+      <circle cx="150" cy="98" r="5"  fill="#FF6F1E" fillOpacity="0.6" />
+
+      {/* Assentos dos conselheiros */}
+      {seats.map((s, i) => (
+        <g key={i}>
+          <circle cx={s.cx} cy={s.cy} r={7}
+                  fill="#2B1A07" fillOpacity="0.85"
+                  stroke="#FF6F1E" strokeOpacity="0.35" strokeWidth="1.5" />
+          <circle cx={s.cx} cy={s.cy} r={2.5}
+                  fill="#FF6F1E" fillOpacity="0.6" />
+        </g>
+      ))}
+    </svg>
+  )
+}
+
+function BoardMockup() {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-[#2B1A07]/15 bg-[#FDFBF9] shadow-2xl">
+      {/* Chrome */}
+      <div className="flex items-center gap-2 border-b border-[#2B1A07]/10 bg-[#F5EDE0]/60 px-4 py-2.5">
+        <div className="flex gap-1.5">
+          <div className="h-2.5 w-2.5 rounded-full bg-red-400/70" />
+          <div className="h-2.5 w-2.5 rounded-full bg-amber-300/70" />
+          <div className="h-2.5 w-2.5 rounded-full bg-emerald-400/70" />
+        </div>
+        <span className="mx-auto font-curia-serif text-xs text-[#2B1A07]/50">Curia — Board Room</span>
+      </div>
+
+      {/* App body */}
+      <div className="flex flex-col items-center px-6 pb-5 pt-7" style={{ minHeight: 360 }}>
+
+        {/* Saudação */}
+        <div className="mb-5 text-center">
+          <h3 className="font-curia-rounded text-xl text-[#2B1A07] md:text-2xl">Olá, Empresário</h3>
+          <p className="mt-1 font-curia-serif text-sm text-[#2B1A07]/50">O que você deseja resolver hoje?</p>
+        </div>
+
+        {/* Câmara isométrica */}
+        <div className="flex flex-1 items-center justify-center py-2">
+          <ChamberSVG />
+        </div>
+
+        {/* Input */}
+        <div className="mt-4 w-full">
+          <div className="flex items-center gap-2 rounded-xl border border-[#2B1A07]/15 bg-white px-4 py-3 shadow-sm">
+            <span className="flex-1 font-curia-serif text-sm text-[#2B1A07]/30">
+              Apresente seu desafio ao Board...
+            </span>
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#2B1A07]/08">
+              <ArrowRight className="h-3.5 w-3.5 text-[#2B1A07]/35" />
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  )
+}
+
 // ─── Logo ─────────────────────────────────────────────────────────────────────
 
 function CuriaLogo({ size = 'md' }: { size?: 'sm' | 'md' }) {
@@ -733,42 +843,10 @@ function MeetCuria() {
             </div>
           </div>
 
-          {/* Right: Product Video (SV style) */}
+          {/* Right: Board home UI mockup */}
           <div className="relative">
-            <div className="relative overflow-hidden rounded-[var(--brand-radius-xl)] border border-[#2B1A07]/15 bg-[#2B1A07]/5 shadow-2xl">
-              {/* Subtle gradient backdrop */}
-              <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_0%,rgba(255,255,255,0.08),transparent_60%)]" />
-
-              {/* Top chrome */}
-              <div className="relative z-10 flex items-center gap-2 border-b border-[#2B1A07]/15 bg-[#2B1A07]/10 px-4 py-3">
-                <div className="flex gap-1.5">
-                  <div className="h-2.5 w-2.5 rounded-full bg-red-400/70" />
-                  <div className="h-2.5 w-2.5 rounded-full bg-amber-300/70" />
-                  <div className="h-2.5 w-2.5 rounded-full bg-emerald-400/70" />
-                </div>
-                <span className="mx-auto text-xs text-[#2B1A07]/70">Curia — Product Video</span>
-              </div>
-
-              {/* Video area */}
-              <div className="relative z-10">
-                <div className="aspect-video bg-black/60">
-                  {/* Replace the placeholder below with your video or iframe when ready */}
-                  {/* Example: <video src="/videos/curia-demo.mp4" controls className="h-full w-full object-cover" /> */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <button
-                      aria-label="Play video"
-                      className="group flex h-16 w-16 items-center justify-center rounded-full border-2 border-[#2B1A07]/30 bg-[#2B1A07]/10 text-[#2B1A07] transition hover:scale-105 hover:bg-[#2B1A07]/15"
-                    >
-                      <svg className="h-7 w-7 translate-x-0.5 opacity-90 transition group-hover:opacity-100" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {/* Soft shadow */}
-            <div aria-hidden className="absolute -inset-x-6 -bottom-6 h-12 bg-gradient-to-b from-transparent to-black/40 blur-2xl" />
+            <BoardMockup />
+            <div aria-hidden className="absolute -inset-x-6 -bottom-6 h-12 bg-gradient-to-b from-transparent to-[#FDFBF9] blur-xl" />
           </div>
         </div>
       </div>
