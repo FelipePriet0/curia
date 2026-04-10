@@ -510,11 +510,48 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) return
       const createdAt = new Date(user.created_at).getTime()
-      const ageMs = Date.now() - createdAt
-      if (ageMs > 2 * 60 * 1000) setIsReturning(true)
+      if (Date.now() - createdAt > 2 * 60 * 1000) setIsReturning(true)
+
+      // Pré-preencher form com dados existentes do banco
+      const { data: company } = await supabase
+        .from('companies')
+        .select('company_name, industry, team_size, founded_period, capital_stage, business_type, business_model, monetization, product_description, average_ticket, mrr, churn_rate, cac, ltv, monthly_revenue, gross_margin, max_capacity, gmv, take_rate, marketplace_weak_side, active_customers, icp_defined, icp_description, acquisition_channel, main_bottleneck, main_bottleneck_detail')
+        .eq('user_id', user.id)
+        .maybeSingle()
+
+      if (!company) return
+
+      setForm({
+        company_name:           company.company_name ?? '',
+        industry:               company.industry ?? '',
+        team_size:              company.team_size ?? '',
+        founded_period:         company.founded_period ?? '',
+        capital_stage:          company.capital_stage ?? '',
+        business_type:          company.business_type ?? '',
+        business_model:         company.business_model ?? '',
+        monetization:           company.monetization ?? '',
+        product_description:    company.product_description ?? '',
+        average_ticket:         company.average_ticket != null ? String(company.average_ticket) : '',
+        mrr:                    company.mrr != null ? String(company.mrr) : '',
+        churn_rate:             company.churn_rate != null ? String(company.churn_rate) : '',
+        cac:                    company.cac != null ? String(company.cac) : '',
+        ltv:                    company.ltv != null ? String(company.ltv) : '',
+        monthly_revenue:        company.monthly_revenue != null ? String(company.monthly_revenue) : '',
+        gross_margin:           company.gross_margin != null ? String(company.gross_margin) : '',
+        max_capacity:           company.max_capacity != null ? String(company.max_capacity) : '',
+        gmv:                    company.gmv != null ? String(company.gmv) : '',
+        take_rate:              company.take_rate != null ? String(company.take_rate) : '',
+        marketplace_weak_side:  company.marketplace_weak_side ?? '',
+        active_customers:       company.active_customers != null ? String(company.active_customers) : '',
+        icp_defined:            company.icp_defined === true ? 'yes' : company.icp_defined === false && company.acquisition_channel ? 'no' : '',
+        icp_description:        company.icp_description ?? '',
+        acquisition_channel:    company.acquisition_channel ?? '',
+        main_bottleneck:        company.main_bottleneck ?? '',
+        main_bottleneck_detail: company.main_bottleneck_detail ?? '',
+      })
     })
   }, [])
 
