@@ -201,7 +201,7 @@ function HeroDemo() {
 
 // ─── Board Mockup — home state sem sidebar ────────────────────────────────────
 
-function ChamberSVG() {
+function ChamberSVG({ className = 'w-full max-w-[260px]' }: { className?: string }) {
   // 6 posições de assento ao redor da mesa isométrica
   const seats = [
     { cx: 150, cy: 52  }, // topo
@@ -213,7 +213,7 @@ function ChamberSVG() {
   ]
 
   return (
-    <svg viewBox="0 0 300 210" className="w-full max-w-[260px]" aria-hidden>
+    <svg viewBox="0 0 300 210" className={className} aria-hidden>
       <defs>
         <radialGradient id="mg" cx="50%" cy="50%" r="50%">
           <stop offset="0%"   stopColor="#FF6F1E" stopOpacity="0.5" />
@@ -818,35 +818,62 @@ function Authority() {
 
 function MeetCuria() {
   return (
-    <section id="conheca" className="bg-[#FDFBF9] px-6 py-28">
-      <div className="mx-auto max-w-6xl">
-        <div className="grid items-center gap-10 md:grid-cols-2 md:gap-16">
-          {/* Left: Copy */}
-          <div>
-            <h2 className="mb-5 text-3xl font-curia-rounded text-[#2B1A07] md:text-5xl tracking-[-0.02em]"><NoWidows>Conheça a Curia</NoWidows></h2>
-            <p className="text-lg leading-relaxed text-[#2B1A07]/80 font-curia-serif">
-              <NoWidows>Curia é o seu conselho consultivo de IA, disponível 24 horas por dia. Estratégico, preciso e sempre pronto para orientar suas decisões.</NoWidows>
-            </p>
-            <p className="mt-4 text-lg leading-relaxed text-[#2B1A07]/70 font-curia-serif">
-              <NoWidows>Criada para dar a empresas em crescimento o mesmo nível de inteligência que antes só as grandes tinham acesso.</NoWidows>
-            </p>
+    <section id="conheca" className="relative overflow-hidden bg-[#FDFBF9] px-6 py-28">
 
-            <div className="mt-8 flex items-center gap-3">
-              <a href="#como-funciona">
-                <Button variant="outline" size="lg">Ver como funciona</Button>
-              </a>
-              <Link href="/signup">
-                <Button size="lg" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
-                  Montar meu board <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
+      {/* ── Background board UI (decorative, no card border) ── */}
+      <div
+        aria-hidden
+        className="pointer-events-none select-none absolute right-[-2%] top-1/2 -translate-y-1/2 w-[52%] opacity-[0.13]"
+      >
+        {/* Chrome bar */}
+        <div className="flex items-center gap-2 border-b border-[#2B1A07]/10 bg-[#F5EDE0]/60 px-5 py-3">
+          <div className="flex gap-1.5">
+            <div className="h-3 w-3 rounded-full bg-red-400/70" />
+            <div className="h-3 w-3 rounded-full bg-amber-300/70" />
+            <div className="h-3 w-3 rounded-full bg-emerald-400/70" />
+          </div>
+          <span className="mx-auto font-curia-serif text-sm text-[#2B1A07]/40">Curia — Board Room</span>
+        </div>
+        {/* App body */}
+        <div className="flex flex-col items-center gap-5 px-8 pb-8 pt-10">
+          <div className="text-center">
+            <h3 className="font-curia-rounded text-3xl text-[#2B1A07]">Olá, Empresário</h3>
+            <p className="mt-2 font-curia-serif text-base text-[#2B1A07]/60">O que você deseja resolver hoje?</p>
+          </div>
+          <ChamberSVG className="w-full max-w-[420px]" />
+          <div className="w-full">
+            <div className="flex items-center gap-2 rounded-xl border border-[#2B1A07]/20 bg-white px-5 py-4">
+              <span className="flex-1 font-curia-serif text-sm text-[#2B1A07]/30">Apresente seu desafio ao Board...</span>
+              <ArrowRight className="h-4 w-4 text-[#2B1A07]/30" />
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Right: Board home UI mockup */}
-          <div className="relative">
-            <BoardMockup />
-            <div aria-hidden className="absolute -inset-x-6 -bottom-6 h-12 bg-gradient-to-b from-transparent to-[#FDFBF9] blur-xl" />
+      {/* ── Gradient overlays ── */}
+      <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(to right, #FDFBF9 36%, rgba(253,251,249,0.85) 52%, transparent)' }} />
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#FDFBF9] to-transparent" />
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#FDFBF9] to-transparent" />
+
+      {/* ── Content ── */}
+      <div className="relative z-10 mx-auto max-w-6xl">
+        <div className="max-w-xl">
+          <h2 className="mb-5 text-3xl font-curia-rounded text-[#2B1A07] md:text-5xl tracking-[-0.02em]"><NoWidows>Conheça a Curia</NoWidows></h2>
+          <p className="text-lg leading-relaxed text-[#2B1A07]/80 font-curia-serif">
+            <NoWidows>Curia é o seu conselho consultivo de IA, disponível 24 horas por dia. Estratégico, preciso e sempre pronto para orientar suas decisões.</NoWidows>
+          </p>
+          <p className="mt-4 text-lg leading-relaxed text-[#2B1A07]/70 font-curia-serif">
+            <NoWidows>Criada para dar a empresas em crescimento o mesmo nível de inteligência que antes só as grandes tinham acesso.</NoWidows>
+          </p>
+          <div className="mt-8 flex items-center gap-3">
+            <a href="#como-funciona">
+              <Button variant="outline" size="lg">Ver como funciona</Button>
+            </a>
+            <Link href="/signup">
+              <Button size="lg" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
+                Montar meu board <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
