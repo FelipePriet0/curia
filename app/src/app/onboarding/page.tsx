@@ -69,7 +69,7 @@ const LOADING_MSGS = [
 
 function canProceed(step: number, form: FormData): boolean {
   if (step === 1) return !!form.company_name && !!form.industry && !!form.team_size
-  if (step === 2) return !!form.business_type && !!form.business_model && !!form.product_description
+  if (step === 2) return !!form.business_type && !!form.product_description
   if (step === 3) return true
   if (step === 4) return !!form.acquisition_channel && !!form.icp_defined
   if (step === 5) return !!form.main_bottleneck
@@ -201,20 +201,6 @@ function Step1({ form, update }: { form: FormData; update: (k: keyof FormData, v
           ]}
         />
       </div>
-      <div>
-        <Label>Estágio de capital</Label>
-        <OptionGrid
-          cols={4}
-          value={form.capital_stage}
-          onChange={v => update('capital_stage', v)}
-          options={[
-            { label: 'Bootstrapped', value: 'bootstrapped' },
-            { label: 'Anjo', value: 'angel' },
-            { label: 'Seed', value: 'seed' },
-            { label: 'Série A+', value: 'series_a_plus' },
-          ]}
-        />
-      </div>
     </div>
   )
 }
@@ -239,51 +225,30 @@ function Step2({ form, update }: { form: FormData; update: (k: keyof FormData, v
         />
       </div>
       <div>
-        <Label>Modelo de venda *</Label>
-        <OptionGrid
-          cols={3}
-          value={form.business_model}
-          onChange={v => update('business_model', v)}
-          options={[
-            { label: 'B2B', value: 'b2b' },
-            { label: 'B2C', value: 'b2c' },
-            { label: 'B2B2C', value: 'b2b2c' },
-          ]}
-        />
-      </div>
-      <div>
-        <Label>Como você monetiza *</Label>
-        <OptionGrid
-          cols={3}
-          value={form.monetization}
-          onChange={v => update('monetization', v)}
-          options={[
-            { label: 'Assinatura', value: 'subscription' },
-            { label: 'Venda única', value: 'one_time' },
-            { label: 'Usage-based', value: 'usage_based' },
-            { label: 'Comissão', value: 'commission' },
-            { label: 'Serviço', value: 'service_fee' },
-            { label: 'Híbrido', value: 'hybrid' },
-          ]}
-        />
-      </div>
-      <div>
-        <Label>Descreva o que você vende *</Label>
+        <Label>Venda o seu produto para nós *</Label>
+        <p className="mb-2 font-curia-serif text-xs text-[#2B1A07]/50">
+          Fale como se estivesse convencendo um cliente em 30 segundos — o que é, para quem, por que pagam e o que te diferencia.
+        </p>
         <textarea
-          rows={3}
-          placeholder="Ex: Plataforma de gestão de contratos para escritórios de advocacia. O cliente paga R$299/mês e tem acesso a..."
+          rows={4}
+          placeholder="Ex: A Curia é um board consultivo de IA para founders. Por R$99/mês você tem 6 conselheiros especializados que analisam seu negócio, questionam suas premissas e te ajudam a tomar decisões melhores. Diferente de consultores tradicionais, está disponível 24h e custa 100x menos."
           value={form.product_description}
           onChange={e => update('product_description', e.target.value)}
           className={`${inputCls} h-auto py-3 resize-none`}
         />
       </div>
-      <NumField
-        label="Ticket médio"
-        prefix="R$"
-        value={form.average_ticket}
-        onChange={v => update('average_ticket', v)}
-        placeholder="Ex: 299"
-      />
+      <div>
+        <NumField
+          label="Ticket médio"
+          prefix="R$"
+          value={form.average_ticket}
+          onChange={v => update('average_ticket', v)}
+          placeholder="Ex: 299"
+        />
+        <p className="mt-1.5 font-curia-serif text-xs text-[#2B1A07]/40">
+          Se não souber agora, tudo bem — te ajudamos a calcular depois.
+        </p>
+      </div>
     </div>
   )
 }
@@ -541,6 +506,17 @@ export default function OnboardingPage() {
   const [loadingMsgIdx, setLoadingMsgIdx] = useState(0)
   const [diagnosis, setDiagnosis] = useState<Diagnosis | null>(null)
   const [error, setError] = useState('')
+  const [isReturning, setIsReturning] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return
+      const createdAt = new Date(user.created_at).getTime()
+      const ageMs = Date.now() - createdAt
+      if (ageMs > 2 * 60 * 1000) setIsReturning(true)
+    })
+  }, [])
 
   const update = useCallback((k: keyof FormData, v: string) => {
     setForm(prev => ({ ...prev, [k]: v }))
@@ -625,6 +601,15 @@ export default function OnboardingPage() {
         <div className="mb-8 text-center">
           <span className="font-curia-rounded text-4xl text-[#2B1A07]">Curia</span>
         </div>
+
+        {/* Returning user banner */}
+        {isReturning && !diagnosis && (
+          <div className="mb-6 rounded-xl border border-[#FF6F1E]/20 bg-[#FF6F1E]/06 px-4 py-3 text-center">
+            <p className="font-curia-serif text-sm text-[#2B1A07]/80">
+              Vamos continuar de onde você parou e montar seu Board. 👋
+            </p>
+          </div>
+        )}
 
         {/* Progress bar */}
         <div className="mb-8 h-1 w-full rounded-full bg-[#2B1A07]/10">

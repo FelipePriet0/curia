@@ -71,11 +71,61 @@ export async function POST(
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  const { message, company_context } = await req.json()
+  const { message } = await req.json()
 
   if (!message?.trim()) {
     return NextResponse.json({ error: 'Message is required' }, { status: 400 })
   }
+
+  // Buscar dados completos da empresa do banco — inclui métricas e diagnóstico do onboarding
+  const { data: companyRow } = await supabase
+    .from('companies')
+    .select([
+      'company_name', 'industry', 'business_type', 'business_model', 'monetization',
+      'product_description', 'average_ticket', 'team_size', 'founded_period', 'capital_stage',
+      'mrr', 'churn_rate', 'cac', 'ltv',
+      'monthly_revenue', 'gross_margin', 'max_capacity',
+      'gmv', 'take_rate', 'marketplace_weak_side',
+      'active_customers', 'icp_defined', 'icp_description', 'acquisition_channel',
+      'main_bottleneck', 'main_bottleneck_detail',
+      'diagnosed_stage', 'diagnostic_summary', 'priority_ladder',
+    ].join(', '))
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  const company_context = companyRow
+    ? {
+        company_name:          companyRow.company_name,
+        industry:              companyRow.industry,
+        business_type:         companyRow.business_type,
+        business_model:        companyRow.business_model,
+        monetization:          companyRow.monetization,
+        product_description:   companyRow.product_description,
+        average_ticket:        companyRow.average_ticket,
+        employees:             companyRow.team_size,
+        founded_period:        companyRow.founded_period,
+        capital_stage:         companyRow.capital_stage,
+        mrr:                   companyRow.mrr,
+        churn_rate:            companyRow.churn_rate,
+        cac:                   companyRow.cac,
+        ltv:                   companyRow.ltv,
+        monthly_revenue:       companyRow.monthly_revenue,
+        gross_margin:          companyRow.gross_margin,
+        max_capacity:          companyRow.max_capacity,
+        gmv:                   companyRow.gmv,
+        take_rate:             companyRow.take_rate,
+        marketplace_weak_side: companyRow.marketplace_weak_side,
+        active_customers:      companyRow.active_customers,
+        icp_defined:           companyRow.icp_defined,
+        icp_description:       companyRow.icp_description,
+        acquisition_channel:   companyRow.acquisition_channel,
+        main_bottleneck:       companyRow.main_bottleneck,
+        main_bottleneck_detail: companyRow.main_bottleneck_detail,
+        diagnosed_stage:       companyRow.diagnosed_stage,
+        diagnostic_summary:    companyRow.diagnostic_summary,
+        priority_ladder:       companyRow.priority_ladder,
+      }
+    : undefined
 
   await supabase.from('messages').insert({
     conversation_id: id,

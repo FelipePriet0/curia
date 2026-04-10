@@ -5,22 +5,66 @@ import type { CompanyContext, PlanReviewContext, StrategyContext } from '@/types
 function buildCompanyBlock(company?: CompanyContext): string {
   if (!company) return ''
 
-  const fields = [
-    company.company_name && `- Company: ${company.company_name}`,
-    company.industry && `- Industry: ${company.industry}`,
-    company.business_model && `- Business model: ${company.business_model}`,
-    company.stage && `- Stage: ${company.stage}`,
-    company.employees && `- Team size: ${company.employees}`,
-    company.monthly_revenue && `- Monthly revenue: ${company.monthly_revenue}`,
-    company.main_problem && `- Main challenge: ${company.main_problem}`,
+  // ── Basic info ──────────────────────────────────────────────────────────────
+  const basic = [
+    company.company_name    && `- Company: ${company.company_name}`,
+    company.industry        && `- Industry: ${company.industry}`,
+    company.business_type   && `- Product type: ${company.business_type}`,
+    company.business_model  && `- Business model: ${company.business_model}`,
+    company.monetization    && `- Monetization: ${company.monetization}`,
+    company.diagnosed_stage && `- Company stage: ${company.diagnosed_stage}`,
+    company.employees       && `- Team size: ${company.employees}`,
+    company.capital_stage   && `- Capital stage: ${company.capital_stage}`,
+    company.founded_period  && `- Founded: ${company.founded_period}`,
+    company.product_description && `- Product/service: ${company.product_description}`,
     company.target_customer && `- Target customer: ${company.target_customer}`,
+    (company.icp_defined !== undefined) && `- ICP defined: ${company.icp_defined ? `Yes — ${company.icp_description ?? ''}` : 'No'}`,
+    company.acquisition_channel && `- Main acquisition channel: ${company.acquisition_channel}`,
+    company.active_customers !== undefined && `- Active customers: ${company.active_customers}`,
+    (company.main_bottleneck || company.main_problem) &&
+      `- Main bottleneck: ${company.main_bottleneck ?? company.main_problem}${company.main_bottleneck_detail ? ` — ${company.main_bottleneck_detail}` : ''}`,
   ].filter(Boolean)
 
-  if (fields.length === 0) return ''
+  // ── Metrics ─────────────────────────────────────────────────────────────────
+  const metrics = [
+    company.mrr             !== undefined && `- MRR: R$${company.mrr}`,
+    company.monthly_revenue !== undefined && `- Monthly revenue: R$${company.monthly_revenue}`,
+    company.churn_rate      !== undefined && `- Monthly churn: ${company.churn_rate}%`,
+    company.cac             !== undefined && `- CAC: R$${company.cac}`,
+    company.ltv             !== undefined && `- LTV: R$${company.ltv}`,
+    (company.cac && company.ltv) && `- LTV/CAC ratio: ${(company.ltv / company.cac).toFixed(1)}x`,
+    company.gross_margin    !== undefined && `- Gross margin: ${company.gross_margin}%`,
+    company.average_ticket  !== undefined && `- Average ticket: R$${company.average_ticket}`,
+    company.max_capacity    !== undefined && `- Max monthly capacity: ${company.max_capacity}`,
+    company.gmv             !== undefined && `- Monthly GMV: R$${company.gmv}`,
+    company.take_rate       !== undefined && `- Take rate: ${company.take_rate}%`,
+    company.marketplace_weak_side && `- Marketplace weak side: ${company.marketplace_weak_side}`,
+  ].filter(Boolean)
+
+  // ── Onboarding diagnosis ────────────────────────────────────────────────────
+  const diagnosisLines: string[] = []
+  if (company.diagnostic_summary) {
+    diagnosisLines.push(`Diagnosis summary: ${company.diagnostic_summary}`)
+  }
+  if (company.priority_ladder?.length) {
+    diagnosisLines.push('Priority ladder (from onboarding):')
+    company.priority_ladder.forEach(item => {
+      diagnosisLines.push(
+        `  ${item.rank}. [${item.urgency.toUpperCase()}] ${item.problem} — ${item.detail} (framework: ${item.framework})`
+      )
+    })
+  }
+
+  if (basic.length === 0 && metrics.length === 0 && diagnosisLines.length === 0) return ''
+
+  const sections: string[] = []
+  if (basic.length)        sections.push(basic.join('\n'))
+  if (metrics.length)      sections.push(`\nMetrics:\n${metrics.join('\n')}`)
+  if (diagnosisLines.length) sections.push(`\nOnboarding diagnosis:\n${diagnosisLines.join('\n')}`)
 
   return `
 <business_context>
-${fields.join('\n')}
+${sections.join('\n')}
 </business_context>
 `
 }

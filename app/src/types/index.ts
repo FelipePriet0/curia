@@ -117,14 +117,51 @@ export interface SendMessageResponse {
 }
 
 export interface CompanyContext {
+  // Basic info
   company_name?: string
   industry?: string
   business_model?: string
+  business_type?: string
+  monetization?: string
   stage?: string
   employees?: string
-  monthly_revenue?: string
-  main_problem?: string
+  capital_stage?: string
+  founded_period?: string
+  product_description?: string
   target_customer?: string
+  // Traction
+  active_customers?: number
+  icp_defined?: boolean
+  icp_description?: string
+  acquisition_channel?: string
+  // Bottleneck
+  main_problem?: string
+  main_bottleneck?: string
+  main_bottleneck_detail?: string
+  // Metrics — subscription
+  mrr?: number
+  churn_rate?: number
+  cac?: number
+  ltv?: number
+  // Metrics — transactional / service
+  monthly_revenue?: number
+  gross_margin?: number
+  average_ticket?: number
+  max_capacity?: number
+  // Metrics — marketplace
+  gmv?: number
+  take_rate?: number
+  marketplace_weak_side?: string
+  // Onboarding diagnosis
+  diagnosed_stage?: string
+  diagnostic_summary?: string
+  priority_ladder?: Array<{
+    rank: number
+    problem: string
+    detail: string
+    framework: string
+    urgency: string
+  }>
 }
 
 // ─── UI Types ─────────────────────────────────────────────────────────────────
