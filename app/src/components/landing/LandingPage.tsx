@@ -437,9 +437,9 @@ function Hero() {
         </div>
       </div>
 
-      {/* Live product demo */}
+      {/* Board home art — ambient, no card frame */}
       <div className="relative mx-auto mt-16 max-w-3xl">
-        <HeroDemo />
+        <BoardHomePreview />
       </div>
     </section>
   )
@@ -822,18 +822,16 @@ function BoardHomePreview() {
     <div className="flex flex-col items-center w-full">
       {/* Chamber with greeting overlay — mirrors board home state exactly */}
       <div className="relative w-full" style={{ height: 300 }}>
-        <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-2 z-10">
+        <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-2 z-10 flex flex-col items-center text-center">
           <span className="font-curia-script text-[#FF6F1E] text-3xl md:text-4xl leading-none">
             Olá, Empresário
+          </span>
+          <span className="font-curia-script text-[#FF6F1E] text-xl md:text-2xl leading-snug mt-1">
+            O que você deseja resolver hoje?
           </span>
         </div>
         <CuriaChambra state="idle" />
       </div>
-
-      {/* Subtitle — larger, primary color */}
-      <p className="mt-3 font-curia-rounded text-xl md:text-2xl text-[#FF6F1E] text-center">
-        O que você deseja resolver hoje?
-      </p>
 
       {/* Static input bar — CouncilInput home style */}
       <div className="mt-5 w-full max-w-md">
@@ -1042,27 +1040,19 @@ function Pricing() {
 
         {/* Single card — Starter */}
         <div className="mx-auto max-w-sm">
-          <div className="relative overflow-hidden rounded-2xl border border-[#2B1A07]/12 bg-white px-8 py-10 shadow-lg shadow-[#2B1A07]/06">
-            {/* Badge */}
-            <span className="mb-6 inline-block rounded-full bg-[#FF6F1E]/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-[#FF6F1E]">
-              Curia Starter
-            </span>
+          <div className="relative overflow-hidden rounded-2xl border border-[#2B1A07]/15 bg-[#2B1A07]/10 p-6 text-left ring-1 ring-[#2B1A07]/10">
+            {/* Title */}
+            <h3 className="text-2xl text-[#2B1A07]">
+              <span className="font-curia-rounded">Curia </span>
+              <span className="font-curia-script text-[#FF6F1E]">Starter</span>
+            </h3>
+            <p className="mt-1 font-curia-serif text-sm text-[#2B1A07]/70">Grátis para sempre</p>
 
             {/* Price */}
-            <div className="mb-2 flex items-end justify-center gap-1">
-              <span className="font-curia-rounded text-6xl text-[#2B1A07]">R$0</span>
-            </div>
-            <p className="mb-8 font-curia-serif text-sm text-[#2B1A07]/50">Grátis para sempre</p>
-
-            {/* CTA */}
-            <Link href="/signup" className="block w-full">
-              <Button size="lg" className="w-full bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
-                Criar minha conta <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
+            <p className="mt-6 font-curia-rounded text-3xl font-bold text-[#2B1A07]">R$0<span className="text-base font-medium text-[#2B1A07]/70">/mês</span></p>
 
             {/* Features */}
-            <ul className="mt-8 space-y-3 text-left">
+            <ul className="mt-6 space-y-3">
               {STARTER_FEATURES.map((feat) => (
                 <li key={feat} className="flex items-start gap-3 font-curia-serif text-sm text-[#2B1A07]/80">
                   <svg viewBox="0 0 16 16" className="mt-0.5 h-4 w-4 shrink-0 text-[#FF6F1E]" fill="none">
@@ -1073,6 +1063,13 @@ function Pricing() {
                 </li>
               ))}
             </ul>
+
+            {/* CTA */}
+            <Link href="/signup" className="mt-6 block w-full">
+              <Button size="lg" className="w-full bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
+                Criar minha conta <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
 
             {/* Glow accent */}
             <div aria-hidden className="pointer-events-none absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-[#FF6F1E] opacity-[0.06] blur-2xl" />
