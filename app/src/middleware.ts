@@ -29,11 +29,12 @@ export async function middleware(request: NextRequest) {
 
   const isProtected   = pathname.startsWith('/board')
   const isOnboarding  = pathname.startsWith('/onboarding')
+  // /reset-password is intentionally excluded: a logged-in user who received a
+  // recovery link must still be able to reset their password even with an active session.
   const isAuthPage    =
     pathname.startsWith('/login') ||
     pathname.startsWith('/signup') ||
-    pathname.startsWith('/forgot-password') ||
-    pathname.startsWith('/reset-password')
+    pathname.startsWith('/forgot-password')
 
   const onboardingDone = user?.user_metadata?.onboarding_completed === true
 

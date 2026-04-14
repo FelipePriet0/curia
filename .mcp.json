@@ -2,9 +2,9 @@
   "mcpServers": {
     "supabase-aiboard": {
       "type": "http",
-      "url": "https://mcp.supabase.com/mcp",
+      "url": "https://mcp.supabase.com/mcp?project_ref=hubirckodrojclbiybvz",
       "headers": {
-        "Authorization": "Bearer sbp_f795c450dc94918041dcbbf8b6f93bd7f2e7b25f"
+        "Authorization": "Bearer sbp_8f06c938f5f32277f788e5b2dc89c50f9ccafabd"
       }
     }
   }

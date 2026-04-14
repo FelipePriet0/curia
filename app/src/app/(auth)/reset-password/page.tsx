@@ -1,5 +1,7 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react'
@@ -32,20 +34,32 @@ export default function ResetPasswordPage() {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [showPwd, setShowPwd] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
+  const [tokenExpired, setTokenExpired] = useState(false)
 
   const strength = getStrength(password)
   const mismatch = confirm.length > 0 && password !== confirm
 
-  // Supabase sends the token in the URL hash — listen for the session
+  // Supabase sends the token in the URL hash — listen for the session.
+  // If PASSWORD_RECOVERY doesn't fire within 4 s, the link is invalid or expired.
   useEffect(() => {
+    const timeout = setTimeout(() => setTokenExpired(true), 4000)
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') setReady(true)
+      if (event === 'PASSWORD_RECOVERY') {
+        clearTimeout(timeout)
+        setReady(true)
+      }
     })
-    return () => subscription.unsubscribe()
+
+    return () => {
+      clearTimeout(timeout)
+      subscription.unsubscribe()
+    }
   }, [supabase])
 
   async function handleSubmit(e: React.FormEvent) {
@@ -90,6 +104,26 @@ export default function ResetPasswordPage() {
               </p>
             </div>
           </div>
+        ) : tokenExpired ? (
+          <div className="flex flex-col items-center text-center gap-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-50">
+              <svg className="h-7 w-7 text-red-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="font-curia-rounded text-2xl text-[#2B1A07]">Link inválido ou expirado</h2>
+              <p className="mt-2 font-curia-serif text-sm text-[#2B1A07]/60">
+                Este link de recuperação não é mais válido. Solicite um novo link.
+              </p>
+            </div>
+            <Link
+              href="/forgot-password"
+              className="font-curia-serif text-sm text-[#FF6F1E] hover:underline"
+            >
+              Solicitar novo link →
+            </Link>
+          </div>
         ) : !ready ? (
           <div className="flex flex-col items-center text-center gap-4">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#2B1A07]/20 border-t-[#FF6F1E]" />
@@ -115,6 +149,7 @@ export default function ResetPasswordPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     required minLength={8} disabled={loading}
+                    autoComplete="new-password"
                     className={cn(inputCls, 'pr-10')}
                   />
                   <button type="button" tabIndex={-1} onClick={() => setShowPwd((s) => !s)}
@@ -146,11 +181,21 @@ export default function ResetPasswordPage() {
               {/* Confirmar */}
               <div>
                 <label className="mb-1.5 block font-curia-serif text-sm font-medium text-[#2B1A07]">Confirmar nova senha</label>
-                <input
-                  type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)}
-                  placeholder="••••••••" required disabled={loading}
-                  className={cn(inputCls, mismatch && 'border-red-300 focus-visible:ring-red-300/50')}
-                />
+                <div className="relative">
+                  <input
+                    type={showConfirm ? 'text' : 'password'}
+                    value={confirm} onChange={(e) => setConfirm(e.target.value)}
+                    placeholder="••••••••" required disabled={loading}
+                    autoComplete="new-password"
+                    className={cn(inputCls, 'pr-10', mismatch && 'border-red-300 focus-visible:ring-red-300/50')}
+                  />
+                  <button
+                    type="button" tabIndex={-1} onClick={() => setShowConfirm((s) => !s)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B1A07]/40 hover:text-[#2B1A07]/70 transition-colors"
+                  >
+                    {showConfirm ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                </div>
                 {mismatch && <p className="mt-1 font-curia-serif text-xs text-red-500">As senhas não coincidem.</p>}
                 {confirm.length > 0 && !mismatch && (
                   <p className="mt-1 flex items-center gap-1 font-curia-serif text-xs text-emerald-600">

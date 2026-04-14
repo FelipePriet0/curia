@@ -104,18 +104,20 @@ function GoogleButton({ onClick, disabled, loading, label }: {
 }
 
 // ─── Password field ───────────────────────────────────────────────────────────
-function PasswordField({ label, value, onChange, placeholder, disabled, showStrength }: {
+function PasswordField({ label, value, onChange, placeholder, disabled, showStrength, autoComplete }: {
   label: string; value: string; onChange: (v: string) => void
-  placeholder?: string; disabled: boolean; showStrength?: boolean
+  placeholder?: string; disabled: boolean; showStrength?: boolean; autoComplete?: string
 }) {
   const [show, setShow] = useState(false)
   const strength = getStrength(value)
 
   return (
     <div>
-      <label className="mb-1.5 block font-curia-serif text-sm font-medium text-[#2B1A07]">
-        {label}
-      </label>
+      {label && (
+        <label className="mb-1.5 block font-curia-serif text-sm font-medium text-[#2B1A07]">
+          {label}
+        </label>
+      )}
       <div className="relative">
         <input
           type={show ? 'text' : 'password'}
@@ -125,6 +127,7 @@ function PasswordField({ label, value, onChange, placeholder, disabled, showStre
           required
           minLength={8}
           disabled={disabled}
+          autoComplete={autoComplete}
           className={cn(inputCls, 'pr-10')}
         />
         <button
@@ -328,8 +331,10 @@ export function LoginForm() {
         <div>
           <label className="mb-1.5 block font-curia-serif text-sm font-medium text-[#2B1A07]">E-mail</label>
           <input
-            type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+            type="email" value={email}
+            onChange={(e) => { setEmail(e.target.value); setError(null) }}
             placeholder="voce@empresa.com" required disabled={loading || googleLoading}
+            autoComplete="email"
             className={inputCls}
           />
         </div>
@@ -341,7 +346,13 @@ export function LoginForm() {
               Esqueceu a senha?
             </Link>
           </div>
-          <PasswordField label="" value={password} onChange={setPassword} disabled={loading || googleLoading} />
+          <PasswordField
+            label=""
+            value={password}
+            onChange={(v) => { setPassword(v); setError(null) }}
+            autoComplete="current-password"
+            disabled={loading || googleLoading}
+          />
         </div>
 
         {error && <ErrorBox msg={error} />}
@@ -434,7 +445,7 @@ export function SignupForm() {
       try {
         // Marcar aceite para registrar no primeiro login
         localStorage.setItem('curia_terms_pending_accept', JSON.stringify({
-          version: (process as any).env?.NEXT_PUBLIC_TERMS_VERSION || '1.0',
+          version: process.env.NEXT_PUBLIC_TERMS_VERSION || '1.0',
           ts: Date.now(),
         }))
       } catch {}
@@ -453,7 +464,7 @@ export function SignupForm() {
       setGoogleLoading(false)
       return
     }
-    try { localStorage.setItem('curia_terms_pending_accept', JSON.stringify({ version: (process as any).env?.NEXT_PUBLIC_TERMS_VERSION || '1.0', ts: Date.now() })) } catch {}
+    try { localStorage.setItem('curia_terms_pending_accept', JSON.stringify({ version: process.env.NEXT_PUBLIC_TERMS_VERSION || '1.0', ts: Date.now() })) } catch {}
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: `${window.location.origin}/board` },
@@ -483,8 +494,10 @@ export function SignupForm() {
         <div>
           <label className="mb-1.5 block font-curia-serif text-sm font-medium text-[#2B1A07]">E-mail</label>
           <input
-            type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+            type="email" value={email}
+            onChange={(e) => { setEmail(e.target.value); setError(null) }}
             placeholder="voce@empresa.com" required disabled={loading || googleLoading}
+            autoComplete="email"
             className={inputCls}
           />
         </div>
@@ -492,30 +505,30 @@ export function SignupForm() {
         <PasswordField
           label="Senha"
           value={password}
-          onChange={setPassword}
+          onChange={(v) => { setPassword(v); setError(null) }}
+          autoComplete="new-password"
           disabled={loading || googleLoading}
           showStrength
         />
 
         <div>
           <label className="mb-1.5 block font-curia-serif text-sm font-medium text-[#2B1A07]">Confirmar senha</label>
-          <div className="relative">
-            <PasswordField
-              label=""
-              value={confirm}
-              onChange={setConfirm}
-              placeholder="••••••••"
-              disabled={loading || googleLoading}
-            />
-            {passwordMismatch && (
-              <p className="mt-1 font-curia-serif text-xs text-red-500">As senhas não coincidem.</p>
-            )}
-            {confirm.length > 0 && !passwordMismatch && (
-              <p className="mt-1 flex items-center gap-1 font-curia-serif text-xs text-emerald-600">
-                <CheckCircle2 size={12} /> Senhas coincidem
-              </p>
-            )}
-          </div>
+          <PasswordField
+            label=""
+            value={confirm}
+            onChange={setConfirm}
+            placeholder="••••••••"
+            autoComplete="new-password"
+            disabled={loading || googleLoading}
+          />
+          {passwordMismatch && (
+            <p className="mt-1 font-curia-serif text-xs text-red-500">As senhas não coincidem.</p>
+          )}
+          {confirm.length > 0 && !passwordMismatch && (
+            <p className="mt-1 flex items-center gap-1 font-curia-serif text-xs text-emerald-600">
+              <CheckCircle2 size={12} /> Senhas coincidem
+            </p>
+          )}
         </div>
 
         {/* Terms */}
