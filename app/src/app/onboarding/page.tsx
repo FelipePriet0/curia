@@ -2,9 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowRight, Send, RefreshCw } from 'lucide-react'
+import { ArrowRight, ArrowUp } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils/cn'
+import { CuriaChambra } from '@/components/board/chamber/CuriaChambra'
+import { getInitialDeliberationState } from '@/lib/deliberation/store'
+import type { ChambraState } from '@/components/board/chamber/chambraStates'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -115,7 +118,7 @@ const QUESTIONS: Question[] = [
   { id: 'churn_rate', key: 'churn_rate', message: 'Churn mensal?', type: 'number', suffix: '%', optional: true, skipIf: f => !['saas', 'app'].includes(f.business_type) },
   { id: 'cac', key: 'cac', message: 'CAC?', type: 'number', prefix: 'R$', optional: true, skipIf: f => !['saas', 'app'].includes(f.business_type) },
   { id: 'ltv', key: 'ltv', message: 'LTV?', type: 'number', prefix: 'R$', optional: true, skipIf: f => !['saas', 'app'].includes(f.business_type) },
-  // Transactional (physical_product / other)
+  // Transactional
   { id: 'monthly_revenue_t', key: 'monthly_revenue', message: 'Faturamento mensal?', type: 'number', prefix: 'R$', optional: true, skipIf: f => ['saas', 'app', 'marketplace', 'service'].includes(f.business_type) },
   { id: 'gross_margin', key: 'gross_margin', message: 'Margem bruta?', type: 'number', suffix: '%', optional: true, skipIf: f => ['saas', 'app', 'marketplace', 'service'].includes(f.business_type) },
   // Service
@@ -127,8 +130,7 @@ const QUESTIONS: Question[] = [
   {
     id: 'marketplace_weak_side', key: 'marketplace_weak_side',
     message: 'Qual é o lado mais fraco do marketplace?',
-    type: 'chips', optional: true,
-    skipIf: f => f.business_type !== 'marketplace',
+    type: 'chips', optional: true, skipIf: f => f.business_type !== 'marketplace',
     chips: [
       { label: 'Supply (oferta)', value: 'supply' },
       { label: 'Demand (demanda)', value: 'demand' },
@@ -148,8 +150,7 @@ const QUESTIONS: Question[] = [
   {
     id: 'icp_description', key: 'icp_description',
     message: 'Descreva seu ICP.',
-    type: 'textarea', optional: true,
-    skipIf: f => f.icp_defined !== 'yes',
+    type: 'textarea', optional: true, skipIf: f => f.icp_defined !== 'yes',
     placeholder: 'Ex: Founders de SaaS B2B com 5–50 clientes, faturando entre R$20k e R$100k MRR...',
   },
   {
@@ -212,6 +213,9 @@ const LOADING_MSGS = [
   'Montando a escada de prioridade...',
 ]
 
+const EMPTY_DELIBERATION = getInitialDeliberationState()
+const EMPTY_COUNSELORS = new Set<string>()
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function findNextIdx(from: number, form: FormData): number | null {
@@ -235,31 +239,6 @@ function formatAnswer(q: Question, value: string): string {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function CuriaAvatar() {
-  return (
-    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#2B1A07]">
-      <span className="font-curia-rounded text-sm text-white">C</span>
-    </div>
-  )
-}
-
-function TypingIndicator() {
-  return (
-    <div className="flex items-start gap-3">
-      <CuriaAvatar />
-      <div className="flex gap-1 rounded-2xl rounded-tl-sm bg-white border border-[#2B1A07]/10 px-4 py-3.5 shadow-sm">
-        {[0, 1, 2].map(i => (
-          <div
-            key={i}
-            className="h-1.5 w-1.5 rounded-full bg-[#2B1A07]/35 animate-bounce"
-            style={{ animationDelay: `${i * 0.15}s` }}
-          />
-        ))}
-      </div>
-    </div>
-  )
-}
-
 function DiagnosisCard({ diagnosis }: { diagnosis: Diagnosis }) {
   const stageCls = STAGE_CLS[diagnosis.stage] ?? 'bg-gray-100 text-gray-700'
   const stageLabel = STAGE_PT[diagnosis.stage] ?? diagnosis.stage
@@ -270,50 +249,31 @@ function DiagnosisCard({ diagnosis }: { diagnosis: Diagnosis }) {
         <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${stageCls}`}>
           {stageLabel}
         </span>
-        <p className="mt-2 font-curia-serif text-xs text-[#2B1A07]/60 italic leading-relaxed">
+        <p className="mt-2 font-curia-serif text-xs italic leading-relaxed text-[#2B1A07]/60">
           {diagnosis.stage_reason}
         </p>
       </div>
-
       <div>
-        <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#2B1A07]/40">
-          Diagnóstico
-        </p>
-        <p className="font-curia-serif text-sm leading-relaxed text-[#2B1A07]/80">
-          {diagnosis.diagnostic_summary}
-        </p>
+        <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#2B1A07]/40">Diagnóstico</p>
+        <p className="font-curia-serif text-sm leading-relaxed text-[#2B1A07]/80">{diagnosis.diagnostic_summary}</p>
       </div>
-
       <div>
-        <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#2B1A07]/40">
-          Escada de Prioridade
-        </p>
+        <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#2B1A07]/40">Escada de Prioridade</p>
         <div className="space-y-2.5">
           {diagnosis.priority_ladder.map(item => {
             const u = URGENCY[item.urgency] ?? URGENCY.medium
             return (
-              <div
-                key={item.rank}
-                className="flex gap-3 rounded-xl border border-[#2B1A07]/8 bg-white p-3.5"
-              >
+              <div key={item.rank} className="flex gap-3 rounded-xl border border-[#2B1A07]/8 bg-white p-3.5">
                 <span className="shrink-0 pt-0.5 font-curia-rounded text-xl leading-none text-[#2B1A07]/15">
                   {String(item.rank).padStart(2, '0')}
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="font-curia-serif text-sm font-semibold text-[#2B1A07]">
-                      {item.problem}
-                    </p>
-                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${u.cls}`}>
-                      {u.label}
-                    </span>
+                    <p className="font-curia-serif text-sm font-semibold text-[#2B1A07]">{item.problem}</p>
+                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${u.cls}`}>{u.label}</span>
                   </div>
-                  <p className="mt-1 font-curia-serif text-xs leading-relaxed text-[#2B1A07]/60">
-                    {item.detail}
-                  </p>
-                  <p className="mt-1.5 text-[10px] font-medium uppercase tracking-wide text-[#2B1A07]/35">
-                    {item.framework}
-                  </p>
+                  <p className="mt-1 font-curia-serif text-xs leading-relaxed text-[#2B1A07]/60">{item.detail}</p>
+                  <p className="mt-1.5 text-[10px] font-medium uppercase tracking-wide text-[#2B1A07]/35">{item.framework}</p>
                 </div>
               </div>
             )
@@ -328,10 +288,14 @@ function MessageBubble({ msg, diagnosis }: { msg: ChatMsg; diagnosis?: Diagnosis
   if (msg.from === 'curia') {
     return (
       <div className="flex items-start gap-3">
-        <CuriaAvatar />
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#2B1A07]">
+          <span className="font-curia-rounded text-xs text-white">C</span>
+        </div>
         <div className="flex-1 max-w-[85%]">
           <div className="rounded-2xl rounded-tl-sm bg-white border border-[#2B1A07]/10 px-4 py-3 shadow-sm">
-            <p className="font-curia-serif text-sm leading-relaxed text-[#2B1A07]">{msg.text}</p>
+            <p className="council-textarea text-sm leading-relaxed text-[#2B1A07]" style={{ minHeight: 'auto', maxHeight: 'none', overflow: 'visible' }}>
+              {msg.text}
+            </p>
           </div>
           {diagnosis && <DiagnosisCard diagnosis={diagnosis} />}
         </div>
@@ -342,7 +306,24 @@ function MessageBubble({ msg, diagnosis }: { msg: ChatMsg; diagnosis?: Diagnosis
   return (
     <div className="flex justify-end">
       <div className="max-w-[75%] rounded-2xl rounded-tr-sm bg-[#2B1A07] px-4 py-3 shadow-sm">
-        <p className="font-curia-serif text-sm leading-relaxed text-white">{msg.text}</p>
+        <p className="council-textarea text-sm leading-relaxed text-white" style={{ minHeight: 'auto', maxHeight: 'none', overflow: 'visible' }}>
+          {msg.text}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function TypingDots() {
+  return (
+    <div className="flex items-start gap-3">
+      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#2B1A07]">
+        <span className="font-curia-rounded text-xs text-white">C</span>
+      </div>
+      <div className="flex gap-1 rounded-2xl rounded-tl-sm bg-white border border-[#2B1A07]/10 px-4 py-3.5 shadow-sm">
+        {[0, 1, 2].map(i => (
+          <div key={i} className="h-1.5 w-1.5 rounded-full bg-[#2B1A07]/35 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+        ))}
       </div>
     </div>
   )
@@ -375,12 +356,12 @@ function OnboardingInput({
   }
 
   return (
-    <div className="border-t border-[#2B1A07]/6 bg-[#FDFBF9] px-4 pb-6 pt-3">
-      <div className="mx-auto max-w-2xl space-y-3">
+    <div className="border-t border-[hsl(var(--border))] bg-[#FDFBF9] px-4 pb-5 pt-3">
+      <div className="council-input-home-wrap">
 
         {/* Chips row */}
         {isChipType && (
-          <div className="flex flex-wrap gap-2">
+          <div className="mb-3 flex flex-wrap gap-2">
             {question.chips?.map(chip => {
               const isActive = question.type === 'multi-chips' && multiSel.includes(chip.value)
               return (
@@ -393,7 +374,7 @@ function OnboardingInput({
                       : onMultiToggle(chip.value)
                   }
                   className={cn(
-                    'rounded-full border px-4 py-2 font-curia-serif text-sm font-medium transition-all',
+                    'rounded-full border px-4 py-1.5 font-curia-serif text-sm font-medium transition-all',
                     isActive
                       ? 'bg-[#2B1A07] text-white border-[#2B1A07]'
                       : 'bg-white border-[#2B1A07]/20 text-[#2B1A07] hover:border-[#2B1A07]/50'
@@ -407,7 +388,7 @@ function OnboardingInput({
               <button
                 type="button"
                 onClick={onSkip}
-                className="rounded-full border border-[#2B1A07]/10 px-4 py-2 font-curia-serif text-sm text-[#2B1A07]/40 transition-all hover:border-[#2B1A07]/25 hover:text-[#2B1A07]/60"
+                className="rounded-full border border-[#2B1A07]/10 px-4 py-1.5 font-curia-serif text-sm text-[#2B1A07]/40 transition-all hover:border-[#2B1A07]/25 hover:text-[#2B1A07]/60"
               >
                 Pular →
               </button>
@@ -415,24 +396,25 @@ function OnboardingInput({
           </div>
         )}
 
-        {/* Input bar */}
-        <div className="flex items-end gap-2 rounded-xl border border-[#2B1A07]/12 bg-white p-3 shadow-sm transition-shadow focus-within:border-[#FF6F1E]/40 focus-within:shadow-md">
+        {/* Input box — matches council-input-box exactly */}
+        <div className="council-input-box">
           {isChipType ? (
-            <span className="flex-1 select-none py-1 font-curia-serif text-sm text-[#2B1A07]/25">
+            <span className="council-textarea select-none text-sm" style={{ minHeight: 'auto', maxHeight: 'none', overflow: 'visible', fontStyle: 'italic', opacity: 0.3 }}>
               Selecione uma opção acima...
             </span>
           ) : question.type === 'textarea' ? (
             <textarea
               autoFocus
-              rows={1}
+              rows={2}
               value={inputValue}
               onChange={e => onInputChange(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={question.placeholder ?? ''}
-              className="min-h-[36px] flex-1 resize-none border-0 bg-transparent font-curia-serif text-sm text-[#2B1A07] outline-none placeholder:text-[#2B1A07]/35"
+              className="council-textarea council-textarea-home"
+              style={{ minHeight: '64px' }}
             />
           ) : (
-            <div className="flex flex-1 items-center gap-1.5">
+            <div className="flex items-center gap-1.5">
               {question.prefix && (
                 <span className="shrink-0 font-curia-serif text-sm text-[#2B1A07]/50">{question.prefix}</span>
               )}
@@ -443,7 +425,8 @@ function OnboardingInput({
                 onChange={e => onInputChange(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={question.placeholder ?? '0'}
-                className="flex-1 border-0 bg-transparent font-curia-serif text-sm text-[#2B1A07] outline-none placeholder:text-[#2B1A07]/35"
+                className="flex-1 bg-transparent border-0 outline-none font-curia-serif text-sm text-[#2B1A07] placeholder:text-[#2B1A07]/35"
+                style={{ minHeight: '24px' }}
               />
               {question.suffix && (
                 <span className="shrink-0 font-curia-serif text-sm text-[#2B1A07]/50">{question.suffix}</span>
@@ -451,30 +434,41 @@ function OnboardingInput({
             </div>
           )}
 
-          {question.type === 'multi-chips' ? (
-            <button
-              type="button"
-              onClick={onMultiConfirm}
-              disabled={multiSel.length === 0}
-              className="flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-[#FF6F1E] px-4 font-curia-serif text-sm font-semibold text-[#2B1A07] shadow-sm transition-all hover:opacity-90 active:scale-95 disabled:pointer-events-none disabled:opacity-30"
-            >
-              Confirmar <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-          ) : isTextType ? (
-            <button
-              type="button"
-              onClick={onTextSubmit}
-              disabled={!inputValue.trim()}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FF6F1E] text-[#2B1A07] shadow-sm transition-all hover:opacity-90 active:scale-95 disabled:pointer-events-none disabled:opacity-30"
-            >
-              <Send className="h-4 w-4" />
-            </button>
-          ) : null}
+          {/* Footer */}
+          <div className="council-input-footer">
+            <div className="council-input-tools">
+              <span className="council-model-badge">
+                {question.optional ? 'Opcional' : 'Obrigatório'}
+              </span>
+            </div>
+
+            {question.type === 'multi-chips' ? (
+              <button
+                type="button"
+                onClick={onMultiConfirm}
+                disabled={multiSel.length === 0}
+                className="council-send-round"
+                aria-label="Confirmar seleção"
+              >
+                <ArrowRight size={15} strokeWidth={2.5} />
+              </button>
+            ) : isTextType ? (
+              <button
+                type="button"
+                onClick={onTextSubmit}
+                disabled={!inputValue.trim()}
+                className="council-send-round"
+                aria-label="Enviar"
+              >
+                <ArrowUp size={15} strokeWidth={2.5} />
+              </button>
+            ) : null}
+          </div>
         </div>
 
         {/* Skip link for optional text/number questions */}
         {isTextType && question.optional && (
-          <div className="text-center">
+          <div className="mt-2 text-center">
             <button
               type="button"
               onClick={onSkip}
@@ -503,27 +497,36 @@ export default function OnboardingPage() {
   const [inputValue, setInputValue] = useState('')
   const [multiSel, setMultiSel] = useState<string[]>([])
   const [submitForm, setSubmitForm] = useState<FormData | null>(null)
+  const [firstName, setFirstName] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const currentQ = qIdx !== null ? QUESTIONS[qIdx] : null
 
-  // Scroll to bottom on every render change
+  // Derive ChambraState from phase + typing
+  const chambraState: ChambraState =
+    phase === 'submitting'                          ? 'deliberating'
+    : phase === 'done'                              ? 'verdict'
+    : (phase === 'onboarding' && typing)            ? 'receiving'
+    : 'idle'
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [msgs, typing, phase])
 
-  // Loading message rotation
   useEffect(() => {
     if (phase !== 'submitting') return
     const id = setInterval(() => setLoadingMsgIdx(i => (i + 1) % LOADING_MSGS.length), 1600)
     return () => clearInterval(id)
   }, [phase])
 
-  // On mount: prefill and start conversation
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) return
+
+      // Extract first name
+      const full = user.user_metadata?.full_name ?? user.user_metadata?.name ?? user.email?.split('@')[0] ?? null
+      setFirstName(full ? full.split(' ')[0] : null)
 
       const { data: company } = await supabase
         .from('companies')
@@ -561,10 +564,12 @@ export default function OnboardingPage() {
       } : { ...INIT }
 
       setForm(prefilled)
-
-      // Start conversation
       setPhase('onboarding')
-      setMsgs([{ id: crypto.randomUUID(), from: 'curia', text: 'Olá! Vou fazer algumas perguntas rápidas para montar o seu Board.' }])
+      setMsgs([{
+        id: crypto.randomUUID(),
+        from: 'curia',
+        text: 'Olá! Vou fazer algumas perguntas rápidas para montar o seu Board.',
+      }])
 
       setTimeout(() => {
         setMsgs(prev => [...prev, { id: crypto.randomUUID(), from: 'curia', text: QUESTIONS[0].message }])
@@ -574,7 +579,6 @@ export default function OnboardingPage() {
     })
   }, [])
 
-  // Trigger API call when submitForm is set
   useEffect(() => {
     if (!submitForm) return
     runSubmit(submitForm)
@@ -587,13 +591,11 @@ export default function OnboardingPage() {
 
   function advanceFrom(idx: number, updatedForm: FormData) {
     const nextIdx = findNextIdx(idx, updatedForm)
-
     if (nextIdx === null) {
       setTyping(false)
       setSubmitForm(updatedForm)
       return
     }
-
     setTyping(true)
     setTimeout(() => {
       setTyping(false)
@@ -602,8 +604,6 @@ export default function OnboardingPage() {
       setQIdx(nextIdx)
       setInputValue('')
       setMultiSel([])
-
-      // Pre-populate for returning users (text/number only)
       const existing = updatedForm[nextQ.key]
       if (existing && nextQ.type !== 'chips') setInputValue(existing)
       if (nextQ.type === 'multi-chips' && existing) setMultiSel(existing.split(',').filter(Boolean))
@@ -618,9 +618,7 @@ export default function OnboardingPage() {
     advanceFrom(qIdx, updatedForm)
   }
 
-  function handleChipClick(value: string, label: string) {
-    commitAnswer(value, label)
-  }
+  function handleChipClick(value: string, label: string) { commitAnswer(value, label) }
 
   function handleMultiConfirm() {
     if (!currentQ || multiSel.length === 0) return
@@ -631,8 +629,7 @@ export default function OnboardingPage() {
 
   function handleTextSubmit() {
     if (!currentQ || !inputValue.trim()) return
-    const display = formatAnswer(currentQ, inputValue.trim())
-    commitAnswer(inputValue.trim(), display)
+    commitAnswer(inputValue.trim(), formatAnswer(currentQ, inputValue.trim()))
     setInputValue('')
   }
 
@@ -660,7 +657,6 @@ export default function OnboardingPage() {
         active_customers: finalForm.active_customers  ? Number(finalForm.active_customers)  : undefined,
         icp_defined:      finalForm.icp_defined === 'yes',
       }
-
       const res = await fetch('/api/onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -680,108 +676,93 @@ export default function OnboardingPage() {
     }
   }
 
-  // ── Loading / init ─────────────────────────────────────────────────────────
-
-  if (phase === 'init') {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#FDFBF9]">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2B1A07]">
-          <span className="font-curia-rounded text-lg text-white">C</span>
-        </div>
-      </div>
-    )
-  }
-
-  if (phase === 'submitting') {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#FDFBF9] px-6">
-        <div className="mb-8 flex h-12 w-12 items-center justify-center rounded-full bg-[#2B1A07]">
-          <span className="font-curia-rounded text-xl text-white">C</span>
-        </div>
-        <div className="mb-6 flex gap-1.5">
-          {[0, 1, 2].map(i => (
-            <div
-              key={i}
-              className="h-2 w-2 rounded-full bg-[#FF6F1E] animate-bounce"
-              style={{ animationDelay: `${i * 0.15}s` }}
-            />
-          ))}
-        </div>
-        <p className="font-curia-serif text-sm text-[#2B1A07]/60 text-center transition-all duration-500">
-          {LOADING_MSGS[loadingMsgIdx]}
-        </p>
-      </div>
-    )
-  }
-
-  if (phase === 'error') {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#FDFBF9] px-6 text-center">
-        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#2B1A07]">
-          <span className="font-curia-rounded text-xl text-white">C</span>
-        </div>
-        <p className="mb-6 font-curia-serif text-sm text-[#2B1A07]/60">
-          Algo deu errado ao processar o diagnóstico.
-        </p>
-        <button
-          onClick={() => submitForm && runSubmit(submitForm)}
-          className="flex items-center gap-2 rounded-xl border border-[#2B1A07]/15 bg-white px-5 py-2.5 font-curia-serif text-sm text-[#2B1A07] shadow-sm transition-all hover:border-[#2B1A07]/30"
-        >
-          <RefreshCw className="h-4 w-4" /> Tentar novamente
-        </button>
-      </div>
-    )
-  }
-
-  // ── Terminal ───────────────────────────────────────────────────────────────
+  // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex h-screen flex-col bg-[#FDFBF9]">
-      {/* Header */}
-      <div className="flex items-center justify-center border-b border-[#2B1A07]/6 py-3.5">
-        <span className="font-curia-rounded text-2xl text-[#2B1A07]">Curia</span>
+    <div className="flex h-screen flex-col" style={{ background: '#FDFBF9' }}>
+
+      {/* ── Câmara isométrica ── */}
+      <div className="w-full relative shrink-0" style={{ height: '38vh' }}>
+        {firstName && phase !== 'done' && (
+          <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-2 md:-top-3 z-10">
+            <span className="font-curia-script text-[#FF6F1E] text-2xl md:text-4xl leading-none">
+              Olá, {firstName}
+            </span>
+          </div>
+        )}
+        {phase === 'done' && (
+          <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-2 md:-top-3 z-10">
+            <span className="font-curia-script text-[#FF6F1E] text-2xl md:text-4xl leading-none">
+              Board pronto
+            </span>
+          </div>
+        )}
+        <CuriaChambra
+          state={chambraState}
+          activeCounselorIds={EMPTY_COUNSELORS}
+          deliberation={EMPTY_DELIBERATION}
+        />
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
-        <div className="mx-auto max-w-2xl space-y-4">
-          {msgs.map(msg => (
-            <MessageBubble
-              key={msg.id}
-              msg={msg}
-              diagnosis={msg.isDiagnosis ? diagnosis : undefined}
-            />
-          ))}
-
-          {typing && <TypingIndicator />}
-
-          {phase === 'done' && diagnosis && (
-            <div className="flex justify-center pb-4 pt-2">
-              <button
-                onClick={() => router.push('/board')}
-                className="flex items-center gap-2 rounded-xl bg-[#FF6F1E] px-6 py-3 font-curia-serif text-sm font-semibold text-[#2B1A07] shadow-sm transition-opacity hover:opacity-90 active:scale-95"
-              >
-                Entrar no Board <ArrowRight className="h-4 w-4" />
-              </button>
+      {/* ── Área de mensagens ── */}
+      <div className="flex-1 overflow-y-auto">
+        {phase === 'submitting' ? (
+          /* Loading state — dentro da área de mensagens */
+          <div className="flex h-full flex-col items-center justify-center gap-4">
+            <div className="flex gap-1.5">
+              {[0, 1, 2].map(i => (
+                <div key={i} className="h-2 w-2 rounded-full bg-[#FF6F1E] animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+              ))}
             </div>
-          )}
-
-          <div ref={bottomRef} />
-        </div>
+            <p className="font-curia-serif text-sm text-[#2B1A07]/60 transition-all duration-500">
+              {LOADING_MSGS[loadingMsgIdx]}
+            </p>
+          </div>
+        ) : phase === 'error' ? (
+          <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
+            <p className="font-curia-serif text-sm text-[#2B1A07]/60">
+              Algo deu errado ao processar o diagnóstico.
+            </p>
+            <button
+              onClick={() => submitForm && runSubmit(submitForm)}
+              className="rounded-xl border border-[#2B1A07]/15 bg-white px-5 py-2.5 font-curia-serif text-sm text-[#2B1A07] shadow-sm transition-all hover:border-[#2B1A07]/30"
+            >
+              Tentar novamente
+            </button>
+          </div>
+        ) : (
+          <div className="mx-auto max-w-2xl space-y-4 px-4 py-6">
+            {msgs.map(msg => (
+              <MessageBubble
+                key={msg.id}
+                msg={msg}
+                diagnosis={msg.isDiagnosis ? diagnosis : undefined}
+              />
+            ))}
+            {typing && <TypingDots />}
+            {phase === 'done' && diagnosis && (
+              <div className="flex justify-center pb-4 pt-2">
+                <button
+                  onClick={() => router.push('/board')}
+                  className="flex items-center gap-2 rounded-xl bg-[#FF6F1E] px-6 py-3 font-curia-serif text-sm font-semibold text-[#2B1A07] shadow-sm transition-opacity hover:opacity-90 active:scale-95"
+                >
+                  Entrar no Board <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+            <div ref={bottomRef} />
+          </div>
+        )}
       </div>
 
-      {/* Input area — locked during onboarding */}
+      {/* ── Input bloqueado ── */}
       {phase === 'onboarding' && !typing && currentQ && (
         <OnboardingInput
           question={currentQ}
           inputValue={inputValue}
           multiSel={multiSel}
           onInputChange={setInputValue}
-          onMultiToggle={v =>
-            setMultiSel(prev =>
-              prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v]
-            )
-          }
+          onMultiToggle={v => setMultiSel(prev => prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v])}
           onChipClick={handleChipClick}
           onMultiConfirm={handleMultiConfirm}
           onTextSubmit={handleTextSubmit}
