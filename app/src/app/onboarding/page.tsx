@@ -678,40 +678,67 @@ export default function OnboardingPage() {
 
   // ── Render ────────────────────────────────────────────────────────────────────
 
+  if (phase === 'init') {
+    return (
+      <div className="flex min-h-screen items-center justify-center" style={{ background: '#FDFBF9' }}>
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2B1A07]">
+          <span className="font-curia-rounded text-lg text-white">C</span>
+        </div>
+      </div>
+    )
+  }
+
+  // Câmara visível: enquanto a Curia "pensa" (typing), ao submeter, ao mostrar diagnóstico,
+  // ou no momento inicial antes da primeira pergunta aparecer (qIdx === null).
+  // Câmara oculta: enquanto o usuário está respondendo uma pergunta.
+  const showChamber =
+    phase === 'submitting' ||
+    phase === 'done'       ||
+    (phase === 'onboarding' && (typing || qIdx === null))
+
+  // Altura: 38vh no estado inicial (sem perguntas ainda), 28vh depois
+  const chamberHeight = qIdx === null ? '38vh' : '28vh'
+
   return (
     <div className="flex h-screen flex-col" style={{ background: '#FDFBF9' }}>
 
-      {/* ── Câmara isométrica ── */}
-      <div className="w-full relative shrink-0" style={{ height: '38vh' }}>
-        {firstName && phase !== 'done' && (
-          <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-2 md:-top-3 z-10">
-            <span className="font-curia-script text-[#FF6F1E] text-2xl md:text-4xl leading-none">
-              Olá, {firstName}
-            </span>
-          </div>
-        )}
-        {phase === 'done' && (
-          <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-2 md:-top-3 z-10">
-            <span className="font-curia-script text-[#FF6F1E] text-2xl md:text-4xl leading-none">
-              Board pronto
-            </span>
-          </div>
-        )}
-        <CuriaChambra
-          state={chambraState}
-          activeCounselorIds={EMPTY_COUNSELORS}
-          deliberation={EMPTY_DELIBERATION}
-        />
-      </div>
+      {/* ── Câmara isométrica — condicional ── */}
+      {showChamber && (
+        <div className="relative w-full shrink-0" style={{ height: chamberHeight }}>
+          {/* Título acima da câmara */}
+          {phase === 'done' ? (
+            <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-2 md:-top-3 z-10">
+              <span className="font-curia-script text-[#FF6F1E] text-2xl md:text-4xl leading-none">
+                Board pronto
+              </span>
+            </div>
+          ) : firstName && phase === 'onboarding' ? (
+            <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-2 md:-top-3 z-10">
+              <span className="font-curia-script text-[#FF6F1E] text-2xl md:text-4xl leading-none">
+                Olá, {firstName}
+              </span>
+            </div>
+          ) : null}
+
+          <CuriaChambra
+            state={chambraState}
+            activeCounselorIds={EMPTY_COUNSELORS}
+            deliberation={EMPTY_DELIBERATION}
+          />
+        </div>
+      )}
 
       {/* ── Área de mensagens ── */}
       <div className="flex-1 overflow-y-auto">
         {phase === 'submitting' ? (
-          /* Loading state — dentro da área de mensagens */
           <div className="flex h-full flex-col items-center justify-center gap-4">
             <div className="flex gap-1.5">
               {[0, 1, 2].map(i => (
-                <div key={i} className="h-2 w-2 rounded-full bg-[#FF6F1E] animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                <div
+                  key={i}
+                  className="h-2 w-2 rounded-full bg-[#FF6F1E] animate-bounce"
+                  style={{ animationDelay: `${i * 0.15}s` }}
+                />
               ))}
             </div>
             <p className="font-curia-serif text-sm text-[#2B1A07]/60 transition-all duration-500">
@@ -755,7 +782,7 @@ export default function OnboardingPage() {
         )}
       </div>
 
-      {/* ── Input bloqueado ── */}
+      {/* ── Input bloqueado — só aparece quando câmara está oculta ── */}
       {phase === 'onboarding' && !typing && currentQ && (
         <OnboardingInput
           question={currentQ}

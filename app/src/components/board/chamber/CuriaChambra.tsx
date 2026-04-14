@@ -396,16 +396,18 @@ export function CuriaChambra({
                 )
               })()}
 
-              {/* Speech bubble — empty, just the bubble shape */}
+              {/* Speech bubble with fake-text lines */}
               {state !== 'idle' && state !== 'verdict' && (() => {
                 const [bx, by] = iso(six, siy, 2.2)
-                const w = 28
-                const h = 14
-                const rx = 7
+                const w = 28; const h = 14; const rx = 7
+                const ty = by - h - 8  // rect top-y
                 return (
                   <g className="curia-speech-bubble" opacity={isActiveC ? 0.85 : 0.45}>
-                    <rect x={bx - w/2} y={by - h - 8} width={w} height={h} rx={rx} ry={rx} fill="#FFFFFF" stroke={counselorColor} strokeWidth="0.7" />
+                    <rect x={bx - w/2} y={ty} width={w} height={h} rx={rx} ry={rx} fill="#FFFFFF" stroke={counselorColor} strokeWidth="0.7" />
                     <path d={`M ${bx - 3} ${by - 8} l 3 5 l 3 -5 z`} fill="#FFFFFF" stroke={counselorColor} strokeWidth="0.7" strokeLinejoin="round" />
+                    {/* Risquinhos — fake text lines */}
+                    <line x1={bx - 9} y1={ty + 3.5} x2={bx + 7} y2={ty + 3.5} stroke={counselorColor} strokeWidth="1.2" strokeLinecap="round" opacity="0.45" />
+                    <line x1={bx - 9} y1={ty + 8.5} x2={bx + 2} y2={ty + 8.5} stroke={counselorColor} strokeWidth="1.2" strokeLinecap="round" opacity="0.30" />
                   </g>
                 )
               })()}
@@ -496,13 +498,16 @@ export function CuriaChambra({
               <CouncilMember ix={six} iy={siy} ci={ci} state={csState} chambraState={state} config={cfg} />
               {state !== 'idle' && state !== 'verdict' && (() => {
                 const [bx, by] = iso(six, siy, 2.2)
-                const w = 28
-                const h = 14
-                const rx = 7
+                const w = 28; const h = 14; const rx = 7
+                const ty = by - h - 8
+                const color = COUNSELORS[ci].color
                 return (
                   <g className="curia-speech-bubble" opacity={0.8}>
-                    <rect x={bx - w/2} y={by - h - 8} width={w} height={h} rx={rx} ry={rx} fill="#FFFFFF" stroke={COUNSELORS[ci].color} strokeWidth="0.7" />
-                    <path d={`M ${bx - 3} ${by - 8} l 3 5 l 3 -5 z`} fill="#FFFFFF" stroke={COUNSELORS[ci].color} strokeWidth="0.7" strokeLinejoin="round" />
+                    <rect x={bx - w/2} y={ty} width={w} height={h} rx={rx} ry={rx} fill="#FFFFFF" stroke={color} strokeWidth="0.7" />
+                    <path d={`M ${bx - 3} ${by - 8} l 3 5 l 3 -5 z`} fill="#FFFFFF" stroke={color} strokeWidth="0.7" strokeLinejoin="round" />
+                    {/* Risquinhos — fake text lines */}
+                    <line x1={bx - 9} y1={ty + 3.5} x2={bx + 7} y2={ty + 3.5} stroke={color} strokeWidth="1.2" strokeLinecap="round" opacity="0.45" />
+                    <line x1={bx - 9} y1={ty + 8.5} x2={bx + 2} y2={ty + 8.5} stroke={color} strokeWidth="1.2" strokeLinecap="round" opacity="0.30" />
                   </g>
                 )
               })()}

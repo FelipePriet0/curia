@@ -22,6 +22,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import type { Conversation, Message, Plan, Strategy, StrategyProposal } from '@/types'
 import { ContextDisclaimer } from '@/components/ui/ContextDisclaimer'
+import { DeliberationTimeline } from '@/components/board/DeliberationTimeline'
 
 export default function BoardPage() {
   const router = useRouter()
@@ -418,12 +419,13 @@ export default function BoardPage() {
               </div>
             </div>
           </div>
-        ) : (
-          /* ── CHAT: Chamber (compact) + verdict + input ── */
+        ) : isStreaming ? (
+          /* ── STREAMING: Câmara visível + Timeline + Mensagens + Input ── */
           <>
-            <div className="w-full" style={{ height: '28vh' }}>
+            <div className="w-full shrink-0" style={{ height: '28vh' }}>
               <CuriaChambra state={chambraState} activeCounselorIds={deliberation.activeCounselorIds} deliberation={deliberation} />
             </div>
+            <DeliberationTimeline deliberation={deliberation} streamingContent={streamingContent} />
             <div className="flex flex-1 flex-col min-h-0">
               {(messages.length > 0 || isStreaming) && (
                 <div className="px-4 pt-3">
@@ -450,6 +452,33 @@ export default function BoardPage() {
               </div>
             </div>
           </>
+        ) : (
+          /* ── CHAT: Câmara oculta — só mensagens + input ── */
+          <div className="flex flex-1 flex-col min-h-0">
+            {(messages.length > 0 || isStreaming) && (
+              <div className="px-4 pt-3">
+                <div className="mx-auto max-w-3xl">
+                  <ContextDisclaimer />
+                </div>
+              </div>
+            )}
+            <div className="flex-1 overflow-y-auto">
+              <CouncilVerdict
+                messages={messages}
+                streamingContent={streamingContent}
+                isStreaming={isStreaming}
+              />
+            </div>
+            <div className="mt-auto px-4 pb-4">
+              <div className="mx-auto w-full max-w-2xl">
+                <CouncilInput ref={inputRef} onSend={handleSend} isStreaming={isStreaming} variant="chat" />
+                <p className="mt-2 text-center font-curia-serif text-[11px] text-[#2B1A07]/40">
+                  A Curia pode cometer erros. Confira informações importantes.{' '}
+                  <a href="/cookies" className="underline hover:opacity-80">Consulte as Preferências de cookies</a>.
+                </p>
+              </div>
+            </div>
+          </div>
         )}
       </main>
     </div>
