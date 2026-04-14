@@ -27,18 +27,13 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  const isProtected   = pathname.startsWith('/board')
-  const isOnboarding  = pathname.startsWith('/onboarding')
-  // /reset-password is intentionally excluded: a logged-in user who received a
-  // recovery link must still be able to reset their password even with an active session.
-  const isAuthPage    =
-    pathname.startsWith('/login') ||
-    pathname.startsWith('/signup') ||
-    pathname.startsWith('/forgot-password')
+  const isProtected  = pathname.startsWith('/board')
+  const isOnboarding = pathname.startsWith('/onboarding')
 
   const onboardingDone = user?.user_metadata?.onboarding_completed === true
 
   // ── Not logged in ──────────────────────────────────────────────────────────
+  // Protect /board and /onboarding — login, signup and LP are always open
 
   if (!user) {
     if (isProtected || isOnboarding) {
@@ -50,13 +45,6 @@ export async function middleware(request: NextRequest) {
   }
 
   // ── Logged in ──────────────────────────────────────────────────────────────
-
-  // Already authed → skip auth pages
-  if (isAuthPage) {
-    const url = request.nextUrl.clone()
-    url.pathname = onboardingDone ? '/board' : '/onboarding'
-    return NextResponse.redirect(url)
-  }
 
   // Trying to access board without completing onboarding
   if (isProtected && !onboardingDone) {
@@ -80,9 +68,5 @@ export const config = {
     '/board',
     '/board/:path*',
     '/onboarding',
-    '/login',
-    '/signup',
-    '/forgot-password',
-    '/reset-password',
   ],
 }
