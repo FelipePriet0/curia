@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { FloatingNav } from '@/components/ui/floating-navbar'
 import { QuotesCarousel } from '@/components/ui/quotes-carousel'
@@ -324,62 +323,17 @@ function CuriaLogo({ size = 'md' }: { size?: 'sm' | 'md' }) {
   )
 }
 
-// ─── Session-aware CTA hook ───────────────────────────────────────────────────
-// Detects auth state on the client and computes the correct destination
-// so every CTA on the LP routes the user to the right place.
-//
-// States:
-//   not logged in              → /signup  "Comece agora"
-//   logged in, onboarding done → /board   "Ir para o Board"
-//   logged in, no onboarding   → /onboarding "Continuar cadastro"
-
-interface SessionCTA {
-  loading: boolean
-  isLoggedIn: boolean
-  primaryHref: string
-  primaryLabel: string
-}
-
-function useSessionCTA(): SessionCTA {
-  const [state, setState] = useState<SessionCTA>({
-    loading: true,
-    isLoggedIn: false,
-    primaryHref: '/signup',
-    primaryLabel: 'Comece agora',
-  })
-
-  useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        setState({ loading: false, isLoggedIn: false, primaryHref: '/signup', primaryLabel: 'Comece agora' })
-        return
-      }
-      const onboardingDone = session.user.user_metadata?.onboarding_completed === true
-      setState({
-        loading: false,
-        isLoggedIn: true,
-        primaryHref: onboardingDone ? '/board' : '/onboarding',
-        primaryLabel: onboardingDone ? 'Ir para o Board' : 'Continuar cadastro',
-      })
-    })
-  }, [])
-
-  return state
-}
-
 export function LandingPage() {
-  const cta = useSessionCTA()
   return (
     <div className="min-h-screen bg-[#FDFBF9] text-[#2B1A07]">
-      <Nav cta={cta} />
-      <Hero cta={cta} />
-      <MeetCuria cta={cta} />
+      <Nav />
+      <Hero />
+      <MeetCuria />
       <HowItWorks />
       <Authority />
       <BigTechs />
-      <Pricing cta={cta} />
-      <Footer cta={cta} />
+      <Pricing />
+      <Footer />
     </div>
   )
 }
@@ -393,7 +347,7 @@ const NAV_ITEMS = [
   { name: 'Big Techs',      link: '#big-techs' },
 ]
 
-function Nav({ cta }: { cta: SessionCTA }) {
+function Nav() {
   return (
     <>
       {/* Static top bar — visible at the top of the page */}
@@ -401,14 +355,12 @@ function Nav({ cta }: { cta: SessionCTA }) {
         <div className="mx-auto flex h-20 max-w-6xl items-center justify-between">
           <CuriaLogo size="md" />
           <div className="flex items-center gap-3">
-            {!cta.isLoggedIn && (
-              <Link href="/login">
-                <Button size="md" className="bg-[#2B1A07] text-white hover:opacity-90">Entrar</Button>
-              </Link>
-            )}
-            <Link href={cta.primaryHref}>
+            <Link href="/login">
+              <Button size="md" className="bg-[#2B1A07] text-white hover:opacity-90">Entrar</Button>
+            </Link>
+            <Link href="/signup">
               <Button size="md" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
-                {cta.primaryLabel} <ArrowRight className="ml-1.5 h-4 w-4" />
+                Comece agora <ArrowRight className="ml-1.5 h-4 w-4" />
               </Button>
             </Link>
           </div>
@@ -421,16 +373,14 @@ function Nav({ cta }: { cta: SessionCTA }) {
         brand={<CuriaLogo size="sm" />}
         cta={
           <div className="flex items-center gap-2">
-            {!cta.isLoggedIn && (
-              <Link href="/login">
-                <button className="rounded-full bg-[#2B1A07] px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity">
-                  Entrar
-                </button>
-              </Link>
-            )}
-            <Link href={cta.primaryHref}>
+            <Link href="/login">
+              <button className="rounded-full bg-[#2B1A07] px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity">
+                Entrar
+              </button>
+            </Link>
+            <Link href="/signup">
               <button className="rounded-full bg-[#FF6F1E] px-4 py-1.5 text-sm font-semibold text-[#2B1A07] hover:opacity-90 transition-opacity">
-                {cta.primaryLabel}
+                Comece agora
               </button>
             </Link>
           </div>
@@ -442,7 +392,7 @@ function Nav({ cta }: { cta: SessionCTA }) {
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 
-function Hero({ cta }: { cta: SessionCTA }) {
+function Hero() {
   return (
     <section className="relative overflow-hidden px-6 pb-24 pt-20 text-center">
       {/* Glow background */}
@@ -477,9 +427,9 @@ function Hero({ cta }: { cta: SessionCTA }) {
               Ver como funciona
             </Button>
           </a>
-          <Link href={cta.primaryHref}>
+          <Link href="/signup">
             <Button size="lg" className="w-full sm:w-auto bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
-              {cta.primaryLabel} <ArrowRight className="ml-2 h-4 w-4" />
+              Comece agora <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
         </div>
@@ -909,7 +859,7 @@ function BoardHomePreview() {
   )
 }
 
-function MeetCuria({ cta }: { cta: SessionCTA }) {
+function MeetCuria() {
   return (
     <section id="conheca" className="bg-[#FDFBF9] px-6 py-24">
       <div className="mx-auto max-w-6xl">
@@ -928,9 +878,9 @@ function MeetCuria({ cta }: { cta: SessionCTA }) {
               <a href="#como-funciona">
                 <Button variant="outline" size="lg">Ver como funciona</Button>
               </a>
-              <Link href={cta.primaryHref}>
+              <Link href="/signup">
                 <Button size="lg" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
-                  {cta.primaryLabel} <ArrowRight className="ml-2 h-4 w-4" />
+                  Comece agora <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
             </div>
@@ -1076,7 +1026,7 @@ const STARTER_FEATURES = [
   'Histórico de conversas',
 ]
 
-function Pricing({ cta }: { cta: SessionCTA }) {
+function Pricing() {
   return (
     <section id="planos" className="bg-[#FDFBF9] px-6 py-28">
       <div className="mx-auto max-w-5xl text-center">
@@ -1112,9 +1062,9 @@ function Pricing({ cta }: { cta: SessionCTA }) {
             </ul>
 
             {/* CTA */}
-            <Link href={cta.primaryHref} className="mt-6 block w-full">
+            <Link href="/signup" className="mt-6 block w-full">
               <Button size="lg" className="w-full bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
-                {cta.primaryLabel} <ArrowRight className="ml-2 h-4 w-4" />
+                Criar minha conta <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
 
@@ -1129,7 +1079,7 @@ function Pricing({ cta }: { cta: SessionCTA }) {
 
 // ─── Footer ───────────────────────────────────────────────────────────────────
 
-function Footer({ cta }: { cta: SessionCTA }) {
+function Footer() {
   return (
     <footer className="bg-[#FDFBF9] px-6">
       <div className="mx-auto max-w-7xl">
@@ -1150,13 +1100,11 @@ function Footer({ cta }: { cta: SessionCTA }) {
               <li>
                 <a href="#como-funciona" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Como funciona</a>
               </li>
-              {!cta.isLoggedIn && (
-                <li>
-                  <Link href="/login" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Entrar</Link>
-                </li>
-              )}
               <li>
-                <Link href={cta.primaryHref} className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">{cta.primaryLabel}</Link>
+                <Link href="/login" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Entrar</Link>
+              </li>
+              <li>
+                <Link href="/signup" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Começar agora</Link>
               </li>
             </ul>
           </div>
@@ -1181,9 +1129,9 @@ function Footer({ cta }: { cta: SessionCTA }) {
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#2B1A07]/60 mb-3">Começar</h3>
             <p className="text-sm text-[#2B1A07]/70 mb-4 font-curia-serif">Leva menos de 2 minutos.</p>
-            <Link href={cta.primaryHref}>
+            <Link href="/signup">
               <Button size="md" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90 w-full sm:w-auto">
-                {cta.primaryLabel}
+                Comece agora
               </Button>
             </Link>
           </div>
