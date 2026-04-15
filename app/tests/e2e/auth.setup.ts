@@ -47,6 +47,15 @@ setup('salva sessão fresh-user', async ({ page }) => {
   await page.locator('input[type="email"]').fill(email)
   await page.locator('input[type="password"]').fill(password)
   await page.locator('button[type="submit"]').click()
+
+  // Captura erro de login antes do timeout para diagnóstico
+  const errorBox = page.locator('[class*="red"]').first()
+  const hasError = await errorBox.isVisible().catch(() => false)
+  if (hasError) {
+    const msg = await errorBox.textContent().catch(() => '(sem texto)')
+    throw new Error(`fresh-user login falhou: ${msg} — verifique se o usuário existe no Supabase e se o e-mail está confirmado`)
+  }
+
   await expect(page).toHaveURL(/\/onboarding/, { timeout: 10_000 })
   await page.context().storageState({ path: FRESH_USER_FILE })
 })

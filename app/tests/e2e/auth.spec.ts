@@ -98,7 +98,7 @@ test.describe('Signup', () => {
 
   test('link "Já tem conta?" leva para /login', async ({ page }) => {
     await page.goto('/signup')
-    await page.getByRole('link', { name: /já tem conta/i }).click()
+    await page.getByRole('link', { name: /entrar/i }).click()
     await expect(page).toHaveURL(/\/login/)
   })
 

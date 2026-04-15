@@ -492,8 +492,9 @@ export function SignupForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="mb-1.5 block font-curia-serif text-sm font-medium text-[#2B1A07]">E-mail</label>
+          <label htmlFor="signup-email" className="mb-1.5 block font-curia-serif text-sm font-medium text-[#2B1A07]">E-mail</label>
           <input
+            id="signup-email"
             type="email" value={email}
             onChange={(e) => { setEmail(e.target.value); setError(null) }}
             placeholder="voce@empresa.com" required disabled={loading || googleLoading}
