@@ -2,11 +2,39 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Mail, ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils/cn'
+
+const COOLDOWN_SECONDS = 60
+const MAX_ATTEMPTS = 3
+const BLOCK_DURATION_MS = 60 * 60 * 1000 // 1 hora
+const LS_KEY = 'forgot_pw_attempts'
+
+interface AttemptsRecord {
+  count: number
+  firstAt: number
+}
+
+function getAttemptsRecord(): AttemptsRecord {
+  try {
+    const raw = localStorage.getItem(LS_KEY)
+    if (!raw) return { count: 0, firstAt: 0 }
+    return JSON.parse(raw) as AttemptsRecord
+  } catch {
+    return { count: 0, firstAt: 0 }
+  }
+}
+
+function saveAttemptsRecord(record: AttemptsRecord) {
+  localStorage.setItem(LS_KEY, JSON.stringify(record))
+}
+
+function clearAttemptsRecord() {
+  localStorage.removeItem(LS_KEY)
+}
 
 const inputCls = cn(
   'flex h-11 w-full rounded-xl border border-[#2B1A07]/15 bg-white px-4',
@@ -22,9 +50,31 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [cooldown, setCooldown] = useState(0)
+  const [attempts, setAttempts] = useState(0)
+  const [blocked, setBlocked] = useState(false)
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  // Restaura estado do localStorage ao montar
+  useEffect(() => {
+    const record = getAttemptsRecord()
+    const elapsed = Date.now() - record.firstAt
+    if (record.count >= MAX_ATTEMPTS && elapsed < BLOCK_DURATION_MS) {
+      setAttempts(record.count)
+      setBlocked(true)
+    } else if (elapsed >= BLOCK_DURATION_MS) {
+      clearAttemptsRecord()
+    } else {
+      setAttempts(record.count)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (cooldown <= 0) return
+    const timer = setTimeout(() => setCooldown(c => c - 1), 1000)
+    return () => clearTimeout(timer)
+  }, [cooldown])
+
+  async function sendEmail() {
     setLoading(true)
     setError(null)
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -35,7 +85,24 @@ export default function ForgotPasswordPage() {
       setError('Não foi possível enviar o e-mail. Verifique o endereço e tente novamente.')
       return
     }
+
+    const record = getAttemptsRecord()
+    const newCount = record.count + 1
+    const firstAt = record.count === 0 ? Date.now() : record.firstAt
+    saveAttemptsRecord({ count: newCount, firstAt })
+    setAttempts(newCount)
+
+    if (newCount >= MAX_ATTEMPTS) {
+      setBlocked(true)
+    }
+
     setSent(true)
+    setCooldown(COOLDOWN_SECONDS)
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    sendEmail()
   }
 
   return (
@@ -51,7 +118,26 @@ export default function ForgotPasswordPage() {
           </Link>
         </div>
 
-        {sent ? (
+        {blocked && !sent ? (
+          <div className="flex flex-col items-center text-center gap-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
+              <Mail size={28} className="text-amber-600" />
+            </div>
+            <div>
+              <h2 className="font-curia-rounded text-2xl text-[#2B1A07]">Limite atingido</h2>
+              <p className="mt-2 font-curia-serif text-sm text-[#2B1A07]/60">
+                Você já utilizou as {MAX_ATTEMPTS} tentativas disponíveis.
+                Tente novamente em 1 hora.
+              </p>
+            </div>
+            <Link
+              href="/login"
+              className="font-curia-serif text-xs text-[#2B1A07]/40 hover:text-[#2B1A07]/60 transition-colors"
+            >
+              ← Voltar para o login
+            </Link>
+          </div>
+        ) : sent ? (
           <div className="flex flex-col items-center text-center gap-4">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#FF6F1E]/10">
               <Mail size={28} className="text-[#FF6F1E]" />
@@ -63,9 +149,42 @@ export default function ForgotPasswordPage() {
                 Verifique sua caixa de entrada e pasta de spam.
               </p>
             </div>
+
+            {error && (
+              <div className="w-full rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                <p className="font-curia-serif text-sm text-red-700">{error}</p>
+              </div>
+            )}
+
+            {blocked ? (
+              <div className="w-full rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+                <p className="font-curia-serif text-sm text-amber-700">
+                  Você já utilizou as 3 tentativas disponíveis. Tente novamente em 1 hora.
+                </p>
+              </div>
+            ) : (
+              <button
+                onClick={sendEmail}
+                disabled={cooldown > 0 || loading}
+                className={cn(
+                  'font-curia-serif text-sm transition-colors',
+                  cooldown > 0 || loading
+                    ? 'text-[#2B1A07]/30 cursor-not-allowed'
+                    : 'text-[#FF6F1E] hover:underline'
+                )}
+              >
+                {loading
+                  ? 'Enviando...'
+                  : cooldown > 0
+                    ? `Reenviar link em ${cooldown}s (${attempts}/${MAX_ATTEMPTS} tentativas)`
+                    : `Reenviar link (${attempts}/${MAX_ATTEMPTS} tentativas)`
+                }
+              </button>
+            )}
+
             <Link
               href="/login"
-              className="mt-2 font-curia-serif text-sm text-[#FF6F1E] hover:underline"
+              className="font-curia-serif text-xs text-[#2B1A07]/40 hover:text-[#2B1A07]/60 transition-colors"
             >
               ← Voltar para o login
             </Link>

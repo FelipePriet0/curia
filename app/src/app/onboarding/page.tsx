@@ -770,7 +770,7 @@ export default function OnboardingPage() {
             {phase === 'done' && diagnosis && (
               <div className="flex justify-center pb-4 pt-2">
                 <button
-                  onClick={() => router.push('/board')}
+                  onClick={() => router.replace('/board')}
                   className="flex items-center gap-2 rounded-xl bg-[#FF6F1E] px-6 py-3 font-curia-serif text-sm font-semibold text-[#2B1A07] shadow-sm transition-opacity hover:opacity-90 active:scale-95"
                 >
                   Entrar no Board <ArrowRight className="h-4 w-4" />
