@@ -5,7 +5,7 @@ Usado como referência para testes e para o checklist de Definition of Done.
 
 ---
 
-## 1. Proteção de Rotas (Middleware)
+## 1. Proteção de Rotas (Proxy)
 
 | Situação                              | Rota acessada   | Resultado esperado       | Teste E2E |
 |---------------------------------------|-----------------|--------------------------|-----------|
@@ -24,7 +24,7 @@ Usado como referência para testes e para o checklist de Definition of Done.
 | `/`               | Landing page carrega                 | ✅ auto   |
 | `/login`          | Formulário de login visível          | ✅ auto   |
 | `/signup`         | Formulário de cadastro visível       | ✅ auto   |
-| `/forgot-password`| Formulário de recuperação visível    | ✅ auto   |
+| `/forgot-password`| Redireciona para `/login` (recuperação fica no Clerk) | manual |
 | `/terms`          | Página de termos carrega             | manual    |
 | `/privacy`        | Política de privacidade carrega      | manual    |
 | `/share/[token]`  | Conversa compartilhada carrega       | manual    |
@@ -39,12 +39,6 @@ Usado como referência para testes e para o checklist de Definition of Done.
 | Email + senha válidos, onboarding NÃO feito  | → `/onboarding`                          | ✅ auto   |
 | Email + senha inválidos                      | Mensagem de erro em português            | ✅ auto   |
 | Email com formato inválido                   | Bloqueado pelo browser (HTML5)           | ✅ auto   |
-| Login com Google (conta existente)           | → `/board` (onboarding feito)            | ⚠️ manual |
-| Login com Google (nova conta)                | → `/onboarding`                          | ⚠️ manual |
-
-> **Por que Google é manual?** OAuth requer interação com janela do Google, não pode ser automatizado sem mocking.
-> Testar manualmente: abrir aba anônima, ir em /login, clicar "Continuar com Google".
-
 ---
 
 ## 4. Autenticação — Signup
@@ -55,9 +49,6 @@ Usado como referência para testes e para o checklist de Definition of Done.
 | Email já cadastrado                               | Mensagem "já está cadastrado"               | ✅ auto   |
 | Senhas que não coincidem                          | Mensagem "senhas não coincidem"             | ✅ auto   |
 | Sem aceitar os termos                             | Mensagem "aceite os termos"                 | ✅ auto   |
-| Google sem aceitar termos                         | Mensagem "aceite os termos", sem redirect   | ✅ auto   |
-| Google com termos aceitos (conta nova)            | → OAuth Google → `/onboarding`             | ⚠️ manual |
-| Google com termos aceitos (conta já existe)       | → OAuth Google → `/board`                  | ⚠️ manual |
 | Senha fraca                                       | Bloqueado com mensagem de senha fraca       | ✅ auto   |
 
 ---
@@ -68,7 +59,7 @@ Usado como referência para testes e para o checklist de Definition of Done.
 |-------------------------------------------------|--------------------------------------------|-----------|
 | Usuário sem onboarding acessa `/onboarding`     | Primeira pergunta visível                  | ✅ auto   |
 | Usuário com onboarding acessa `/onboarding`     | → `/board`                                 | ✅ auto   |
-| Completar todas as perguntas → clicar "Entrar"  | → `/board` (sem `/onboarding` no histórico)| ⚠️ manual |
+| Completar todas as perguntas → clicar "Entrar"  | → `/board` (sem `/onboarding` no histórico)| ✅ auto   |
 | Back button de `/board` após onboarding         | NÃO volta para `/onboarding`               | ✅ auto   |
 
 ---
@@ -93,7 +84,7 @@ Usado como referência para testes e para o checklist de Definition of Done.
 |----------------------------------|--------------------------------|-----------|
 | Email existente → formulário     | Email de recuperação enviado   | manual    |
 | Email inexistente → formulário   | Mesma mensagem (sem vazar info)| manual    |
-| Link de reset válido             | → `/reset-password`            | manual    |
+| Recuperação de senha via Clerk   | fluxo concluído sem erro       | manual    |
 | Nova senha definida com sucesso  | → `/login` ou `/board`         | manual    |
 
 ---

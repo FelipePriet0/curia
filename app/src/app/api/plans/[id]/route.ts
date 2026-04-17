@@ -1,70 +1,94 @@
+export const dynamic = 'force-dynamic'
+
+import { and, desc, eq } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { db } from '@/db/client'
+import { conversations, plans } from '@/db/schema'
+import { requireUserSession } from '@/lib/auth/request'
+import { serializeConversation, serializePlan } from '@/lib/db/serializers'
 
-// GET /api/plans/[id] — get plan details
 export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const { session, response } = await requireUserSession(req)
+  if (!session) return response
+
   const { id } = await params
-  const supabase = await createClient()
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const [plan] = await db
+    .select()
+    .from(plans)
+    .where(and(
+      eq(plans.id, id),
+      eq(plans.userId, session.user.id),
+    ))
+    .limit(1)
 
-  const { data: plan, error } = await supabase
-    .from('plans')
-    .select('*')
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .single()
+  if (!plan) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
 
-  if (error || !plan) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  const reviews = await db
+    .select()
+    .from(conversations)
+    .where(and(
+      eq(conversations.planId, id),
+      eq(conversations.conversationType, 'plan_review'),
+      eq(conversations.userId, session.user.id),
+    ))
+    .orderBy(desc(conversations.createdAt))
 
-  // Fetch review conversations linked to this plan
-  const { data: reviews } = await supabase
-    .from('conversations')
-    .select('id, title, conversation_type, created_at, updated_at')
-    .eq('plan_id', id)
-    .eq('conversation_type', 'plan_review')
-    .order('created_at', { ascending: false })
-
-  return NextResponse.json({ ...plan, reviews: reviews || [] })
+  return NextResponse.json({
+    ...serializePlan(plan),
+    reviews: reviews.map(serializeConversation),
+  })
 }
 
-// PATCH /api/plans/[id] — update plan status or review date
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const { session, response } = await requireUserSession(req)
+  if (!session) return response
+
   const { id } = await params
-  const supabase = await createClient()
+  const [existing] = await db
+    .select({ id: plans.id })
+    .from(plans)
+    .where(and(
+      eq(plans.id, id),
+      eq(plans.userId, session.user.id),
+    ))
+    .limit(1)
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!existing) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
 
-  // Verify ownership
-  const { data: existing } = await supabase
-    .from('plans')
-    .select('id')
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .single()
-  if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  const body = await req.json().catch(() => ({})) as {
+    status?: 'active' | 'reviewed' | 'archived'
+    review_date?: string | null
+    review_interval_days?: number
+    title?: string
+  }
 
-  const body = await req.json()
-  const allowed = ['status', 'review_date', 'review_interval_days', 'title']
-  const updates = Object.fromEntries(
-    Object.entries(body).filter(([k]) => allowed.includes(k))
-  )
+  const updates: Partial<typeof plans.$inferInsert> & { updatedAt?: Date } = {}
+  if ('status' in body) updates.status = body.status
+  if ('review_date' in body) updates.reviewDate = body.review_date ?? null
+  if ('review_interval_days' in body) updates.reviewIntervalDays = body.review_interval_days
+  if ('title' in body) updates.title = body.title
 
-  const { data, error } = await supabase
-    .from('plans')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
+  updates.updatedAt = new Date()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+  const [plan] = await db
+    .update(plans)
+    .set(updates)
+    .where(and(
+      eq(plans.id, id),
+      eq(plans.userId, session.user.id),
+    ))
+    .returning()
+
+  return NextResponse.json(serializePlan(plan))
 }

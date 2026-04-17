@@ -21,6 +21,8 @@ interface ConversationListProps {
   activeId?: string
   onSelect: (id: string) => void
   onNew: () => void
+  newConversationDisabled?: boolean
+  newConversationDisabledReason?: string
   loading?: boolean
   plans?: Plan[]
   onPlanSelect?: (plan: Plan) => void
@@ -420,6 +422,8 @@ export function ConversationList({
   activeId,
   onSelect,
   onNew,
+  newConversationDisabled = false,
+  newConversationDisabledReason = 'Ação indisponível no momento.',
   loading,
   plans = [],
   onPlanSelect,
@@ -517,7 +521,13 @@ export function ConversationList({
           )}
           <span className="font-curia-rounded text-[#2B1A07] text-2xl leading-none">Curia</span>
         </div>
-        <Button size="icon" variant="ghost" onClick={onNew} title="Nova consulta">
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={onNew}
+          disabled={newConversationDisabled}
+          title={newConversationDisabled ? newConversationDisabledReason : 'Nova consulta'}
+        >
           <Plus className="h-4 w-4" />
         </Button>
       </div>

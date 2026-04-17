@@ -1,62 +1,63 @@
+export const dynamic = 'force-dynamic'
+
+import { and, desc, eq } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { db } from '@/db/client'
+import { conversations, strategies } from '@/db/schema'
+import { requireUserSession } from '@/lib/auth/request'
+import { serializeStrategy } from '@/lib/db/serializers'
 
-// GET /api/strategies — list user strategies (most recent first)
-export async function GET() {
-  const supabase = await createClient()
+export async function GET(request: NextRequest) {
+  const { session, response } = await requireUserSession(request)
+  if (!session) return response
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const rows = await db
+    .select()
+    .from(strategies)
+    .where(eq(strategies.userId, session.user.id))
+    .orderBy(desc(strategies.updatedAt))
 
-  const { data, error } = await supabase
-    .from('strategies')
-    .select('id, name, brief, stage, created_at, updated_at')
-    .eq('user_id', user.id)
-    .order('updated_at', { ascending: false })
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-
-  return NextResponse.json(data)
+  return NextResponse.json(rows.map(serializeStrategy))
 }
 
-// POST /api/strategies — create strategy and link current conversation
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
+  const { session, response } = await requireUserSession(req)
+  if (!session) return response
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const body = await req.json().catch(() => ({})) as {
+    name?: string
+    brief?: string
+    stage?: string | null
+    conversation_id?: string | null
   }
 
-  const { name, brief, stage, conversation_id } = await req.json()
-
-  if (!name?.trim() || !brief?.trim()) {
+  if (!body.name?.trim() || !body.brief?.trim()) {
     return NextResponse.json({ error: 'name and brief are required' }, { status: 400 })
   }
 
-  // Create the strategy
-  const { data: strategy, error: strategyError } = await supabase
-    .from('strategies')
-    .insert({ user_id: user.id, name: name.trim(), brief: brief.trim(), stage: stage ?? null })
-    .select()
-    .single()
+  const [strategy] = await db
+    .insert(strategies)
+    .values({
+      userId: session.user.id,
+      name: body.name.trim(),
+      brief: body.brief.trim(),
+      stage: body.stage ?? null,
+    })
+    .returning()
 
-  if (strategyError || !strategy) {
-    return NextResponse.json({ error: strategyError?.message ?? 'Failed to create strategy' }, { status: 500 })
+  if (body.conversation_id) {
+    await db
+      .update(conversations)
+      .set({
+        strategyId: strategy.id,
+        conversationType: 'strategy',
+        updatedAt: new Date(),
+      })
+      .where(and(
+        eq(conversations.id, body.conversation_id),
+        eq(conversations.userId, session.user.id),
+      ))
   }
 
-  // Link the originating conversation to this strategy
-  if (conversation_id) {
-    await supabase
-      .from('conversations')
-      .update({ strategy_id: strategy.id, conversation_type: 'strategy' })
-      .eq('id', conversation_id)
-      .eq('user_id', user.id)
-  }
-
-  return NextResponse.json(strategy, { status: 201 })
+  return NextResponse.json(serializeStrategy(strategy), { status: 201 })
 }

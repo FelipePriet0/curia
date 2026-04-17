@@ -1,56 +1,73 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+export const dynamic = 'force-dynamic'
 
-// PATCH /api/conversations/[id] — rename, pin, archive
+import { and, eq } from 'drizzle-orm'
+import { NextRequest, NextResponse } from 'next/server'
+import { db } from '@/db/client'
+import { conversations } from '@/db/schema'
+import { requireUserSession } from '@/lib/auth/request'
+import { serializeConversation } from '@/lib/db/serializers'
+
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const supabase = await createClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { session, response } = await requireUserSession(req)
+  if (!session) return response
 
   const { id } = await params
-  const body = await req.json()
-
-  const allowed = ['title', 'pinned', 'archived']
-  const update: Record<string, unknown> = {}
-  for (const key of allowed) {
-    if (key in body) update[key] = body[key]
+  const body = await req.json().catch(() => ({})) as {
+    title?: string
+    pinned?: boolean
+    archived?: boolean
   }
 
-  if (Object.keys(update).length === 0)
+  const updates: Partial<typeof conversations.$inferInsert> & { updatedAt?: Date } = {}
+  if ('title' in body) updates.title = body.title
+  if ('pinned' in body) updates.pinned = body.pinned
+  if ('archived' in body) updates.archived = body.archived
+
+  if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: 'Nothing to update' }, { status: 400 })
+  }
 
-  const { data, error } = await supabase
-    .from('conversations')
-    .update(update)
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .select()
-    .single()
+  updates.updatedAt = new Date()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+  const [conversation] = await db
+    .update(conversations)
+    .set(updates)
+    .where(and(
+      eq(conversations.id, id),
+      eq(conversations.userId, session.user.id),
+    ))
+    .returning()
+
+  if (!conversation) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
+
+  return NextResponse.json(serializeConversation(conversation))
 }
 
-// DELETE /api/conversations/[id]
 export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const supabase = await createClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { session, response } = await requireUserSession(req)
+  if (!session) return response
 
   const { id } = await params
 
-  const { error } = await supabase
-    .from('conversations')
-    .delete()
-    .eq('id', id)
-    .eq('user_id', user.id)
+  const deleted = await db
+    .delete(conversations)
+    .where(and(
+      eq(conversations.id, id),
+      eq(conversations.userId, session.user.id),
+    ))
+    .returning({ id: conversations.id })
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (!deleted.length) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
+
   return new NextResponse(null, { status: 204 })
 }

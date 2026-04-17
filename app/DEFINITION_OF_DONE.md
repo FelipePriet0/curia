@@ -18,14 +18,10 @@ npm run test:e2e
 ## 2. Checklist Manual — Auth (abrir aba anônima para cada item)
 
 ### Signup
-- [ ] Signup com Google (nova conta) → cai em `/onboarding`, não em `/login`
-- [ ] Signup com Google (conta já existente) → cai em `/board`
 - [ ] Signup email/senha com email novo → tela de confirmação **ou** vai para `/board`
 - [ ] Signup email/senha com email existente → mensagem de erro clara em português
 
 ### Login
-- [ ] Login com Google (conta existente) → vai para `/board`
-- [ ] Login com Google (conta sem onboarding) → vai para `/onboarding`
 - [ ] Login email/senha correto → vai para `/board`
 - [ ] Login email/senha errado → mensagem de erro, não crasha
 
@@ -37,7 +33,7 @@ Abrir aba anônima e percorrer o caminho exato de um usuário real:
 
 - [ ] Acessa `/` → landing page carrega sem erro
 - [ ] Vai para `/signup` → formulário renderiza corretamente
-- [ ] Cria conta com Google → aceita termos → OAuth → cai em `/onboarding`
+- [ ] Cria conta com email e senha → cai em `/onboarding`
 - [ ] Preenche todo o onboarding → clica "Entrar no Board" → vai para `/board`
 - [ ] Back button → **NÃO** volta para `/onboarding`
 - [ ] Reload em `/board` → permanece em `/board`
@@ -48,8 +44,8 @@ Abrir aba anônima e percorrer o caminho exato de um usuário real:
 
 ## 4. Checklist Manual — Recuperação de Senha
 
-- [ ] `/forgot-password` com email válido → email recebido
-- [ ] Link de reset leva para `/reset-password`
+- [ ] Recuperação de senha via Clerk inicia corretamente a partir de `/login`
+- [ ] Link/fluxo de recuperação retorna ao app sem erro
 - [ ] Nova senha salva com sucesso → consegue logar com nova senha
 
 ---
@@ -67,6 +63,7 @@ Abrir aba anônima e percorrer o caminho exato de um usuário real:
 - [ ] Sem `console.error` visíveis no browser durante os fluxos acima
 - [ ] Versão mobile: abrir no celular e testar o fluxo completo
 - [ ] Variáveis de ambiente de produção revisadas (não há `.env.local` com segredos expostos)
+- [ ] `./scripts/deploy.sh` executa sem ajuste manual fora de `.env.vps`
 
 ---
 

@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useState, useEffect, useCallback, useRef, useReducer } from 'react'
+import { useClerk } from '@clerk/nextjs'
 import { PanelLeftClose, PanelLeftOpen, GitFork, Compass, ShieldAlert, ClipboardCheck } from 'lucide-react'
 import { ConversationList } from '@/components/board/ConversationList'
 import { ReviewBanner } from '@/components/board/ReviewBanner'
@@ -18,13 +19,13 @@ import {
   contextBadgeColor,
   contextUsagePercent,
 } from '@/lib/deliberation/store'
-import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import type { Conversation, Message, Plan, Strategy, StrategyProposal } from '@/types'
 import { ContextDisclaimer } from '@/components/ui/ContextDisclaimer'
 
 export default function BoardPage() {
   const router = useRouter()
+  const { signOut } = useClerk()
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeId, setActiveId] = useState<string | undefined>()
   const [messages, setMessages] = useState<Message[]>([])
@@ -49,33 +50,15 @@ export default function BoardPage() {
     loadPlans()
     loadStrategies()
 
-    // Fetch user name from Supabase auth
     const fetchUser = async () => {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        const full = user.user_metadata?.full_name ?? user.user_metadata?.name ?? user.email?.split('@')[0] ?? null
-        // Use only first name
-        setUserName(full ? full.split(' ')[0] : null)
+      const response = await fetch('/api/auth/session')
+      if (!response.ok) return
+      const data = await response.json() as { user?: { firstName?: string | null } | null }
+      if (data.user) {
+        setUserName(data.user.firstName ?? null)
       }
     }
-    fetchUser()
-  }, [])
-
-  // On first load after auth (including OAuth redirect), persist pending terms acceptance
-  useEffect(() => {
-    try {
-      const pending = localStorage.getItem('curia_terms_pending_accept')
-      if (pending) {
-        fetch('/api/terms/accept', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ terms_version: process.env.NEXT_PUBLIC_TERMS_VERSION || '1.0' }),
-        })
-          .then(() => localStorage.removeItem('curia_terms_pending_accept'))
-          .catch(() => {})
-      }
-    } catch {}
+    void fetchUser()
   }, [])
 
   useEffect(() => {
@@ -342,10 +325,7 @@ export default function BoardPage() {
             onToggleSidebar={() => setSidebarOpen((o) => !o)}
             sidebarOpen={sidebarOpen}
             onLogout={async () => {
-              const sb = createClient()
-              await sb.auth.signOut()
-              router.push('/')
-              router.refresh()
+              await signOut({ redirectUrl: '/' })
             }}
           />
         </div>

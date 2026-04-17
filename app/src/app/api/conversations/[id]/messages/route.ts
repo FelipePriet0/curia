@@ -1,217 +1,238 @@
 export const maxDuration = 300
+export const dynamic = 'force-dynamic'
 
+import { and, asc, count, eq } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { streamBoardEvents } from '@/lib/llm/client'
+import { db } from '@/db/client'
+import { companies, conversations, messages, plans, strategies } from '@/db/schema'
+import { requireUserSession } from '@/lib/auth/request'
+import { serializeCompany, serializeMessage } from '@/lib/db/serializers'
 import { buildSystemPrompt } from '@/lib/llm/board-prompt'
+import { streamBoardEvents } from '@/lib/llm/client'
 import type { LLMMessage } from '@/lib/llm/client'
 import type { QueryEvent } from '@/lib/llm/query-loop'
-import type { PlanReviewContext, StrategyContext, StrategyProposal } from '@/types'
-import { isPlanRequest, hasDiagnosis, hasProblemCentral } from '@/lib/metrics/detectors'
+import { hasDiagnosis, hasProblemCentral, isPlanRequest } from '@/lib/metrics/detectors'
 import { trackEvent } from '@/lib/metrics/track'
+import type { CompanyContext, PlanReviewContext, StrategyContext } from '@/types'
 
-// GET /api/conversations/[id]/messages — buscar todas as mensagens
 export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const { session, response } = await requireUserSession(req)
+  if (!session) return response
+
   const { id } = await params
-  const supabase = await createClient()
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const { data: conversation } = await supabase
-    .from('conversations')
-    .select('id')
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .single()
+  const [conversation] = await db
+    .select({ id: conversations.id })
+    .from(conversations)
+    .where(and(
+      eq(conversations.id, id),
+      eq(conversations.userId, session.user.id),
+    ))
+    .limit(1)
 
   if (!conversation) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  const { data, error } = await supabase
-    .from('messages')
-    .select('id, role, content, created_at')
-    .eq('conversation_id', id)
-    .order('created_at', { ascending: true })
+  const rows = await db
+    .select()
+    .from(messages)
+    .where(eq(messages.conversationId, id))
+    .orderBy(asc(messages.createdAt))
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-
-  return NextResponse.json(data)
+  return NextResponse.json(rows.map(serializeMessage))
 }
 
-// POST /api/conversations/[id]/messages — enviar mensagem e stream NDJSON
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const { session, response } = await requireUserSession(req)
+  if (!session) return response
+
   const { id } = await params
-  const supabase = await createClient()
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const { data: conversation } = await supabase
-    .from('conversations')
-    .select('id, plan_id, conversation_type, strategy_id')
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .single()
+  const [conversation] = await db
+    .select({
+      id: conversations.id,
+      planId: conversations.planId,
+      conversationType: conversations.conversationType,
+      strategyId: conversations.strategyId,
+    })
+    .from(conversations)
+    .where(and(
+      eq(conversations.id, id),
+      eq(conversations.userId, session.user.id),
+    ))
+    .limit(1)
 
   if (!conversation) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  const { message } = await req.json()
+  const body = await req.json().catch(() => ({})) as { message?: string }
+  const message = body.message?.trim()
 
-  if (!message?.trim()) {
+  if (!message) {
     return NextResponse.json({ error: 'Message is required' }, { status: 400 })
   }
 
-  // Buscar dados completos da empresa do banco — inclui métricas e diagnóstico do onboarding
-  const { data: companyRow } = await supabase
-    .from('companies')
-    .select('company_name, industry, business_type, business_model, monetization, product_description, average_ticket, team_size, founded_period, capital_stage, mrr, churn_rate, cac, ltv, monthly_revenue, gross_margin, max_capacity, gmv, take_rate, marketplace_weak_side, active_customers, icp_defined, icp_description, acquisition_channel, main_bottleneck, main_bottleneck_detail, diagnosed_stage, diagnostic_summary, priority_ladder')
-    .eq('user_id', user.id)
-    .maybeSingle()
+  const [companyRow] = await db
+    .select()
+    .from(companies)
+    .where(eq(companies.userId, session.user.id))
+    .limit(1)
 
-  const company_context = companyRow
-    ? {
-        company_name:          companyRow.company_name,
-        industry:              companyRow.industry,
-        business_type:         companyRow.business_type,
-        business_model:        companyRow.business_model,
-        monetization:          companyRow.monetization,
-        product_description:   companyRow.product_description,
-        average_ticket:        companyRow.average_ticket,
-        employees:             companyRow.team_size,
-        founded_period:        companyRow.founded_period,
-        capital_stage:         companyRow.capital_stage,
-        mrr:                   companyRow.mrr,
-        churn_rate:            companyRow.churn_rate,
-        cac:                   companyRow.cac,
-        ltv:                   companyRow.ltv,
-        monthly_revenue:       companyRow.monthly_revenue,
-        gross_margin:          companyRow.gross_margin,
-        max_capacity:          companyRow.max_capacity,
-        gmv:                   companyRow.gmv,
-        take_rate:             companyRow.take_rate,
-        marketplace_weak_side: companyRow.marketplace_weak_side,
-        active_customers:      companyRow.active_customers,
-        icp_defined:           companyRow.icp_defined,
-        icp_description:       companyRow.icp_description,
-        acquisition_channel:   companyRow.acquisition_channel,
-        main_bottleneck:       companyRow.main_bottleneck,
-        main_bottleneck_detail: companyRow.main_bottleneck_detail,
-        diagnosed_stage:       companyRow.diagnosed_stage,
-        diagnostic_summary:    companyRow.diagnostic_summary,
-        priority_ladder:       companyRow.priority_ladder,
-      }
-    : undefined
+  const serializedCompany = companyRow ? serializeCompany(companyRow) : null
+  const companyContext: CompanyContext | undefined = serializedCompany ? {
+    company_name: serializedCompany.company_name,
+    industry: serializedCompany.industry ?? undefined,
+    business_type: serializedCompany.business_type ?? undefined,
+    business_model: serializedCompany.business_model ?? undefined,
+    monetization: serializedCompany.monetization ?? undefined,
+    product_description: serializedCompany.product_description ?? undefined,
+    average_ticket: serializedCompany.average_ticket ?? undefined,
+    employees: serializedCompany.team_size ?? undefined,
+    founded_period: serializedCompany.founded_period ?? undefined,
+    capital_stage: serializedCompany.capital_stage ?? undefined,
+    mrr: serializedCompany.mrr ?? undefined,
+    churn_rate: serializedCompany.churn_rate ?? undefined,
+    cac: serializedCompany.cac ?? undefined,
+    ltv: serializedCompany.ltv ?? undefined,
+    monthly_revenue: serializedCompany.monthly_revenue ?? undefined,
+    gross_margin: serializedCompany.gross_margin ?? undefined,
+    max_capacity: serializedCompany.max_capacity ?? undefined,
+    gmv: serializedCompany.gmv ?? undefined,
+    take_rate: serializedCompany.take_rate ?? undefined,
+    marketplace_weak_side: serializedCompany.marketplace_weak_side ?? undefined,
+    active_customers: serializedCompany.active_customers ?? undefined,
+    icp_defined: serializedCompany.icp_defined,
+    icp_description: serializedCompany.icp_description ?? undefined,
+    acquisition_channel: serializedCompany.acquisition_channel ?? undefined,
+    main_bottleneck: serializedCompany.main_bottleneck ?? undefined,
+    main_bottleneck_detail: serializedCompany.main_bottleneck_detail ?? undefined,
+    diagnosed_stage: serializedCompany.diagnosed_stage ?? undefined,
+    diagnostic_summary: serializedCompany.diagnostic_summary ?? undefined,
+    priority_ladder: serializedCompany.priority_ladder as CompanyContext['priority_ladder'],
+  } : undefined
 
-  await supabase.from('messages').insert({
-    conversation_id: id,
+  await db.insert(messages).values({
+    conversationId: id,
     role: 'user',
     content: message,
   })
 
   if (isPlanRequest(message)) {
-    await trackEvent(supabase as any, {
-      userId: user.id,
+    await trackEvent({
+      userId: session.user.id,
       conversationId: id,
       type: 'plan_requested',
     })
   }
 
-  const { data: history } = await supabase
-    .from('messages')
-    .select('role, content')
-    .eq('conversation_id', id)
-    .order('created_at', { ascending: true })
+  const historyRows = await db
+    .select({
+      role: messages.role,
+      content: messages.content,
+    })
+    .from(messages)
+    .where(eq(messages.conversationId, id))
+    .orderBy(asc(messages.createdAt))
 
-  const messages: LLMMessage[] = (history || []).map((m) => ({
-    role: m.role as 'user' | 'assistant',
-    content: m.content,
+  const llmMessages: LLMMessage[] = historyRows.map((row) => ({
+    role: row.role,
+    content: row.content,
   }))
 
-  const isFirstMessage = messages.filter((m) => m.role === 'assistant').length === 0
+  const isFirstMessage = historyRows.filter((row) => row.role === 'assistant').length === 0
 
-  // Contexto de revisão de plano
   let planReview: PlanReviewContext | undefined
-  if (conversation.conversation_type === 'plan_review' && conversation.plan_id) {
-    const { data: plan } = await supabase
-      .from('plans')
-      .select('id, title, summary, next_steps, metrics, framework_used, created_at, review_date')
-      .eq('id', conversation.plan_id)
-      .single()
-    if (plan) planReview = plan as PlanReviewContext
+  if (conversation.conversationType === 'plan_review' && conversation.planId) {
+    const [plan] = await db
+      .select()
+      .from(plans)
+      .where(eq(plans.id, conversation.planId))
+      .limit(1)
+
+    if (plan) {
+      planReview = {
+        id: plan.id,
+        title: plan.title,
+        summary: plan.summary,
+        next_steps: plan.nextSteps,
+        metrics: (plan.metrics as Record<string, string> | null) ?? null,
+        framework_used: plan.frameworkUsed,
+        created_at: plan.createdAt.toISOString(),
+        review_date: plan.reviewDate,
+      }
+    }
   }
 
-  // Contexto de estratégia
   let strategyContext: StrategyContext | undefined
-  if (conversation.strategy_id) {
-    const { data: strategy } = await supabase
-      .from('strategies')
-      .select('name, brief, stage')
-      .eq('id', conversation.strategy_id)
-      .single()
-    if (strategy) strategyContext = strategy as StrategyContext
+  if (conversation.strategyId) {
+    const [strategy] = await db
+      .select()
+      .from(strategies)
+      .where(eq(strategies.id, conversation.strategyId))
+      .limit(1)
+
+    if (strategy) {
+      strategyContext = {
+        name: strategy.name,
+        brief: strategy.brief,
+        stage: strategy.stage,
+      }
+    }
   }
 
-  const system = buildSystemPrompt(company_context, planReview, strategyContext)
+  const system = buildSystemPrompt(companyContext, planReview, strategyContext)
 
   if (isFirstMessage) {
     const title = message.slice(0, 60) + (message.length > 60 ? '...' : '')
-    await supabase.from('conversations').update({ title }).eq('id', id)
+    await db
+      .update(conversations)
+      .set({ title, updatedAt: new Date() })
+      .where(eq(conversations.id, id))
 
-    await trackEvent(supabase as any, {
-      userId: user.id,
+    await trackEvent({
+      userId: session.user.id,
       conversationId: id,
       type: 'conversation_started',
     })
 
-    const { count } = await supabase
-      .from('messages')
-      .select('id', { count: 'exact', head: true })
-      .in('conversation_id', (
-        await supabase.from('conversations').select('id').eq('user_id', user.id)
-      ).data?.map((c: any) => c.id) || [])
+    const [{ totalMessages }] = await db
+      .select({ totalMessages: count(messages.id) })
+      .from(messages)
+      .innerJoin(conversations, eq(messages.conversationId, conversations.id))
+      .where(eq(conversations.userId, session.user.id))
 
-    if ((count ?? 0) <= 1) {
-      await trackEvent(supabase as any, {
-        userId: user.id,
+    if ((totalMessages ?? 0) <= 1) {
+      await trackEvent({
+        userId: session.user.id,
         conversationId: id,
         type: 'activation_started',
       })
     }
   }
 
-  const eventStream = streamBoardEvents({ system, messages, signal: req.signal })
+  const eventStream = streamBoardEvents({ system, messages: llmMessages, signal: req.signal })
 
-  // ── Readable stream: emite eventos NDJSON e salva no DB ao final ────────────
   const readable = new ReadableStream({
     async start(controller) {
       const encoder = new TextEncoder()
       const reader = eventStream.getReader()
 
       let fullText = ''
-      let strategyProposal: StrategyProposal | null = null
+      let savedAssistantId: string | null = null
 
       try {
         while (true) {
           const { done, value } = await reader.read()
           if (done) break
 
-          // Parsear eventos para extrair texto e strategy proposal
           const lines = value.split('\n')
           for (const line of lines) {
             const trimmed = line.trim()
@@ -219,9 +240,6 @@ export async function POST(
             try {
               const event = JSON.parse(trimmed) as QueryEvent
               if (event.type === 'delta') fullText += event.text
-              if (event.type === 'done' && event.strategyProposal) {
-                strategyProposal = event.strategyProposal
-              }
             } catch {}
           }
 
@@ -231,26 +249,30 @@ export async function POST(
         reader.releaseLock()
         controller.close()
 
-        // ── Salvar resposta no DB ──────────────────────────────────────────────
-        const { data: savedAssistant } = await supabase.from('messages').insert({
-          conversation_id: id,
-          role: 'assistant',
-          content: fullText,
-        }).select().single()
+        const [savedAssistant] = await db
+          .insert(messages)
+          .values({
+            conversationId: id,
+            role: 'assistant',
+            content: fullText,
+          })
+          .returning({ id: messages.id })
+
+        savedAssistantId = savedAssistant?.id ?? null
 
         if (fullText && hasDiagnosis(fullText) && hasProblemCentral(fullText)) {
-          await trackEvent(supabase as any, {
-            userId: user.id,
+          await trackEvent({
+            userId: session.user.id,
             conversationId: id,
             type: 'flow_progressed',
-            metadata: { message_id: savedAssistant?.id },
+            metadata: { message_id: savedAssistantId },
           })
         }
 
-        await supabase
-          .from('conversations')
-          .update({ updated_at: new Date().toISOString() })
-          .eq('id', id)
+        await db
+          .update(conversations)
+          .set({ updatedAt: new Date() })
+          .where(eq(conversations.id, id))
       }
     },
   })

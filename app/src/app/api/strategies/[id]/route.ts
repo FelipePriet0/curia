@@ -1,74 +1,82 @@
+export const dynamic = 'force-dynamic'
+
+import { and, desc, eq } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { db } from '@/db/client'
+import { conversations, strategies } from '@/db/schema'
+import { requireUserSession } from '@/lib/auth/request'
+import { serializeConversation, serializeStrategy } from '@/lib/db/serializers'
 
-// GET /api/strategies/[id] — strategy details + its conversations
 export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const { session, response } = await requireUserSession(req)
+  if (!session) return response
+
   const { id } = await params
-  const supabase = await createClient()
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const [strategy] = await db
+    .select()
+    .from(strategies)
+    .where(and(
+      eq(strategies.id, id),
+      eq(strategies.userId, session.user.id),
+    ))
+    .limit(1)
 
-  const { data: strategy, error } = await supabase
-    .from('strategies')
-    .select('id, name, brief, stage, created_at, updated_at')
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .single()
-
-  if (error || !strategy) {
+  if (!strategy) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  const { data: conversations } = await supabase
-    .from('conversations')
-    .select('id, title, created_at, updated_at')
-    .eq('strategy_id', id)
-    .eq('user_id', user.id)
-    .order('updated_at', { ascending: false })
+  const rows = await db
+    .select()
+    .from(conversations)
+    .where(and(
+      eq(conversations.strategyId, id),
+      eq(conversations.userId, session.user.id),
+    ))
+    .orderBy(desc(conversations.updatedAt))
 
-  return NextResponse.json({ ...strategy, conversations: conversations ?? [] })
+  return NextResponse.json({
+    ...serializeStrategy(strategy),
+    conversations: rows.map(serializeConversation),
+  })
 }
 
-// PATCH /api/strategies/[id] — update strategy brief after a session
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await params
-  const supabase = await createClient()
+  const { session, response } = await requireUserSession(req)
+  if (!session) return response
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { id } = await params
+  const body = await req.json().catch(() => ({})) as {
+    brief?: string
+    stage?: string | null
   }
 
-  const { brief, stage } = await req.json()
-
-  if (!brief?.trim()) {
+  if (!body.brief?.trim()) {
     return NextResponse.json({ error: 'brief is required' }, { status: 400 })
   }
 
-  const { data, error } = await supabase
-    .from('strategies')
-    .update({
-      brief: brief.trim(),
-      ...(stage ? { stage } : {}),
-      updated_at: new Date().toISOString(),
+  const [strategy] = await db
+    .update(strategies)
+    .set({
+      brief: body.brief.trim(),
+      stage: body.stage ?? null,
+      updatedAt: new Date(),
     })
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .select()
-    .single()
+    .where(and(
+      eq(strategies.id, id),
+      eq(strategies.userId, session.user.id),
+    ))
+    .returning()
 
-  if (error || !data) {
-    return NextResponse.json({ error: error?.message ?? 'Not found' }, { status: 404 })
+  if (!strategy) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  return NextResponse.json(data)
+  return NextResponse.json(serializeStrategy(strategy))
 }

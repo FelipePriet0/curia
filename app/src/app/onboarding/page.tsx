@@ -1,13 +1,15 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
-import { ArrowRight, ArrowUp } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
+import { ArrowRight, ArrowUp, PanelLeftOpen } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
+import { ConversationList } from '@/components/board/ConversationList'
 import { CuriaChambra } from '@/components/board/chamber/CuriaChambra'
 import { getInitialDeliberationState } from '@/lib/deliberation/store'
 import type { ChambraState } from '@/components/board/chamber/chambraStates'
+import type { Conversation } from '@/types'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -67,28 +69,19 @@ const INIT: FormData = {
   acquisition_channel: '', main_bottleneck: '', main_bottleneck_detail: '',
 }
 
+const INDUSTRY_OPTIONS = [
+  { label: 'Tech / SaaS', value: 'tech' },
+  { label: 'Varejo', value: 'varejo' },
+  { label: 'Serviços', value: 'servicos' },
+  { label: 'Saúde', value: 'saude' },
+  { label: 'Educação', value: 'educacao' },
+  { label: 'Financeiro', value: 'financeiro' },
+  { label: 'Agro', value: 'agro' },
+  { label: 'Indústria', value: 'industria' },
+  { label: 'Outro', value: 'outro' },
+] as const
+
 const QUESTIONS: Question[] = [
-  {
-    id: 'company_name', key: 'company_name',
-    message: 'Qual é o nome da empresa?',
-    type: 'text', placeholder: 'Ex: Curia, Nubank, Stone...',
-  },
-  {
-    id: 'industry', key: 'industry',
-    message: 'Em qual setor você atua?',
-    type: 'chips',
-    chips: [
-      { label: 'Tech / SaaS', value: 'tech' },
-      { label: 'Varejo', value: 'varejo' },
-      { label: 'Serviços', value: 'servicos' },
-      { label: 'Saúde', value: 'saude' },
-      { label: 'Educação', value: 'educacao' },
-      { label: 'Financeiro', value: 'financeiro' },
-      { label: 'Agro', value: 'agro' },
-      { label: 'Indústria', value: 'industria' },
-      { label: 'Outro', value: 'outro' },
-    ],
-  },
   {
     id: 'business_type', key: 'business_type',
     message: 'Qual é o tipo de produto ou serviço?',
@@ -409,6 +402,7 @@ function OnboardingInput({
               value={inputValue}
               onChange={e => onInputChange(e.target.value)}
               onKeyDown={handleKeyDown}
+              aria-label={question.message}
               placeholder={question.placeholder ?? ''}
               className="council-textarea council-textarea-home"
               style={{ minHeight: '64px' }}
@@ -420,10 +414,11 @@ function OnboardingInput({
               )}
               <input
                 autoFocus
-                type="number"
+                type={question.type === 'number' ? 'number' : 'text'}
                 value={inputValue}
                 onChange={e => onInputChange(e.target.value)}
                 onKeyDown={handleKeyDown}
+                aria-label={question.message}
                 placeholder={question.placeholder ?? '0'}
                 className="flex-1 bg-transparent border-0 outline-none font-curia-serif text-sm text-[#2B1A07] placeholder:text-[#2B1A07]/35"
                 style={{ minHeight: '24px' }}
@@ -438,7 +433,7 @@ function OnboardingInput({
           <div className="council-input-footer">
             <div className="council-input-tools">
               <span className="council-model-badge">
-                {question.optional ? 'Opcional' : 'Obrigatório'}
+                Curia Strategist
               </span>
             </div>
 
@@ -487,10 +482,11 @@ function OnboardingInput({
 
 export default function OnboardingPage() {
   const router = useRouter()
+  const { signOut } = useClerk()
   const [form, setForm] = useState<FormData>(INIT)
   const [msgs, setMsgs] = useState<ChatMsg[]>([])
   const [qIdx, setQIdx] = useState<number | null>(null)
-  const [phase, setPhase] = useState<'init' | 'onboarding' | 'submitting' | 'done' | 'error'>('init')
+  const [phase, setPhase] = useState<'init' | 'terms' | 'onboarding' | 'submitting' | 'done' | 'error'>('init')
   const [typing, setTyping] = useState(false)
   const [diagnosis, setDiagnosis] = useState<Diagnosis | null>(null)
   const [loadingMsgIdx, setLoadingMsgIdx] = useState(0)
@@ -498,6 +494,12 @@ export default function OnboardingPage() {
   const [multiSel, setMultiSel] = useState<string[]>([])
   const [submitForm, setSubmitForm] = useState<FormData | null>(null)
   const [firstName, setFirstName] = useState<string | null>(null)
+  const [bootForm, setBootForm] = useState<FormData | null>(null)
+  const [profileName, setProfileName] = useState('')
+  const [termsChecked, setTermsChecked] = useState(false)
+  const [termsLoading, setTermsLoading] = useState(false)
+  const [termsError, setTermsError] = useState<string | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const currentQ = qIdx !== null ? QUESTIONS[qIdx] : null
@@ -519,65 +521,120 @@ export default function OnboardingPage() {
     return () => clearInterval(id)
   }, [phase])
 
+  const startOnboardingFlow = useCallback((prefilled: FormData) => {
+    setTermsError(null)
+    setPhase('onboarding')
+    setMsgs([{
+      id: crypto.randomUUID(),
+      from: 'curia',
+      text: 'Olá! Vou fazer algumas perguntas rápidas para montar o seu Board.',
+    }])
+    setQIdx(null)
+    setInputValue('')
+    setMultiSel([])
+
+    setTimeout(() => {
+      setMsgs((prev) => [...prev, { id: crypto.randomUUID(), from: 'curia', text: QUESTIONS[0].message }])
+      setQIdx(0)
+      if (prefilled.company_name) setInputValue(prefilled.company_name)
+    }, 700)
+  }, [])
+
   useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user) return
+    async function bootstrap() {
+      const [sessionRes, onboardingRes, termsRes] = await Promise.all([
+        fetch('/api/auth/session'),
+        fetch('/api/onboarding'),
+        fetch('/api/terms/accept'),
+      ])
 
-      // Extract first name
-      const full = user.user_metadata?.full_name ?? user.user_metadata?.name ?? user.email?.split('@')[0] ?? null
-      setFirstName(full ? full.split(' ')[0] : null)
+      const sessionData = sessionRes.ok
+        ? await sessionRes.json() as { user?: { firstName?: string | null; fullName?: string | null } | null }
+        : { user: null }
 
-      const { data: company } = await supabase
-        .from('companies')
-        .select('company_name, industry, team_size, founded_period, capital_stage, business_type, business_model, monetization, product_description, average_ticket, mrr, churn_rate, cac, ltv, monthly_revenue, gross_margin, max_capacity, gmv, take_rate, marketplace_weak_side, active_customers, icp_defined, icp_description, acquisition_channel, main_bottleneck, main_bottleneck_detail')
-        .eq('user_id', user.id)
-        .maybeSingle()
+      if (sessionData.user) {
+        setFirstName(sessionData.user.firstName ?? null)
+        setProfileName(sessionData.user.fullName ?? sessionData.user.firstName ?? '')
+      }
+
+      const onboardingData = onboardingRes.ok
+        ? await onboardingRes.json() as { company?: Record<string, unknown> | null }
+        : { company: null }
+      const termsData = termsRes.ok
+        ? await termsRes.json() as { accepted?: boolean }
+        : { accepted: false }
+
+      const company = onboardingData.company as {
+        companyName?: string | null
+        industry?: string | null
+        teamSize?: string | null
+        foundedPeriod?: string | null
+        capitalStage?: string | null
+        businessType?: string | null
+        businessModel?: string | null
+        monetization?: string | null
+        productDescription?: string | null
+        averageTicket?: string | null
+        mrr?: string | null
+        churnRate?: string | null
+        cac?: string | null
+        ltv?: string | null
+        monthlyRevenue?: string | null
+        grossMargin?: string | null
+        maxCapacity?: number | null
+        gmv?: string | null
+        takeRate?: string | null
+        marketplaceWeakSide?: string | null
+        activeCustomers?: number | null
+        icpDefined?: boolean | null
+        icpDescription?: string | null
+        acquisitionChannel?: string | null
+        mainBottleneck?: string | null
+        mainBottleneckDetail?: string | null
+      } | null
 
       const prefilled: FormData = company ? {
-        company_name:           company.company_name ?? '',
-        industry:               company.industry ?? '',
-        team_size:              company.team_size ?? '',
-        founded_period:         company.founded_period ?? '',
-        capital_stage:          company.capital_stage ?? '',
-        business_type:          company.business_type ?? '',
-        business_model:         company.business_model ?? '',
-        monetization:           company.monetization ?? '',
-        product_description:    company.product_description ?? '',
-        average_ticket:         company.average_ticket != null ? String(company.average_ticket) : '',
-        mrr:                    company.mrr != null ? String(company.mrr) : '',
-        churn_rate:             company.churn_rate != null ? String(company.churn_rate) : '',
-        cac:                    company.cac != null ? String(company.cac) : '',
-        ltv:                    company.ltv != null ? String(company.ltv) : '',
-        monthly_revenue:        company.monthly_revenue != null ? String(company.monthly_revenue) : '',
-        gross_margin:           company.gross_margin != null ? String(company.gross_margin) : '',
-        max_capacity:           company.max_capacity != null ? String(company.max_capacity) : '',
-        gmv:                    company.gmv != null ? String(company.gmv) : '',
-        take_rate:              company.take_rate != null ? String(company.take_rate) : '',
-        marketplace_weak_side:  company.marketplace_weak_side ?? '',
-        active_customers:       company.active_customers != null ? String(company.active_customers) : '',
-        icp_defined:            company.icp_defined === true ? 'yes' : company.icp_defined === false && company.acquisition_channel ? 'no' : '',
-        icp_description:        company.icp_description ?? '',
-        acquisition_channel:    company.acquisition_channel ?? '',
-        main_bottleneck:        company.main_bottleneck ?? '',
-        main_bottleneck_detail: company.main_bottleneck_detail ?? '',
+        company_name: company.companyName ?? '',
+        industry: company.industry ?? '',
+        team_size: company.teamSize ?? '',
+        founded_period: company.foundedPeriod ?? '',
+        capital_stage: company.capitalStage ?? '',
+        business_type: company.businessType ?? '',
+        business_model: company.businessModel ?? '',
+        monetization: company.monetization ?? '',
+        product_description: company.productDescription ?? '',
+        average_ticket: company.averageTicket != null ? String(company.averageTicket) : '',
+        mrr: company.mrr != null ? String(company.mrr) : '',
+        churn_rate: company.churnRate != null ? String(company.churnRate) : '',
+        cac: company.cac != null ? String(company.cac) : '',
+        ltv: company.ltv != null ? String(company.ltv) : '',
+        monthly_revenue: company.monthlyRevenue != null ? String(company.monthlyRevenue) : '',
+        gross_margin: company.grossMargin != null ? String(company.grossMargin) : '',
+        max_capacity: company.maxCapacity != null ? String(company.maxCapacity) : '',
+        gmv: company.gmv != null ? String(company.gmv) : '',
+        take_rate: company.takeRate != null ? String(company.takeRate) : '',
+        marketplace_weak_side: company.marketplaceWeakSide ?? '',
+        active_customers: company.activeCustomers != null ? String(company.activeCustomers) : '',
+        icp_defined: company.icpDefined === true ? 'yes' : company.icpDefined === false && company.acquisitionChannel ? 'no' : '',
+        icp_description: company.icpDescription ?? '',
+        acquisition_channel: company.acquisitionChannel ?? '',
+        main_bottleneck: company.mainBottleneck ?? '',
+        main_bottleneck_detail: company.mainBottleneckDetail ?? '',
       } : { ...INIT }
 
       setForm(prefilled)
-      setPhase('onboarding')
-      setMsgs([{
-        id: crypto.randomUUID(),
-        from: 'curia',
-        text: 'Olá! Vou fazer algumas perguntas rápidas para montar o seu Board.',
-      }])
+      setBootForm(prefilled)
 
-      setTimeout(() => {
-        setMsgs(prev => [...prev, { id: crypto.randomUUID(), from: 'curia', text: QUESTIONS[0].message }])
-        setQIdx(0)
-        if (prefilled.company_name) setInputValue(prefilled.company_name)
-      }, 700)
-    })
-  }, [])
+      if (!termsData.accepted) {
+        setPhase('terms')
+        return
+      }
+
+      startOnboardingFlow(prefilled)
+    }
+
+    void bootstrap()
+  }, [startOnboardingFlow])
 
   useEffect(() => {
     if (!submitForm) return
@@ -665,9 +722,6 @@ export default function OnboardingPage() {
       if (!res.ok) throw new Error('Erro ao processar diagnóstico')
       const data = await res.json()
 
-      const supabase = createClient()
-      await supabase.auth.refreshSession()
-
       setDiagnosis(data)
       setPhase('done')
       addMsg('curia', 'Diagnóstico pronto. Aqui está o panorama da sua empresa:', true)
@@ -688,6 +742,66 @@ export default function OnboardingPage() {
     )
   }
 
+  async function handleAcceptTerms() {
+    const normalizedName = profileName.trim()
+    const normalizedCompany = form.company_name.trim()
+    const normalizedIndustry = form.industry.trim()
+
+    if (!normalizedName || !normalizedCompany || !normalizedIndustry) {
+      setTermsError('Preencha seu nome, nome da empresa e setor antes de continuar.')
+      return
+    }
+
+    if (!termsChecked) {
+      setTermsError('Confirme o aceite para continuar.')
+      return
+    }
+
+    setTermsError(null)
+    setTermsLoading(true)
+
+    try {
+      const bootstrapRes = await fetch('/api/onboarding/bootstrap', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: normalizedName,
+          company_name: normalizedCompany,
+          industry: normalizedIndustry,
+        }),
+      })
+      if (!bootstrapRes.ok) {
+        throw new Error('Não foi possível registrar os dados iniciais do onboarding.')
+      }
+
+      const bootstrapData = await bootstrapRes.json() as { firstName?: string | null }
+      setFirstName(bootstrapData.firstName ?? normalizedName.split(/\s+/)[0] ?? null)
+
+      const nextForm = {
+        ...(bootForm ?? form),
+        company_name: normalizedCompany,
+        industry: normalizedIndustry,
+      }
+      setForm(nextForm)
+      setBootForm(nextForm)
+
+      const res = await fetch('/api/terms/accept', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ terms_version: process.env.NEXT_PUBLIC_TERMS_VERSION || '1.0' }),
+      })
+      if (!res.ok) {
+        throw new Error('Não foi possível registrar o aceite dos termos.')
+      }
+
+      startOnboardingFlow(nextForm)
+    } catch {
+      setTermsError('Não foi possível registrar o aceite agora. Tente novamente.')
+    } finally {
+      setTermsLoading(false)
+    }
+  }
+
   // Câmara visível: enquanto a Curia "pensa" (typing), ao submeter, ao mostrar diagnóstico,
   // ou no momento inicial antes da primeira pergunta aparecer (qIdx === null).
   // Câmara oculta: enquanto o usuário está respondendo uma pergunta.
@@ -700,102 +814,250 @@ export default function OnboardingPage() {
   const chamberHeight = qIdx === null ? '38vh' : '28vh'
 
   return (
-    <div className="flex h-screen flex-col" style={{ background: '#FDFBF9' }}>
-
-      {/* ── Câmara isométrica — condicional ── */}
-      {showChamber && (
-        <div className="relative w-full shrink-0" style={{ height: chamberHeight }}>
-          {/* Título acima da câmara */}
-          {phase === 'done' ? (
-            <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-2 md:-top-3 z-10">
-              <span className="font-curia-script text-[#FF6F1E] text-2xl md:text-4xl leading-none">
-                Board pronto
-              </span>
-            </div>
-          ) : firstName && phase === 'onboarding' ? (
-            <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-2 md:-top-3 z-10">
-              <span className="font-curia-script text-[#FF6F1E] text-2xl md:text-4xl leading-none">
-                Olá, {firstName}
-              </span>
-            </div>
-          ) : null}
-
-          <CuriaChambra
-            state={chambraState}
-            activeCounselorIds={EMPTY_COUNSELORS}
-            deliberation={EMPTY_DELIBERATION}
+    <div className="flex h-screen" style={{ background: '#FDFBF9' }}>
+      <aside
+        className="shrink-0 overflow-hidden transition-all duration-200"
+        style={{ width: sidebarOpen ? '15rem' : '0', background: '#F5F0EC' }}
+      >
+        <div className="h-full w-60">
+          <ConversationList
+            conversations={[] as Conversation[]}
+            activeId={undefined}
+            onSelect={() => {}}
+            onNew={() => {}}
+            newConversationDisabled
+            newConversationDisabledReason="Finalize o Onboarding para criar uma nova conversa"
+            loading={false}
+            plans={[]}
+            strategies={[]}
+            userName={firstName ?? undefined}
+            onToggleSidebar={() => setSidebarOpen((o) => !o)}
+            sidebarOpen={sidebarOpen}
+            onLogout={async () => {
+              await signOut({ redirectUrl: '/' })
+            }}
           />
         </div>
-      )}
+      </aside>
 
-      {/* ── Área de mensagens ── */}
-      <div className="flex-1 overflow-y-auto">
-        {phase === 'submitting' ? (
-          <div className="flex h-full flex-col items-center justify-center gap-4">
-            <div className="flex gap-1.5">
-              {[0, 1, 2].map(i => (
-                <div
-                  key={i}
-                  className="h-2 w-2 rounded-full bg-[#FF6F1E] animate-bounce"
-                  style={{ animationDelay: `${i * 0.15}s` }}
-                />
-              ))}
-            </div>
-            <p className="font-curia-serif text-sm text-[#2B1A07]/60 transition-all duration-500">
-              {LOADING_MSGS[loadingMsgIdx]}
-            </p>
-          </div>
-        ) : phase === 'error' ? (
-          <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
-            <p className="font-curia-serif text-sm text-[#2B1A07]/60">
-              Algo deu errado ao processar o diagnóstico.
-            </p>
+      <main className="flex flex-1 flex-col overflow-hidden" style={{ background: '#FDFBF9' }}>
+        {!sidebarOpen && (
+          <div className="flex items-center px-3 py-1.5" style={{ minHeight: '40px' }}>
             <button
-              onClick={() => submitForm && runSubmit(submitForm)}
-              className="rounded-xl border border-[#2B1A07]/15 bg-white px-5 py-2.5 font-curia-serif text-sm text-[#2B1A07] shadow-sm transition-all hover:border-[#2B1A07]/30"
+              onClick={() => setSidebarOpen(true)}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-[#2B1A07]/40 transition-colors hover:bg-[#2B1A07]/[0.06] hover:text-[#2B1A07]/70"
+              title="Abrir sidebar"
             >
-              Tentar novamente
+              <PanelLeftOpen size={16} />
             </button>
           </div>
-        ) : (
-          <div className="mx-auto max-w-2xl space-y-4 px-4 py-6">
-            {msgs.map(msg => (
-              <MessageBubble
-                key={msg.id}
-                msg={msg}
-                diagnosis={msg.isDiagnosis ? diagnosis : undefined}
-              />
-            ))}
-            {typing && <TypingDots />}
-            {phase === 'done' && diagnosis && (
-              <div className="flex justify-center pb-4 pt-2">
-                <button
-                  onClick={() => router.replace('/board')}
-                  className="flex items-center gap-2 rounded-xl bg-[#FF6F1E] px-6 py-3 font-curia-serif text-sm font-semibold text-[#2B1A07] shadow-sm transition-opacity hover:opacity-90 active:scale-95"
-                >
-                  Entrar no Board <ArrowRight className="h-4 w-4" />
-                </button>
+        )}
+
+        {showChamber && (
+          <div className="relative w-full shrink-0" style={{ height: chamberHeight }}>
+            {phase === 'done' ? (
+              <div className="pointer-events-none absolute left-1/2 z-10 -top-2 -translate-x-1/2 md:-top-3">
+                <span className="font-curia-script text-2xl leading-none text-[#FF6F1E] md:text-4xl">
+                  Board pronto
+                </span>
               </div>
-            )}
-            <div ref={bottomRef} />
+            ) : firstName && phase === 'onboarding' ? (
+              <div className="pointer-events-none absolute left-1/2 z-10 -top-2 -translate-x-1/2 md:-top-3">
+                <span className="font-curia-script text-2xl leading-none text-[#FF6F1E] md:text-4xl">
+                  Olá, {firstName}
+                </span>
+              </div>
+            ) : null}
+
+            <CuriaChambra
+              state={chambraState}
+              activeCounselorIds={EMPTY_COUNSELORS}
+              deliberation={EMPTY_DELIBERATION}
+            />
           </div>
         )}
-      </div>
 
-      {/* ── Input bloqueado — só aparece quando câmara está oculta ── */}
-      {phase === 'onboarding' && !typing && currentQ && (
-        <OnboardingInput
-          question={currentQ}
-          inputValue={inputValue}
-          multiSel={multiSel}
-          onInputChange={setInputValue}
-          onMultiToggle={v => setMultiSel(prev => prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v])}
-          onChipClick={handleChipClick}
-          onMultiConfirm={handleMultiConfirm}
-          onTextSubmit={handleTextSubmit}
-          onSkip={handleSkip}
-        />
-      )}
+        <div className="flex-1 overflow-y-auto">
+          {phase === 'terms' ? (
+            <div className="mx-auto flex h-full w-full max-w-4xl items-center justify-center px-4 py-8">
+              <div className="w-full max-w-xl rounded-3xl border border-[#2B1A07]/10 bg-white/90 p-6 shadow-[0_24px_80px_rgba(43,26,7,0.08)]">
+                <div className="text-center">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#2B1A07]/40">
+                    Antes de começar
+                  </p>
+                  <h1 className="mt-2 font-curia-rounded text-2xl text-[#2B1A07]">Aceite os termos para abrir seu Board</h1>
+                  <p className="mt-3 font-curia-serif text-sm leading-relaxed text-[#2B1A07]/65">
+                    Sua autenticação já foi concluída. Falta só registrar o aceite dos{' '}
+                    <a href="/terms" target="_blank" className="text-[#FF6F1E] hover:underline">Termos de Uso</a> e da{' '}
+                    <a href="/privacy" target="_blank" className="text-[#FF6F1E] hover:underline">Política de Privacidade</a>.
+                  </p>
+                </div>
+
+                <div className="mt-6 space-y-4">
+                  <div>
+                    <label className="mb-1.5 block font-curia-serif text-sm font-medium text-[#2B1A07]">Seu nome</label>
+                    <input
+                      type="text"
+                      value={profileName}
+                      onChange={(e) => {
+                        setProfileName(e.target.value)
+                        setTermsError(null)
+                      }}
+                      placeholder="Ex: Felipe"
+                      className="flex h-11 w-full rounded-xl border border-[#2B1A07]/15 bg-white px-4 font-curia-serif text-sm text-[#2B1A07] shadow-sm outline-none transition-all placeholder:text-[#2B1A07]/35 focus-visible:border-[#FF6F1E]/60 focus-visible:ring-2 focus-visible:ring-[#FF6F1E]/50"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block font-curia-serif text-sm font-medium text-[#2B1A07]">Nome da empresa</label>
+                    <input
+                      type="text"
+                      value={form.company_name}
+                      onChange={(e) => {
+                        setForm((prev) => ({ ...prev, company_name: e.target.value }))
+                        setBootForm((prev) => ({ ...(prev ?? INIT), company_name: e.target.value, industry: prev?.industry ?? form.industry }))
+                        setTermsError(null)
+                      }}
+                      placeholder="Ex: Curia, Nubank, Stone..."
+                      className="flex h-11 w-full rounded-xl border border-[#2B1A07]/15 bg-white px-4 font-curia-serif text-sm text-[#2B1A07] shadow-sm outline-none transition-all placeholder:text-[#2B1A07]/35 focus-visible:border-[#FF6F1E]/60 focus-visible:ring-2 focus-visible:ring-[#FF6F1E]/50"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block font-curia-serif text-sm font-medium text-[#2B1A07]">Setor que atua</label>
+                    <div className="flex flex-wrap gap-2">
+                      {INDUSTRY_OPTIONS.map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => {
+                            setForm((prev) => ({ ...prev, industry: option.value }))
+                            setBootForm((prev) => ({ ...(prev ?? INIT), company_name: prev?.company_name ?? form.company_name, industry: option.value }))
+                            setTermsError(null)
+                          }}
+                          className={cn(
+                            'rounded-full border px-4 py-1.5 font-curia-serif text-sm font-medium transition-all',
+                            form.industry === option.value
+                              ? 'border-[#2B1A07] bg-[#2B1A07] text-white'
+                              : 'border-[#2B1A07]/20 bg-white text-[#2B1A07] hover:border-[#2B1A07]/50',
+                          )}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-2xl border border-[#2B1A07]/10 bg-[#FDFBF9] p-4">
+                  <input
+                    type="checkbox"
+                    checked={termsChecked}
+                    onChange={(e) => {
+                      setTermsChecked(e.target.checked)
+                      setTermsError(null)
+                    }}
+                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#2B1A07]/20 accent-[#FF6F1E]"
+                  />
+                  <span className="font-curia-serif text-sm leading-relaxed text-[#2B1A07]/70">
+                    Li e concordo com os termos e políticas da Curia.
+                  </span>
+                </label>
+
+                {termsError && (
+                  <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3">
+                    <p className="font-curia-serif text-sm text-red-700">{termsError}</p>
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => void handleAcceptTerms()}
+                  disabled={termsLoading}
+                  className={cn(
+                    'mt-6 flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3',
+                    'bg-[#FF6F1E] font-curia-serif text-sm font-semibold text-[#2B1A07]',
+                    'shadow-sm transition-all hover:opacity-90 active:scale-[0.98]',
+                    'disabled:cursor-not-allowed disabled:opacity-50',
+                  )}
+                >
+                  {termsLoading ? (
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#2B1A07]/30 border-t-[#2B1A07]" />
+                  ) : (
+                    <>
+                      <span>Aceitar e continuar</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          ) : phase === 'submitting' ? (
+            <div className="flex h-full flex-col items-center justify-center gap-4">
+              <div className="flex gap-1.5">
+                {[0, 1, 2].map(i => (
+                  <div
+                    key={i}
+                    className="h-2 w-2 rounded-full bg-[#FF6F1E] animate-bounce"
+                    style={{ animationDelay: `${i * 0.15}s` }}
+                  />
+                ))}
+              </div>
+              <p className="font-curia-serif text-sm text-[#2B1A07]/60 transition-all duration-500">
+                {LOADING_MSGS[loadingMsgIdx]}
+              </p>
+            </div>
+          ) : phase === 'error' ? (
+            <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
+              <p className="font-curia-serif text-sm text-[#2B1A07]/60">
+                Algo deu errado ao processar o diagnóstico.
+              </p>
+              <button
+                onClick={() => submitForm && runSubmit(submitForm)}
+                className="rounded-xl border border-[#2B1A07]/15 bg-white px-5 py-2.5 font-curia-serif text-sm text-[#2B1A07] shadow-sm transition-all hover:border-[#2B1A07]/30"
+              >
+                Tentar novamente
+              </button>
+            </div>
+          ) : (
+            <div className="mx-auto max-w-2xl space-y-4 px-4 py-6">
+              {msgs.map(msg => (
+                <MessageBubble
+                  key={msg.id}
+                  msg={msg}
+                  diagnosis={msg.isDiagnosis ? diagnosis : undefined}
+                />
+              ))}
+              {typing && <TypingDots />}
+              {phase === 'done' && diagnosis && (
+                <div className="flex justify-center pb-4 pt-2">
+                  <button
+                    onClick={() => router.replace('/board')}
+                    className="flex items-center gap-2 rounded-xl bg-[#FF6F1E] px-6 py-3 font-curia-serif text-sm font-semibold text-[#2B1A07] shadow-sm transition-opacity hover:opacity-90 active:scale-95"
+                  >
+                    Entrar no Board <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+              <div ref={bottomRef} />
+            </div>
+          )}
+        </div>
+
+        {phase === 'onboarding' && !typing && currentQ && (
+          <OnboardingInput
+            question={currentQ}
+            inputValue={inputValue}
+            multiSel={multiSel}
+            onInputChange={setInputValue}
+            onMultiToggle={v => setMultiSel(prev => prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v])}
+            onChipClick={handleChipClick}
+            onMultiConfirm={handleMultiConfirm}
+            onTextSubmit={handleTextSubmit}
+            onSkip={handleSkip}
+          />
+        )}
+      </main>
     </div>
   )
 }

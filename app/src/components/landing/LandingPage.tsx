@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useClerk } from '@clerk/nextjs'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { FloatingNav } from '@/components/ui/floating-navbar'
@@ -323,17 +325,56 @@ function CuriaLogo({ size = 'md' }: { size?: 'sm' | 'md' }) {
   )
 }
 
-export function LandingPage() {
+export function LandingPage({ initialSignedIn = false }: { initialSignedIn?: boolean }) {
+  const router = useRouter()
+  const { signOut } = useClerk()
+  const [signedIn, setSignedIn] = useState(initialSignedIn)
+  const [signingOut, setSigningOut] = useState(false)
+
+  useEffect(() => {
+    let alive = true
+
+    void fetch('/api/auth/session', { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) return null
+        return response.json() as Promise<{ user?: unknown | null }>
+      })
+      .then((data) => {
+        if (!alive || !data) return
+        setSignedIn(Boolean(data.user))
+      })
+      .catch(() => {})
+
+    return () => {
+      alive = false
+    }
+  }, [])
+
+  async function handleSignOut() {
+    if (signingOut) return
+
+    setSigningOut(true)
+    setSignedIn(false)
+
+    try {
+      await signOut({ redirectUrl: '/' })
+      router.refresh()
+    } catch {
+      setSignedIn(true)
+      setSigningOut(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#FDFBF9] text-[#2B1A07]">
-      <Nav />
-      <Hero />
-      <MeetCuria />
+      <Nav signedIn={signedIn} signingOut={signingOut} onSignOut={handleSignOut} />
+      <Hero signedIn={signedIn} />
+      <MeetCuria signedIn={signedIn} />
       <HowItWorks />
       <Authority />
       <BigTechs />
-      <Pricing />
-      <Footer />
+      <Pricing signedIn={signedIn} />
+      <Footer signedIn={signedIn} signingOut={signingOut} onSignOut={handleSignOut} />
     </div>
   )
 }
@@ -347,23 +388,178 @@ const NAV_ITEMS = [
   { name: 'Big Techs',      link: '#big-techs' },
 ]
 
-function Nav() {
+function LandingSessionActions({
+  compact = false,
+  signedIn = false,
+  signingOut = false,
+  onSignOut,
+}: {
+  compact?: boolean
+  signedIn?: boolean
+  signingOut?: boolean
+  onSignOut?: () => void | Promise<void>
+}) {
+  if (signedIn) {
+    if (compact) {
+      return (
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => void onSignOut?.()}
+            disabled={signingOut}
+            className="rounded-full bg-[#2B1A07] px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+          >
+            {signingOut ? 'Saindo...' : 'Sair'}
+          </button>
+          <Link href="/board">
+            <button className="rounded-full bg-[#FF6F1E] px-4 py-1.5 text-sm font-semibold text-[#2B1A07] hover:opacity-90 transition-opacity">
+              Entrar
+            </button>
+          </Link>
+        </div>
+      )
+    }
+
+    return (
+      <div className="flex items-center gap-3">
+        <Button size="md" onClick={() => void onSignOut?.()} disabled={signingOut} className="bg-[#2B1A07] text-white hover:opacity-90">
+          {signingOut ? 'Saindo...' : 'Sair'}
+        </Button>
+        <Link href="/board">
+          <Button size="md" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
+            Entrar <ArrowRight className="ml-1.5 h-4 w-4" />
+          </Button>
+        </Link>
+      </div>
+    )
+  }
+
+  if (compact) {
+    return (
+      <div className="flex items-center gap-2">
+        <Link href="/login">
+          <button className="rounded-full bg-[#2B1A07] px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity">
+            Entrar
+          </button>
+        </Link>
+        <Link href="/signup">
+          <button className="rounded-full bg-[#FF6F1E] px-4 py-1.5 text-sm font-semibold text-[#2B1A07] hover:opacity-90 transition-opacity">
+            Comece agora
+          </button>
+        </Link>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-3">
+      <Link href="/login">
+        <Button size="md" className="bg-[#2B1A07] text-white hover:opacity-90">Entrar</Button>
+      </Link>
+      <Link href="/signup">
+        <Button size="md" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
+          Comece agora <ArrowRight className="ml-1.5 h-4 w-4" />
+        </Button>
+      </Link>
+    </div>
+  )
+}
+
+function PrimaryLandingCta({ signedIn = false }: { signedIn?: boolean }) {
+  return signedIn ? (
+    <Link href="/board">
+      <Button size="lg" className="w-full sm:w-auto bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
+        Entrar <ArrowRight className="ml-2 h-4 w-4" />
+      </Button>
+    </Link>
+  ) : (
+    <Link href="/signup">
+      <Button size="lg" className="w-full sm:w-auto bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
+        Comece agora <ArrowRight className="ml-2 h-4 w-4" />
+      </Button>
+    </Link>
+  )
+}
+
+function FooterProductLinks({
+  signedIn = false,
+  signingOut = false,
+  onSignOut,
+}: {
+  signedIn?: boolean
+  signingOut?: boolean
+  onSignOut?: () => void | Promise<void>
+}) {
+  if (signedIn) {
+    return (
+      <>
+        <li>
+          <a href="#como-funciona" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Como funciona</a>
+        </li>
+        <li>
+          <Link href="/board" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Entrar</Link>
+        </li>
+        <li>
+          <button onClick={() => void onSignOut?.()} disabled={signingOut} className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors disabled:opacity-50">
+            {signingOut ? 'Saindo...' : 'Sair'}
+          </button>
+        </li>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <li>
+        <a href="#como-funciona" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Como funciona</a>
+      </li>
+      <li>
+        <Link href="/login" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Entrar</Link>
+      </li>
+      <li>
+        <Link href="/signup" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Começar agora</Link>
+      </li>
+    </>
+  )
+}
+
+function FooterCtaButton({
+  signedIn = false,
+  signingOut = false,
+  onSignOut,
+}: {
+  signedIn?: boolean
+  signingOut?: boolean
+  onSignOut?: () => void | Promise<void>
+}) {
+  return signedIn ? (
+    <Button size="md" onClick={() => void onSignOut?.()} disabled={signingOut} className="bg-[#2B1A07] text-white hover:opacity-90 w-full sm:w-auto">
+      {signingOut ? 'Saindo...' : 'Sair'}
+    </Button>
+  ) : (
+    <Link href="/signup">
+      <Button size="md" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90 w-full sm:w-auto">
+        Comece agora
+      </Button>
+    </Link>
+  )
+}
+
+function Nav({
+  signedIn = false,
+  signingOut = false,
+  onSignOut,
+}: {
+  signedIn?: boolean
+  signingOut?: boolean
+  onSignOut?: () => void | Promise<void>
+}) {
   return (
     <>
       {/* Static top bar — visible at the top of the page */}
       <header className="relative z-40 px-6 bg-[#FDFBF9]">
         <div className="mx-auto flex h-20 max-w-6xl items-center justify-between">
           <CuriaLogo size="md" />
-          <div className="flex items-center gap-3">
-            <Link href="/login">
-              <Button size="md" className="bg-[#2B1A07] text-white hover:opacity-90">Entrar</Button>
-            </Link>
-            <Link href="/signup">
-              <Button size="md" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
-                Comece agora <ArrowRight className="ml-1.5 h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
+          <LandingSessionActions signedIn={signedIn} signingOut={signingOut} onSignOut={onSignOut} />
         </div>
       </header>
 
@@ -371,20 +567,7 @@ function Nav() {
       <FloatingNav
         navItems={NAV_ITEMS}
         brand={<CuriaLogo size="sm" />}
-        cta={
-          <div className="flex items-center gap-2">
-            <Link href="/login">
-              <button className="rounded-full bg-[#2B1A07] px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity">
-                Entrar
-              </button>
-            </Link>
-            <Link href="/signup">
-              <button className="rounded-full bg-[#FF6F1E] px-4 py-1.5 text-sm font-semibold text-[#2B1A07] hover:opacity-90 transition-opacity">
-                Comece agora
-              </button>
-            </Link>
-          </div>
-        }
+        cta={<LandingSessionActions compact signedIn={signedIn} signingOut={signingOut} onSignOut={onSignOut} />}
       />
     </>
   )
@@ -392,7 +575,7 @@ function Nav() {
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 
-function Hero() {
+function Hero({ signedIn = false }: { signedIn?: boolean }) {
   return (
     <section className="relative overflow-hidden px-6 pb-24 pt-20 text-center">
       {/* Glow background */}
@@ -427,11 +610,7 @@ function Hero() {
               Ver como funciona
             </Button>
           </a>
-          <Link href="/signup">
-            <Button size="lg" className="w-full sm:w-auto bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
-              Comece agora <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
+          <PrimaryLandingCta signedIn={signedIn} />
         </div>
       </div>
 
@@ -859,7 +1038,7 @@ function BoardHomePreview() {
   )
 }
 
-function MeetCuria() {
+function MeetCuria({ signedIn = false }: { signedIn?: boolean }) {
   return (
     <section id="conheca" className="bg-[#FDFBF9] px-6 py-24">
       <div className="mx-auto max-w-6xl">
@@ -878,11 +1057,7 @@ function MeetCuria() {
               <a href="#como-funciona">
                 <Button variant="outline" size="lg">Ver como funciona</Button>
               </a>
-              <Link href="/signup">
-                <Button size="lg" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
-                  Comece agora <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
+              <PrimaryLandingCta signedIn={signedIn} />
             </div>
           </div>
 
@@ -1026,7 +1201,7 @@ const STARTER_FEATURES = [
   'Histórico de conversas',
 ]
 
-function Pricing() {
+function Pricing({ signedIn = false }: { signedIn?: boolean }) {
   return (
     <section id="planos" className="bg-[#FDFBF9] px-6 py-28">
       <div className="mx-auto max-w-5xl text-center">
@@ -1062,11 +1237,9 @@ function Pricing() {
             </ul>
 
             {/* CTA */}
-            <Link href="/signup" className="mt-6 block w-full">
-              <Button size="lg" className="w-full bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
-                Criar minha conta <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
+            <div className="mt-6 block w-full">
+              <PrimaryLandingCta signedIn={signedIn} />
+            </div>
 
             {/* Glow accent */}
             <div aria-hidden className="pointer-events-none absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-[#FF6F1E] opacity-[0.06] blur-2xl" />
@@ -1079,7 +1252,15 @@ function Pricing() {
 
 // ─── Footer ───────────────────────────────────────────────────────────────────
 
-function Footer() {
+function Footer({
+  signedIn = false,
+  signingOut = false,
+  onSignOut,
+}: {
+  signedIn?: boolean
+  signingOut?: boolean
+  onSignOut?: () => void | Promise<void>
+}) {
   return (
     <footer className="bg-[#FDFBF9] px-6">
       <div className="mx-auto max-w-7xl">
@@ -1097,15 +1278,7 @@ function Footer() {
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#2B1A07]/60 mb-3">Produto</h3>
             <ul className="space-y-2 text-sm">
-              <li>
-                <a href="#como-funciona" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Como funciona</a>
-              </li>
-              <li>
-                <Link href="/login" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Entrar</Link>
-              </li>
-              <li>
-                <Link href="/signup" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Começar agora</Link>
-              </li>
+              <FooterProductLinks signedIn={signedIn} signingOut={signingOut} onSignOut={onSignOut} />
             </ul>
           </div>
 
@@ -1129,11 +1302,7 @@ function Footer() {
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#2B1A07]/60 mb-3">Começar</h3>
             <p className="text-sm text-[#2B1A07]/70 mb-4 font-curia-serif">Leva menos de 2 minutos.</p>
-            <Link href="/signup">
-              <Button size="md" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90 w-full sm:w-auto">
-                Comece agora
-              </Button>
-            </Link>
+            <FooterCtaButton signedIn={signedIn} signingOut={signingOut} onSignOut={onSignOut} />
           </div>
         </div>
 
@@ -1174,4 +1343,3 @@ function Footer() {
     </footer>
   )
 }
-

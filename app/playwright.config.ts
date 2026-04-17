@@ -15,8 +15,9 @@ loadEnv({ path: '.env.test', override: false })
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: false,
+  workers: 1,
   webServer: {
-    command: 'next dev --port 3000',
+    command: 'CURIA_FAKE_DIAGNOSIS=1 next dev --port 3000',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
@@ -51,6 +52,7 @@ export default defineConfig({
       name: 'auth',
       testMatch: /auth\.spec\.ts/,
       use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup'],
     },
 
     // ── 4. Testes de onboarding (usuário sem onboarding) ─────────────────────

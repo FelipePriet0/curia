@@ -1,4 +1,5 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
+import { db } from '@/db/client'
+import { events } from '@/db/schema'
 
 type EventType =
   | 'activation_started'
@@ -9,25 +10,20 @@ type EventType =
   | 'review_scheduled'
   | 'review_completed'
 
-export async function trackEvent(
-  supabase: SupabaseClient,
-  opts: {
-    userId: string
-    conversationId?: string
-    type: EventType
-    metadata?: Record<string, unknown>
-  }
-) {
+export async function trackEvent(opts: {
+  userId: string
+  conversationId?: string
+  type: EventType
+  metadata?: Record<string, unknown>
+}) {
   try {
-    await supabase.from('events').insert({
-      user_id: opts.userId,
-      conversation_id: opts.conversationId ?? null,
+    await db.insert(events).values({
+      userId: opts.userId,
+      conversationId: opts.conversationId ?? null,
       type: opts.type,
       metadata: opts.metadata ?? null,
     })
   } catch (e) {
-    // Best-effort; do not break core flow
     console.warn('[metrics] trackEvent failed', e)
   }
 }
-

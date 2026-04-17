@@ -55,6 +55,19 @@ test.describe('Login', () => {
 // ── Signup ────────────────────────────────────────────────────────────────────
 
 test.describe('Signup', () => {
+  test('signup com e-mail novo cria conta e redireciona para /onboarding', async ({ page }) => {
+    const email = `signup-${Date.now()}@curia.local`
+
+    await page.goto('/signup')
+    await page.getByLabel('E-mail').fill(email)
+    await page.locator('input[autocomplete="new-password"]').first().fill('SenhaForte123!')
+    await page.locator('input[autocomplete="new-password"]').nth(1).fill('SenhaForte123!')
+    await page.locator('input[type="checkbox"]').check()
+    await page.getByRole('button', { name: /criar conta/i }).click()
+
+    await expect(page).toHaveURL(/\/onboarding/, { timeout: 10_000 })
+  })
+
   test('signup sem aceitar termos → exibe erro de termos', async ({ page }) => {
     await page.goto('/signup')
     await page.getByLabel('E-mail').fill('novo@test.com.br')
@@ -88,14 +101,6 @@ test.describe('Signup', () => {
     ).toBeVisible({ timeout: 8_000 })
   })
 
-  test('botão Google em /signup sem aceitar termos → exibe erro de termos', async ({ page }) => {
-    await page.goto('/signup')
-    await page.getByRole('button', { name: /cadastrar com google/i }).click()
-    await expect(page.getByText(/aceite os termos/i)).toBeVisible({ timeout: 3_000 })
-    // Não redireciona — continua em /signup
-    await expect(page).toHaveURL(/\/signup/)
-  })
-
   test('link "Já tem conta?" leva para /login', async ({ page }) => {
     await page.goto('/signup')
     await page.getByRole('link', { name: /entrar/i }).click()
@@ -106,6 +111,28 @@ test.describe('Signup', () => {
     await page.goto('/login')
     await page.getByRole('link', { name: /criar conta/i }).click()
     await expect(page).toHaveURL(/\/signup/)
+  })
+})
+
+// ── Password recovery ────────────────────────────────────────────────────────
+
+test.describe('Password Recovery', () => {
+  test('forgot-password com usuário existente mostra link local de reset', async ({ page }) => {
+    const email = process.env.E2E_USER_EMAIL ?? ''
+    test.skip(!email, 'E2E_USER_EMAIL não definido')
+
+    await page.goto('/forgot-password')
+    await page.getByLabel('E-mail').fill(email)
+    await page.getByRole('button', { name: /gerar link/i }).click()
+
+    await expect(page.getByText(/instruções geradas/i)).toBeVisible({ timeout: 20_000 })
+    await expect(page.locator('a[href*="/reset-password?token="]')).toBeVisible({ timeout: 20_000 })
+  })
+
+  test('reset-password sem token mostra estado de link inválido', async ({ page }) => {
+    await page.goto('/reset-password')
+    await expect(page.getByText(/link inválido ou expirado/i)).toBeVisible({ timeout: 8_000 })
+    await expect(page.getByRole('link', { name: /solicitar novo link/i })).toBeVisible()
   })
 })
 

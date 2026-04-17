@@ -1,0 +1,14 @@
+.git
+.next
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-store
+.env
+.env.*
+playwright-report
+test-results
+coverage
+README.md
+

@@ -1,58 +1,65 @@
+export const dynamic = 'force-dynamic'
+
+import { and, eq } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { db } from '@/db/client'
+import { conversations, plans } from '@/db/schema'
+import { requireUserSession } from '@/lib/auth/request'
+import { serializeConversation } from '@/lib/db/serializers'
 import { trackEvent } from '@/lib/metrics/track'
 
-// POST /api/plans/[id]/review — start a review session (creates linked conversation)
 export async function POST(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const { session, response } = await requireUserSession(req)
+  if (!session) return response
+
   const { id } = await params
-  const supabase = await createClient()
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  // Verify plan ownership
-  const { data: plan } = await supabase
-    .from('plans')
-    .select('id, title, status')
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .single()
-
-  if (!plan) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-
-  const reviewTitle = `Revisão — ${plan.title}`
-
-  // Create review conversation linked to the plan
-  const { data: conversation, error } = await supabase
-    .from('conversations')
-    .insert({
-      user_id: user.id,
-      title: reviewTitle,
-      plan_id: id,
-      conversation_type: 'plan_review',
+  const [plan] = await db
+    .select({
+      id: plans.id,
+      title: plans.title,
+      status: plans.status,
     })
-    .select()
-    .single()
+    .from(plans)
+    .where(and(
+      eq(plans.id, id),
+      eq(plans.userId, session.user.id),
+    ))
+    .limit(1)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
-  // Mark plan as reviewed if still active
-  if (plan.status === 'active') {
-    await supabase
-      .from('plans')
-      .update({ status: 'reviewed' })
-      .eq('id', id)
+  if (!plan) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  await trackEvent(supabase as any, {
-    userId: user.id,
+  const [conversation] = await db
+    .insert(conversations)
+    .values({
+      userId: session.user.id,
+      title: `Revisão — ${plan.title}`,
+      planId: id,
+      conversationType: 'plan_review',
+    })
+    .returning()
+
+  if (plan.status === 'active') {
+    await db
+      .update(plans)
+      .set({
+        status: 'reviewed',
+        updatedAt: new Date(),
+      })
+      .where(eq(plans.id, id))
+  }
+
+  await trackEvent({
+    userId: session.user.id,
     conversationId: conversation.id,
     type: 'review_completed',
     metadata: { plan_id: id },
   })
 
-  return NextResponse.json(conversation, { status: 201 })
+  return NextResponse.json(serializeConversation(conversation), { status: 201 })
 }

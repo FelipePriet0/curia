@@ -1,44 +1,54 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createAdmin } from '@/lib/supabase/admin'
+export const dynamic = 'force-dynamic'
 
-// GET /api/share/[token] — public, read-only snapshot
+import { and, asc, eq, isNull } from 'drizzle-orm'
+import { NextRequest, NextResponse } from 'next/server'
+import { db } from '@/db/client'
+import { conversations, messages, sharedConversations } from '@/db/schema'
+import { serializeMessage } from '@/lib/db/serializers'
+
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ token: string }> }
+  { params }: { params: Promise<{ token: string }> },
 ) {
   const { token } = await params
-  const admin = createAdmin()
 
-  // Resolve the conversation by token (must not be revoked)
-  const { data: share } = await admin
-    .from('shared_conversations')
-    .select('conversation_id, revoked_at')
-    .eq('token', token)
-    .single()
+  const [share] = await db
+    .select({
+      conversationId: sharedConversations.conversationId,
+    })
+    .from(sharedConversations)
+    .where(and(
+      eq(sharedConversations.token, token),
+      isNull(sharedConversations.revokedAt),
+    ))
+    .limit(1)
 
-  if (!share || share.revoked_at) {
+  if (!share) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  // Fetch conversation title
-  const { data: conv } = await admin
-    .from('conversations')
-    .select('id, title, updated_at')
-    .eq('id', share.conversation_id)
-    .single()
+  const [conversation] = await db
+    .select({
+      title: conversations.title,
+      updatedAt: conversations.updatedAt,
+    })
+    .from(conversations)
+    .where(eq(conversations.id, share.conversationId))
+    .limit(1)
 
-  if (!conv) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  if (!conversation) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
 
-  // Fetch messages (ordered)
-  const { data: messages } = await admin
-    .from('messages')
-    .select('role, content, created_at')
-    .eq('conversation_id', conv.id)
-    .order('created_at', { ascending: true })
+  const rows = await db
+    .select()
+    .from(messages)
+    .where(eq(messages.conversationId, share.conversationId))
+    .orderBy(asc(messages.createdAt))
 
   return NextResponse.json({
-    title: conv.title,
-    updated_at: conv.updated_at,
-    messages: messages ?? [],
+    title: conversation.title,
+    updated_at: conversation.updatedAt.toISOString(),
+    messages: rows.map(serializeMessage),
   })
 }

@@ -1,9 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { createAdmin } from '@/lib/supabase/admin'
-import Anthropic from '@anthropic-ai/sdk'
+export const dynamic = 'force-dynamic'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+import { NextRequest, NextResponse } from 'next/server'
+import {
+  getCompanyForUser,
+  getCurrentSession,
+  markOnboardingCompleted,
+  upsertCompanyForUser,
+} from '@/lib/auth/server'
+import Anthropic from '@anthropic-ai/sdk'
 
 export interface OnboardingPayload {
   company_name: string
@@ -16,26 +20,20 @@ export interface OnboardingPayload {
   monetization: string
   product_description: string
   average_ticket?: number
-  // Subscription
   mrr?: number
   churn_rate?: number
   cac?: number
   ltv?: number
-  // Transactional
   monthly_revenue?: number
   gross_margin?: number
-  // Service
   max_capacity?: number
-  // Marketplace
   gmv?: number
   take_rate?: number
   marketplace_weak_side?: string
-  // Traction
   active_customers?: number
   icp_defined: boolean
   icp_description?: string
   acquisition_channel: string
-  // Bottleneck
   main_bottleneck: string
   main_bottleneck_detail?: string
 }
@@ -55,24 +53,61 @@ interface DiagnosisResult {
   priority_ladder: PriorityItem[]
 }
 
-// ─── Diagnosis Agent ──────────────────────────────────────────────────────────
+function buildFallbackDiagnosis(data: OnboardingPayload): DiagnosisResult {
+  return {
+    stage: data.active_customers && data.active_customers > 20 ? 'early_traction' : 'pre_revenue',
+    stage_reason: 'Diagnóstico local determinístico usado para desenvolvimento e testes automatizados.',
+    diagnostic_summary: `A empresa ${data.company_name} já tem clareza inicial de proposta e precisa transformar o onboarding em hipóteses acionáveis no board.`,
+    priority_ladder: [
+      {
+        rank: 1,
+        problem: 'Validar proposta central',
+        detail: 'Consolidar a mensagem do produto e testar a dor principal com ICP claro.',
+        framework: 'Problem-Solution Fit',
+        urgency: 'critical',
+      },
+      {
+        rank: 2,
+        problem: 'Definir aquisição dominante',
+        detail: `Dobrar a aposta no canal ${data.acquisition_channel} até provar tração repetível.`,
+        framework: 'Bullseye Framework',
+        urgency: 'high',
+      },
+      {
+        rank: 3,
+        problem: 'Organizar prioridades',
+        detail: `O gargalo ${data.main_bottleneck} precisa virar plano explícito de execução no board.`,
+        framework: 'ICE Prioritization',
+        urgency: 'medium',
+      },
+    ],
+  }
+}
 
 function buildMetricsBlock(d: OnboardingPayload): string {
   const lines: string[] = []
-  if (d.mrr !== undefined)               lines.push(`MRR: R$${d.mrr}`)
-  if (d.churn_rate !== undefined)        lines.push(`Churn mensal: ${d.churn_rate}%`)
-  if (d.cac !== undefined)               lines.push(`CAC: R$${d.cac}`)
-  if (d.ltv !== undefined)               lines.push(`LTV: R$${d.ltv}`)
-  if (d.monthly_revenue !== undefined)   lines.push(`Faturamento mensal: R$${d.monthly_revenue}`)
-  if (d.gross_margin !== undefined)      lines.push(`Margem bruta: ${d.gross_margin}%`)
-  if (d.max_capacity !== undefined)      lines.push(`Capacidade máxima/mês: ${d.max_capacity}`)
-  if (d.gmv !== undefined)               lines.push(`GMV mensal: R$${d.gmv}`)
-  if (d.take_rate !== undefined)         lines.push(`Take rate: ${d.take_rate}%`)
-  if (d.marketplace_weak_side)           lines.push(`Lado mais fraco: ${d.marketplace_weak_side}`)
+  if (d.mrr !== undefined) lines.push(`MRR: R$${d.mrr}`)
+  if (d.churn_rate !== undefined) lines.push(`Churn mensal: ${d.churn_rate}%`)
+  if (d.cac !== undefined) lines.push(`CAC: R$${d.cac}`)
+  if (d.ltv !== undefined) lines.push(`LTV: R$${d.ltv}`)
+  if (d.monthly_revenue !== undefined) lines.push(`Faturamento mensal: R$${d.monthly_revenue}`)
+  if (d.gross_margin !== undefined) lines.push(`Margem bruta: ${d.gross_margin}%`)
+  if (d.max_capacity !== undefined) lines.push(`Capacidade máxima/mês: ${d.max_capacity}`)
+  if (d.gmv !== undefined) lines.push(`GMV mensal: R$${d.gmv}`)
+  if (d.take_rate !== undefined) lines.push(`Take rate: ${d.take_rate}%`)
+  if (d.marketplace_weak_side) lines.push(`Lado mais fraco: ${d.marketplace_weak_side}`)
   return lines.length ? lines.join('\n') : 'Métricas não informadas'
 }
 
 async function runDiagnosis(data: OnboardingPayload): Promise<DiagnosisResult> {
+  if (process.env.CURIA_FAKE_DIAGNOSIS === '1') {
+    return buildFallbackDiagnosis(data)
+  }
+
+  if (!process.env.ANTHROPIC_API_KEY && process.env.NODE_ENV !== 'production') {
+    return buildFallbackDiagnosis(data)
+  }
+
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
   const prompt = `Você é o sistema de diagnóstico da Curia — um board estratégico de IA para founders.
@@ -137,82 +172,76 @@ Regras:
   })
 
   const raw = (response.content[0] as { type: string; text: string }).text.trim()
-  // Strip markdown code fences if present (```json ... ``` or ``` ... ```)
   const text = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
   return JSON.parse(text) as DiagnosisResult
 }
 
-// ─── POST /api/onboarding ─────────────────────────────────────────────────────
+export async function GET(request: NextRequest) {
+  const session = await getCurrentSession()
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const company = await getCompanyForUser(session.user.id)
+  return NextResponse.json({ company })
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const session = await getCurrentSession()
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
     const body: OnboardingPayload = await req.json()
-
-    // Run agent diagnosis
     const diagnosis = await runDiagnosis(body)
 
-    // Upsert company (unique constraint on user_id)
-    const { data: company, error: upsertError } = await supabase
-      .from('companies')
-      .upsert(
-        {
-          user_id:                user.id,
-          company_name:           body.company_name,
-          industry:               body.industry,
-          team_size:              body.team_size,
-          founded_period:         body.founded_period,
-          capital_stage:          body.capital_stage,
-          business_type:          body.business_type,
-          business_model:         body.business_model,
-          monetization:           body.monetization,
-          average_ticket:         body.average_ticket ?? null,
-          product_description:    body.product_description,
-          mrr:                    body.mrr ?? null,
-          churn_rate:             body.churn_rate ?? null,
-          cac:                    body.cac ?? null,
-          ltv:                    body.ltv ?? null,
-          monthly_revenue:        body.monthly_revenue ?? null,
-          gross_margin:           body.gross_margin ?? null,
-          max_capacity:           body.max_capacity ?? null,
-          gmv:                    body.gmv ?? null,
-          take_rate:              body.take_rate ?? null,
-          marketplace_weak_side:  body.marketplace_weak_side ?? null,
-          active_customers:       body.active_customers ?? null,
-          icp_defined:            body.icp_defined,
-          icp_description:        body.icp_description ?? null,
-          acquisition_channel:    body.acquisition_channel,
-          main_bottleneck:        body.main_bottleneck,
-          main_bottleneck_detail: body.main_bottleneck_detail ?? null,
-          diagnosed_stage:        diagnosis.stage,
-          stage_confirmed:        false,
-          diagnostic_summary:     diagnosis.diagnostic_summary,
-          priority_ladder:        diagnosis.priority_ladder,
-          onboarding_completed_at: new Date().toISOString(),
-        },
-        { onConflict: 'user_id' }
-      )
-      .select('id')
-      .single()
-
-    if (upsertError) throw upsertError
-
-    // Mark onboarding complete in user metadata so middleware can gate access
-    const admin = createAdmin()
-    await admin.auth.admin.updateUserById(user.id, {
-      user_metadata: { onboarding_completed: true },
+    const company = await upsertCompanyForUser(session.user.id, {
+      companyName: body.company_name,
+      industry: body.industry,
+      teamSize: body.team_size,
+      foundedPeriod: body.founded_period,
+      capitalStage: body.capital_stage,
+      businessType: body.business_type,
+      businessModel: body.business_model,
+      monetization: body.monetization,
+      averageTicket: body.average_ticket?.toString() ?? null,
+      productDescription: body.product_description,
+      mrr: body.mrr?.toString() ?? null,
+      churnRate: body.churn_rate?.toString() ?? null,
+      cac: body.cac?.toString() ?? null,
+      ltv: body.ltv?.toString() ?? null,
+      monthlyRevenue: body.monthly_revenue?.toString() ?? null,
+      grossMargin: body.gross_margin?.toString() ?? null,
+      maxCapacity: body.max_capacity ?? null,
+      gmv: body.gmv?.toString() ?? null,
+      takeRate: body.take_rate?.toString() ?? null,
+      marketplaceWeakSide: body.marketplace_weak_side ?? null,
+      activeCustomers: body.active_customers ?? null,
+      icpDefined: body.icp_defined,
+      icpDescription: body.icp_description ?? null,
+      acquisitionChannel: body.acquisition_channel,
+      mainBottleneck: body.main_bottleneck,
+      mainBottleneckDetail: body.main_bottleneck_detail ?? null,
+      diagnosedStage: diagnosis.stage,
+      stageConfirmed: false,
+      diagnosticSummary: diagnosis.diagnostic_summary,
+      priorityLadder: diagnosis.priority_ladder,
+      onboardingCompletedAt: new Date(),
     })
 
-    return NextResponse.json({
-      company_id:         company.id,
-      stage:              diagnosis.stage,
-      stage_reason:       diagnosis.stage_reason,
+    const user = await markOnboardingCompleted(session.user.id)
+    if (!user) {
+      return NextResponse.json({ error: 'Unable to update user.' }, { status: 500 })
+    }
+    const response = NextResponse.json({
+      company_id: company.id,
+      stage: diagnosis.stage,
+      stage_reason: diagnosis.stage_reason,
       diagnostic_summary: diagnosis.diagnostic_summary,
-      priority_ladder:    diagnosis.priority_ladder,
+      priority_ladder: diagnosis.priority_ladder,
     })
+    return response
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[POST /api/onboarding]', msg, err)

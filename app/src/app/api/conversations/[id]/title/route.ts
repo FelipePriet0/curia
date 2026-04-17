@@ -1,43 +1,66 @@
+export const dynamic = 'force-dynamic'
+
+import { and, asc, eq } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { db } from '@/db/client'
+import { conversations, messages } from '@/db/schema'
+import { requireUserSession } from '@/lib/auth/request'
 import { generateConversationTitle } from '@/lib/llm/client'
 
-// POST /api/conversations/[id]/title — generate and save an AI title
 export async function POST(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const supabase = await createClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { session, response } = await requireUserSession(req)
+  if (!session) return response
 
   const { id } = await params
 
-  // Fetch first user message
-  const { data: messages, error: msgErr } = await supabase
-    .from('messages')
-    .select('content, role')
-    .eq('conversation_id', id)
-    .order('created_at', { ascending: true })
+  const [conversation] = await db
+    .select({ id: conversations.id })
+    .from(conversations)
+    .where(and(
+      eq(conversations.id, id),
+      eq(conversations.userId, session.user.id),
+    ))
+    .limit(1)
+
+  if (!conversation) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
+
+  const rows = await db
+    .select({
+      content: messages.content,
+      role: messages.role,
+    })
+    .from(messages)
+    .where(eq(messages.conversationId, id))
+    .orderBy(asc(messages.createdAt))
     .limit(2)
 
-  if (msgErr || !messages?.length)
+  if (!rows.length) {
     return NextResponse.json({ error: 'No messages found' }, { status: 404 })
+  }
 
-  const firstUser = messages.find((m) => m.role === 'user')
-  if (!firstUser) return NextResponse.json({ error: 'No user message' }, { status: 404 })
+  const firstUser = rows.find((row) => row.role === 'user')
+  if (!firstUser) {
+    return NextResponse.json({ error: 'No user message' }, { status: 404 })
+  }
 
   const title = await generateConversationTitle(firstUser.content)
 
-  const { data, error } = await supabase
-    .from('conversations')
-    .update({ title })
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .select('id, title')
-    .single()
+  const [updated] = await db
+    .update(conversations)
+    .set({ title, updatedAt: new Date() })
+    .where(and(
+      eq(conversations.id, id),
+      eq(conversations.userId, session.user.id),
+    ))
+    .returning({
+      id: conversations.id,
+      title: conversations.title,
+    })
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
-  return NextResponse.json(data)
+  return NextResponse.json(updated)
 }
