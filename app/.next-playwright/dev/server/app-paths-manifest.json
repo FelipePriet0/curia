@@ -1,0 +1,9 @@
+{
+  "/api/auth/session/route": "app/api/auth/session/route.js",
+  "/api/onboarding/route": "app/api/onboarding/route.js",
+  "/api/terms/accept/route": "app/api/terms/accept/route.js",
+  "/api/onboarding/bootstrap/route": "app/api/onboarding/bootstrap/route.js",
+  "/page": "app/page.js",
+  "/onboarding/page": "app/onboarding/page.js",
+  "/(app)/board/page": "app/(app)/board/page.js"
+}

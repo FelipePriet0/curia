@@ -42,7 +42,7 @@ const STRENGTH_LABEL: Record<Strength, string> = {
 }
 
 const STRENGTH_COLOR: Record<Strength, string> = {
-  empty: 'bg-[#2B1A07]/10',
+  empty: 'bg-[#0B0B0F]/10',
   weak: 'bg-red-400',
   medium: 'bg-amber-400',
   strong: 'bg-emerald-500',
@@ -56,10 +56,10 @@ const STRENGTH_WIDTH: Record<Strength, string> = {
 }
 
 const inputCls = cn(
-  'flex h-11 w-full rounded-xl border border-[#2B1A07]/15 bg-white px-4',
-  'font-curia-serif text-sm text-[#2B1A07] placeholder:text-[#2B1A07]/35',
+  'flex h-11 w-full rounded-xl border border-[#0B0B0F]/15 bg-white px-4',
+  'font-curia-serif text-sm text-[#0B0B0F] placeholder:text-[#0B0B0F]/35',
   'shadow-sm transition-all',
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF6F1E]/50 focus-visible:border-[#FF6F1E]/60',
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A84C]/40 focus-visible:border-[#C9A84C]/60',
   'disabled:cursor-not-allowed disabled:opacity-50',
 )
 
@@ -77,7 +77,7 @@ function PasswordField({ label, value, onChange, placeholder, disabled, showStre
 
   return (
     <div>
-      {label && <label className="mb-1.5 block font-curia-serif text-sm font-medium text-[#2B1A07]">{label}</label>}
+      {label && <label className="mb-1.5 block font-curia-serif text-sm font-medium text-[#0B0B0F]">{label}</label>}
       <div className="relative">
         <input
           type={show ? 'text' : 'password'}
@@ -94,14 +94,14 @@ function PasswordField({ label, value, onChange, placeholder, disabled, showStre
           type="button"
           tabIndex={-1}
           onClick={() => setShow((s) => !s)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B1A07]/40 transition-colors hover:text-[#2B1A07]/70"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0B0B0F]/40 transition-colors hover:text-[#0B0B0F]/70"
         >
           {show ? <EyeOff size={15} /> : <Eye size={15} />}
         </button>
       </div>
       {showStrength && value && (
         <div className="mt-2 space-y-1">
-          <div className="h-1 w-full overflow-hidden rounded-full bg-[#2B1A07]/10">
+          <div className="h-1 w-full overflow-hidden rounded-full bg-[#0B0B0F]/10">
             <div className={cn('h-full rounded-full transition-all duration-300', STRENGTH_COLOR[strength], STRENGTH_WIDTH[strength])} />
           </div>
           <p className={cn(
@@ -140,9 +140,9 @@ function GoogleIcon() {
 function Divider() {
   return (
     <div className="flex items-center gap-3">
-      <div className="h-px flex-1 bg-[#2B1A07]/10" />
-      <span className="font-curia-serif text-xs uppercase tracking-[0.15em] text-[#2B1A07]/35">ou</span>
-      <div className="h-px flex-1 bg-[#2B1A07]/10" />
+      <div className="h-px flex-1 bg-[#0B0B0F]/10" />
+      <span className="font-curia-serif text-xs uppercase tracking-[0.15em] text-[#0B0B0F]/35">ou</span>
+      <div className="h-px flex-1 bg-[#0B0B0F]/10" />
     </div>
   )
 }
@@ -151,7 +151,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#FDFBF9] px-4">
       <div aria-hidden className="pointer-events-none absolute inset-0 flex items-start justify-center">
-        <div className="h-[500px] w-[500px] -translate-y-[100px] rounded-full bg-[#FF6F1E] opacity-[0.06] blur-3xl" />
+        <div className="h-[500px] w-[500px] -translate-y-[100px] rounded-full bg-[#C9A84C] opacity-[0.06] blur-3xl" />
       </div>
       <div className="relative w-full max-w-sm">{children}</div>
     </div>
@@ -162,7 +162,7 @@ function Logo() {
   return (
     <div className="mb-8 flex flex-col items-center text-center">
       <Link href="/" className="mb-5 block">
-        <span className="font-curia-rounded text-4xl leading-none text-[#2B1A07]">Curia</span>
+        <span className="myriad-bold--display text-4xl leading-none text-[#0B0B0F]">Curia</span>
       </Link>
     </div>
   )
@@ -173,16 +173,16 @@ function ConfirmEmailScreen({ email }: { email: string }) {
     <Shell>
       <Logo />
       <div className="flex flex-col items-center gap-4 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#FF6F1E]/10">
-          <Mail size={28} className="text-[#FF6F1E]" />
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#0B0B0F]/10">
+          <Mail size={28} className="text-[#0B0B0F]" />
         </div>
         <div>
-          <h2 className="font-curia-rounded text-2xl text-[#2B1A07]">Conta criada</h2>
-          <p className="mt-2 font-curia-serif text-sm text-[#2B1A07]/60">
-            A conta <span className="font-medium text-[#2B1A07]">{email}</span> já está pronta para uso.
+          <h2 className="font-curia-rounded text-2xl text-[#0B0B0F]">Conta criada</h2>
+          <p className="mt-2 font-curia-serif text-sm text-[#0B0B0F]/60">
+            A conta <span className="font-medium text-[#0B0B0F]">{email}</span> já está pronta para uso.
           </p>
         </div>
-        <Link href="/login" className="font-curia-serif text-xs text-[#2B1A07]/40 transition-colors hover:text-[#2B1A07]/60">
+        <Link href="/login" className="font-curia-serif text-xs text-[#0B0B0F]/40 transition-colors hover:text-[#0B0B0F]/60">
           ← Voltar para o login
         </Link>
       </div>
@@ -243,10 +243,16 @@ export function LoginForm() {
     setLoading(true)
 
     try {
-      const result = await signIn.create({
+      const created = await signIn.create({
         identifier: email,
-        password,
       })
+
+      const result = created.status === 'complete'
+        ? created
+        : await signIn.attemptFirstFactor({
+            strategy: 'password',
+            password,
+          })
 
       if (result.status !== 'complete' || !result.createdSessionId) {
         throw new Error('Não foi possível concluir o login.')
@@ -264,8 +270,8 @@ export function LoginForm() {
     <Shell>
       <Logo />
       <div className="mb-8 text-center">
-        <h1 className="font-curia-rounded text-2xl text-[#2B1A07]">Bem-vindo de volta</h1>
-        <p className="mt-2 font-curia-serif text-sm text-[#2B1A07]/60">Acesse seu Board estratégico</p>
+        <h1 className="font-curia-rounded text-2xl text-[#0B0B0F]">Bem-vindo de volta</h1>
+        <p className="mt-2 font-curia-serif text-sm text-[#0B0B0F]/60">Acesse seu Board estratégico</p>
       </div>
 
       <div className="space-y-4">
@@ -274,8 +280,8 @@ export function LoginForm() {
           onClick={() => void handleGoogleLogin()}
           disabled={loading}
           className={cn(
-            'flex w-full items-center justify-center gap-3 rounded-xl border border-[#2B1A07]/15 bg-white px-5 py-3',
-            'font-curia-serif text-sm font-semibold text-[#2B1A07] shadow-sm transition-all hover:bg-[#F8F3EE]',
+            'flex w-full items-center justify-center gap-3 rounded-xl border border-[#0B0B0F]/15 bg-white px-5 py-3',
+            'font-curia-serif text-sm font-semibold text-[#0B0B0F] shadow-sm transition-all hover:bg-[#F8F3EE]',
             'disabled:cursor-not-allowed disabled:opacity-50',
           )}
         >
@@ -288,7 +294,7 @@ export function LoginForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="mb-1.5 block font-curia-serif text-sm font-medium text-[#2B1A07]">E-mail</label>
+          <label className="mb-1.5 block font-curia-serif text-sm font-medium text-[#0B0B0F]">E-mail</label>
           <input
             type="email"
             value={email}
@@ -306,8 +312,8 @@ export function LoginForm() {
 
         <div>
           <div className="mb-1.5 flex items-center justify-between">
-            <label className="font-curia-serif text-sm font-medium text-[#2B1A07]">Senha</label>
-            <Link href="/forgot-password" className="font-curia-serif text-xs text-[#FF6F1E] hover:underline">
+            <label className="font-curia-serif text-sm font-medium text-[#0B0B0F]">Senha</label>
+            <Link href="/forgot-password" className="font-curia-serif text-xs text-[#4A6FA5] hover:underline">
               Esqueceu a senha?
             </Link>
           </div>
@@ -330,13 +336,13 @@ export function LoginForm() {
           disabled={loading}
           className={cn(
             'flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3',
-            'bg-[#FF6F1E] font-curia-serif text-sm font-semibold text-[#2B1A07]',
+            'bg-[#0B0B0F] font-curia-serif text-sm font-semibold text-[#FDFBF9]',
             'shadow-sm transition-all hover:opacity-90 active:scale-[0.98]',
             'disabled:cursor-not-allowed disabled:opacity-50',
           )}
         >
           {loading ? (
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#2B1A07]/30 border-t-[#2B1A07]" />
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#0B0B0F]/30 border-t-[#0B0B0F]" />
           ) : (
             <>
               <span>Entrar no Board</span>
@@ -346,11 +352,11 @@ export function LoginForm() {
         </button>
       </form>
 
-      <p className="mt-6 text-center font-curia-serif text-sm text-[#2B1A07]/50">
-        Ainda não tem conta? <Link href="/signup" className="font-medium text-[#FF6F1E] hover:underline">Criar conta</Link>
+      <p className="mt-6 text-center font-curia-serif text-sm text-[#0B0B0F]/50">
+        Ainda não tem conta? <Link href="/signup" className="font-medium text-[#4A6FA5] hover:underline">Criar conta</Link>
       </p>
       <p className="mt-3 text-center">
-        <Link href="/" className="font-curia-serif text-xs text-[#2B1A07]/35 transition-colors hover:text-[#2B1A07]/60">
+        <Link href="/" className="font-curia-serif text-xs text-[#0B0B0F]/35 transition-colors hover:text-[#0B0B0F]/60">
           ← Voltar para o início
         </Link>
       </p>
@@ -458,15 +464,15 @@ export function SignupForm() {
       <Shell>
         <Logo />
         <div className="mb-8 text-center">
-          <h1 className="font-curia-rounded text-2xl text-[#2B1A07]">Confirme seu e-mail</h1>
-          <p className="mt-2 font-curia-serif text-sm text-[#2B1A07]/60">
-            Enviamos um código para <span className="font-medium text-[#2B1A07]">{email}</span>.
+          <h1 className="font-curia-rounded text-2xl text-[#0B0B0F]">Confirme seu e-mail</h1>
+          <p className="mt-2 font-curia-serif text-sm text-[#0B0B0F]/60">
+            Enviamos um código para <span className="font-medium text-[#0B0B0F]">{email}</span>.
           </p>
         </div>
 
         <form onSubmit={handleVerification} className="space-y-4">
           <div>
-            <label htmlFor="signup-code" className="mb-1.5 block font-curia-serif text-sm font-medium text-[#2B1A07]">
+            <label htmlFor="signup-code" className="mb-1.5 block font-curia-serif text-sm font-medium text-[#0B0B0F]">
               Código de verificação
             </label>
             <input
@@ -492,13 +498,13 @@ export function SignupForm() {
             disabled={loading}
             className={cn(
               'flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3',
-              'bg-[#FF6F1E] font-curia-serif text-sm font-semibold text-[#2B1A07]',
+              'bg-[#0B0B0F] font-curia-serif text-sm font-semibold text-[#FDFBF9]',
               'shadow-sm transition-all hover:opacity-90 active:scale-[0.98]',
               'disabled:cursor-not-allowed disabled:opacity-50',
             )}
           >
             {loading ? (
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#2B1A07]/30 border-t-[#2B1A07]" />
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#0B0B0F]/30 border-t-[#0B0B0F]" />
             ) : (
               <>
                 <span>Confirmar e entrar</span>
@@ -508,11 +514,11 @@ export function SignupForm() {
           </button>
         </form>
 
-        <p className="mt-6 text-center font-curia-serif text-sm text-[#2B1A07]/50">
+        <p className="mt-6 text-center font-curia-serif text-sm text-[#0B0B0F]/50">
           Código não chegou? Verifique spam ou reinicie o cadastro.
         </p>
         <p className="mt-3 text-center">
-          <Link href="/signup" className="font-curia-serif text-xs text-[#2B1A07]/35 transition-colors hover:text-[#2B1A07]/60">
+          <Link href="/signup" className="font-curia-serif text-xs text-[#0B0B0F]/35 transition-colors hover:text-[#0B0B0F]/60">
             ← Voltar
           </Link>
         </p>
@@ -524,8 +530,8 @@ export function SignupForm() {
     <Shell>
       <Logo />
       <div className="mb-8 text-center">
-        <h1 className="font-curia-rounded text-2xl text-[#2B1A07]">Monte seu Board</h1>
-        <p className="mt-2 font-curia-serif text-sm text-[#2B1A07]/60">Crie sua conta e comece a decidir melhor</p>
+        <h1 className="font-curia-rounded text-2xl text-[#0B0B0F]">Monte seu Board</h1>
+        <p className="mt-2 font-curia-serif text-sm text-[#0B0B0F]/60">Crie sua conta e comece a decidir melhor</p>
       </div>
 
       <div className="space-y-4">
@@ -534,8 +540,8 @@ export function SignupForm() {
           onClick={() => void handleGoogleSignup()}
           disabled={loading}
           className={cn(
-            'flex w-full items-center justify-center gap-3 rounded-xl border border-[#2B1A07]/15 bg-white px-5 py-3',
-            'font-curia-serif text-sm font-semibold text-[#2B1A07] shadow-sm transition-all hover:bg-[#F8F3EE]',
+            'flex w-full items-center justify-center gap-3 rounded-xl border border-[#0B0B0F]/15 bg-white px-5 py-3',
+            'font-curia-serif text-sm font-semibold text-[#0B0B0F] shadow-sm transition-all hover:bg-[#F8F3EE]',
             'disabled:cursor-not-allowed disabled:opacity-50',
           )}
         >
@@ -548,7 +554,7 @@ export function SignupForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="signup-email" className="mb-1.5 block font-curia-serif text-sm font-medium text-[#2B1A07]">E-mail</label>
+          <label htmlFor="signup-email" className="mb-1.5 block font-curia-serif text-sm font-medium text-[#0B0B0F]">E-mail</label>
           <input
             id="signup-email"
             type="email"
@@ -578,7 +584,7 @@ export function SignupForm() {
         />
 
         <div>
-          <label className="mb-1.5 block font-curia-serif text-sm font-medium text-[#2B1A07]">Confirmar senha</label>
+          <label className="mb-1.5 block font-curia-serif text-sm font-medium text-[#0B0B0F]">Confirmar senha</label>
           <PasswordField
             label=""
             value={confirm}
@@ -604,13 +610,13 @@ export function SignupForm() {
           disabled={loading || passwordMismatch}
           className={cn(
             'flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3',
-            'bg-[#FF6F1E] font-curia-serif text-sm font-semibold text-[#2B1A07]',
+            'bg-[#0B0B0F] font-curia-serif text-sm font-semibold text-[#FDFBF9]',
             'shadow-sm transition-all hover:opacity-90 active:scale-[0.98]',
             'disabled:cursor-not-allowed disabled:opacity-50',
           )}
         >
           {loading ? (
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#2B1A07]/30 border-t-[#2B1A07]" />
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#0B0B0F]/30 border-t-[#0B0B0F]" />
           ) : (
             <>
               <span>Criar conta</span>
@@ -620,11 +626,11 @@ export function SignupForm() {
         </button>
       </form>
 
-      <p className="mt-6 text-center font-curia-serif text-sm text-[#2B1A07]/50">
-        Já tem conta? <Link href="/login" className="font-medium text-[#FF6F1E] hover:underline">Entrar</Link>
+      <p className="mt-6 text-center font-curia-serif text-sm text-[#0B0B0F]/50">
+        Já tem conta? <Link href="/login" className="font-medium text-[#4A6FA5] hover:underline">Entrar</Link>
       </p>
       <p className="mt-3 text-center">
-        <Link href="/" className="font-curia-serif text-xs text-[#2B1A07]/35 transition-colors hover:text-[#2B1A07]/60">
+        <Link href="/" className="font-curia-serif text-xs text-[#0B0B0F]/35 transition-colors hover:text-[#0B0B0F]/60">
           ← Voltar para o início
         </Link>
       </p>

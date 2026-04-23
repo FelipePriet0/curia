@@ -1,0 +1,43 @@
+[00:00:29.616] Server  LOG     ✓ Ready in 21.9s
+[00:00:35.460] Server  LOG     ○ Compiling / ...
+[00:01:11.042] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:11.538] Browser WARN    Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview
+[00:01:15.081] Server  LOG     ○ Compiling /api/auth/session ...
+[00:01:26.125] Server  LOG     ◇ injected env (0) from .env.local // tip: ⌘ override existing { override: true }
+[00:01:26.139] Server  LOG     ◇ injected env (7) from ../.env // tip: ⌘ suppress logs { quiet: true }
+[00:01:26.146] Server  LOG     ◇ injected env (0) from ../.env.docker // tip: ⌁ auth for agents [www.vestauth.com]
+[00:01:46.561] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:46.932] Browser WARN    Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview
+[00:01:58.463] Server  LOG     ○ Compiling /board ...
+[00:02:00.459] Server  LOG     ◇ injected env (0) from .env.local // tip: ◈ secrets for agents [www.dotenvx.com]
+[00:02:00.468] Server  LOG     ◇ injected env (0) from ../.env // tip: ⌘ enable debugging { debug: true }
+[00:02:00.474] Server  LOG     ◇ injected env (0) from ../.env.docker // tip: ◈ secrets for agents [www.dotenvx.com]
+[00:02:06.123] Server  LOG     ○ Compiling /onboarding ...
+[00:02:10.585] Server  LOG     ◇ injected env (0) from .env.local // tip: ◈ secrets for agents [www.dotenvx.com]
+[00:02:10.593] Server  LOG     ◇ injected env (0) from ../.env // tip: ⌘ suppress logs { quiet: true }
+[00:02:10.597] Server  LOG     ◇ injected env (0) from ../.env.docker // tip: ⌘ override existing { override: true }
+[00:02:15.819] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:02:16.128] Browser WARN    Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview
+[00:02:20.037] Server  LOG     ○ Compiling /api/terms/accept ...
+[00:02:25.692] Server  LOG     ◇ injected env (0) from .env.local // tip: ⌘ enable debugging { debug: true }
+[00:02:25.699] Server  LOG     ◇ injected env (0) from ../.env // tip: ⌁ auth for agents [www.vestauth.com]
+[00:02:25.702] Server  LOG     ◇ injected env (0) from ../.env.docker // tip: ⌁ auth for agents [www.vestauth.com]
+[00:02:31.433] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:02:31.775] Browser WARN    Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview
+[00:02:42.735] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:02:43.111] Browser WARN    Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview
+[00:02:49.514] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:02:49.974] Browser WARN    Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview
+[00:03:01.194] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:03:01.457] Browser WARN    Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview
+[00:03:06.478] Server  LOG     ○ Compiling /api/onboarding/bootstrap ...
+[00:03:07.714] Server  LOG     ◇ injected env (0) from .env.local // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+[00:03:07.722] Server  LOG     ◇ injected env (0) from ../.env // tip: ⌘ suppress logs { quiet: true }
+[00:03:07.728] Server  LOG     ◇ injected env (0) from ../.env.docker // tip: ⌘ suppress logs { quiet: true }
+[00:03:13.194] Server  LOG     ○ Compiling /board ...
+[00:03:14.197] Server  LOG     ◇ injected env (0) from .env.local // tip: ◈ encrypted .env [www.dotenvx.com]
+[00:03:14.204] Server  LOG     ◇ injected env (0) from ../.env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+[00:03:14.210] Server  LOG     ◇ injected env (0) from ../.env.docker // tip: ◈ encrypted .env [www.dotenvx.com]
+[00:03:18.582] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:03:21.606] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:03:21.976] Browser WARN    Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview

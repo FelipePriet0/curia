@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Curia — UI Kit</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  html, body { margin:0; padding:0; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font-body); }
+  .stage { min-height: 100vh; }
+  .board-stage { display:flex; min-height:100vh; background:var(--bg); }
+  .board-main {
+    flex:1; padding:32px 40px; display:flex; flex-direction:column; gap:18px;
+    background:
+      radial-gradient(ellipse 600px 300px at 50% 80px, rgba(255,111,30,0.04), transparent 70%),
+      var(--bg);
+  }
+  .board-greet { font-family: var(--font-logo); font-weight:800; font-size:28px; letter-spacing:-0.01em; }
+  .board-sub { color: var(--ink-60); font-size:15px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="./Common.jsx"></script>
+<script type="text/babel" src="./Board.jsx"></script>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+function App() {
+  const [view, setView] = useState(() => localStorage.getItem('curia.view') || 'lp');
+  useEffect(() => { localStorage.setItem('curia.view', view); }, [view]);
+
+  if (view === 'lp') {
+    return (
+      <div className="stage" data-screen-label="01 Landing">
+        <TopNav onEnter={()=>setView('board')} />
+        <Hero onEnter={()=>setView('board')} />
+        <BigTechStrip />
+        <footer style={{ textAlign:'center', padding:'40px 20px', color:'var(--ink-45)', fontFamily:'var(--font-ui)', fontSize:12 }}>
+          Curia · O lugar onde boas empresas se tornam ótimas.
+        </footer>
+      </div>
+    );
+  }
+  return <BoardView onBack={()=>setView('lp')} />;
+}
+
+function BoardView({ onBack }) {
+  const [active, setActive] = useState('home');
+  const [text, setText] = useState('');
+  const [phase, setPhase] = useState('idle'); // idle | receiving | deliberating | verdict
+  const [prompt, setPrompt] = useState('');
+
+  function send() {
+    if (!text.trim()) return;
+    const p = text.trim();
+    setPrompt(p); setText(''); setPhase('receiving');
+    setTimeout(()=>setPhase('deliberating'), 600);
+    setTimeout(()=>setPhase('verdict'), 2400);
+  }
+
+  return (
+    <div className="board-stage" data-screen-label="02 Board">
+      <BoardSidebar active={active} onSelect={(id)=>{ if (id==='home'){setActive(id);} else {setActive(id);} }} />
+      <main className="board-main">
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <div>
+            <div className="board-greet">Olá, Empresário</div>
+            <div className="board-sub">O que você deseja resolver hoje?</div>
+          </div>
+          <button onClick={onBack} style={{
+            background:'transparent', border:'1px solid var(--border-warm)',
+            borderRadius:8, padding:'6px 12px', fontFamily:'var(--font-ui)',
+            fontSize:12, color:'var(--ink-60)', cursor:'pointer'
+          }}>← Landing</button>
+        </div>
+
+        <div style={{ background:'#0A0A0B', borderRadius:16, padding:'28px 20px', marginTop:6 }}>
+          <Chamber phase={phase}/>
+          <div style={{ textAlign:'center', marginTop:8, fontFamily:'var(--font-ui)', fontSize:11, letterSpacing:'0.18em', textTransform:'uppercase', color:'rgba(245,240,232,0.45)' }}>
+            { phase === 'idle' ? 'Câmara em recesso'
+            : phase === 'receiving' ? 'Recebendo o assunto…'
+            : phase === 'deliberating' ? 'Conselheiros deliberando'
+            : 'Parecer pronto' }
+          </div>
+        </div>
+
+        <Composer value={text} onChange={setText} onSend={send} disabled={phase==='deliberating' || phase==='receiving'} />
+        { phase === 'idle' && <QuickStart onPick={(t)=>{ setText(t); }} /> }
+        <VerdictPanel visible={phase==='verdict'} prompt={prompt}/>
+
+        { phase === 'verdict' && (
+          <div style={{ textAlign:'center', marginTop:6 }}>
+            <button onClick={()=>{setPhase('idle'); setPrompt('');}} style={{
+              background:'transparent', border:'none', color:'var(--ink-45)',
+              fontFamily:'var(--font-ui)', fontSize:12, cursor:'pointer', textDecoration:'underline'
+            }}>Iniciar nova deliberação</button>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

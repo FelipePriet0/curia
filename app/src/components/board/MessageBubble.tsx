@@ -18,8 +18,8 @@ export function MessageBubble({ message, isStreaming }: MessageBubbleProps) {
         className={cn(
           'max-w-[85%] rounded-xl px-4 py-3 font-curia-serif text-sm leading-relaxed',
           isUser
-            ? 'bg-[#FF6F1E] text-[#2B1A07] rounded-br-sm font-medium'
-            : 'bg-[#2B1A07]/[0.06] text-[#2B1A07] rounded-bl-sm'
+            ? 'bg-[#0B0B0F] text-[#FDFBF9] rounded-br-sm font-medium'
+            : 'bg-[#0B0B0F]/[0.06] text-[#0B0B0F] rounded-bl-sm'
         )}
       >
         {isUser ? (
@@ -43,7 +43,7 @@ function BoardResponse({ content, isStreaming }: { content: string; isStreaming?
       )}
       <MarkdownContent content={content} />
       {isStreaming && (
-        <span className="inline-block h-4 w-1 animate-pulse bg-[#FF6F1E] rounded-full" />
+        <span className="inline-block h-4 w-1 animate-pulse bg-[#0B0B0F] rounded-full" />
       )}
     </div>
   )

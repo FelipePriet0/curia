@@ -149,7 +149,10 @@ export function CouncilVerdict({ messages, streamingContent, isStreaming }: Coun
   const layer2 = sections.filter((s) => s.layer === 2)
   const layer3 = sections.filter((s) => s.layer === 3)
 
-  // Merge Recomendações + Próximos Passos → bloco visual "Plano de Ação"
+  // Recomendações agora já absorve o que era "Próximos Passos" (cada recomendação
+  // carrega "Movimento desta semana" + "Como saber que funcionou"). Mantemos a
+  // checagem de "próximos" como compat para respostas antigas do histórico
+  // geradas com o scaffold anterior.
   const isPlano = (s: Section) =>
     s.title.toLowerCase().includes('recomend') ||
     s.title.toLowerCase().includes('próximos') ||
@@ -212,7 +215,7 @@ export function CouncilVerdict({ messages, streamingContent, isStreaming }: Coun
                   </div>
                 ))}
 
-                {/* Plano de Ação = Recomendações + Próximos Passos unidos */}
+                {/* Plano de Ação = Recomendações (já absorve o antigo "Próximos Passos") */}
                 {planoSections.length > 0 && (
                   <div className="verdict-l1-section verdict-plano">
                     <p className="verdict-l1-label verdict-plano-label">

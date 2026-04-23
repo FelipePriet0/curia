@@ -7,7 +7,7 @@ export function Avatar({ className, children, ...props }: AvatarProps) {
   return (
     <div
       className={cn(
-        'relative inline-flex select-none items-center justify-center overflow-hidden bg-[#2B1A07]/[0.06] text-[#2B1A07]/70',
+        'relative inline-flex select-none items-center justify-center overflow-hidden bg-[#0B0B0F]/[0.06] text-[#0B0B0F]/70',
         className,
       )}
       {...props}

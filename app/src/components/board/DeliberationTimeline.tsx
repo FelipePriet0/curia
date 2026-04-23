@@ -55,25 +55,25 @@ export function DeliberationTimeline({ deliberation, streamingContent }: Props) 
   const currentLabel = activeStep?.label ?? 'Deliberando…'
 
   return (
-    <div className="shrink-0 border-b border-[#2B1A07]/6 bg-[#FDFBF9]">
+    <div className="shrink-0 border-b border-[#0B0B0F]/6 bg-[#FDFBF9]">
       <button
         onClick={() => setExpanded(e => !e)}
         className="flex w-full items-center gap-2.5 px-4 py-2 text-left"
       >
         {/* Pulsing orange dot */}
         <span className="relative flex h-2 w-2 shrink-0">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#FF6F1E] opacity-50" />
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-[#FF6F1E]" />
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#0B0B0F] opacity-50" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-[#0B0B0F]" />
         </span>
 
-        <span className="flex-1 truncate font-curia-serif text-xs text-[#2B1A07]/55">
+        <span className="flex-1 truncate font-curia-serif text-xs text-[#0B0B0F]/55">
           {currentLabel}
         </span>
 
         <ChevronDown
           size={13}
           className={cn(
-            'shrink-0 text-[#2B1A07]/25 transition-transform duration-200',
+            'shrink-0 text-[#0B0B0F]/25 transition-transform duration-200',
             expanded && 'rotate-180'
           )}
         />
@@ -87,14 +87,14 @@ export function DeliberationTimeline({ deliberation, streamingContent }: Props) 
                 className={cn(
                   'h-1.5 w-1.5 shrink-0 rounded-full transition-colors',
                   step.done
-                    ? 'bg-[#2B1A07]/20'
-                    : 'bg-[#FF6F1E] animate-pulse'
+                    ? 'bg-[#0B0B0F]/20'
+                    : 'bg-[#0B0B0F] animate-pulse'
                 )}
               />
               <span
                 className={cn(
                   'font-curia-serif text-[11px] leading-snug',
-                  step.done ? 'text-[#2B1A07]/35' : 'text-[#2B1A07]/65'
+                  step.done ? 'text-[#0B0B0F]/35' : 'text-[#0B0B0F]/65'
                 )}
               >
                 {step.label}

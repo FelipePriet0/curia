@@ -41,7 +41,7 @@ export function ChatInput({ onSend, disabled, placeholder }: ChatInputProps) {
   }
 
   return (
-    <div className="flex items-end gap-2 rounded-xl border border-[#2B1A07]/12 bg-white p-3 shadow-sm transition-shadow focus-within:shadow-md focus-within:border-[#FF6F1E]/40">
+    <div className="flex items-end gap-2 rounded-xl border border-[#0B0B0F]/12 bg-white p-3 shadow-sm transition-shadow focus-within:shadow-md focus-within:border-[#C9A84C]/40">
       <Textarea
         ref={textareaRef}
         value={value}
@@ -53,13 +53,13 @@ export function ChatInput({ onSend, disabled, placeholder }: ChatInputProps) {
         rows={1}
         className={cn(
           'min-h-[36px] border-0 bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0',
-          'font-curia-serif text-sm text-[#2B1A07] placeholder:text-[#2B1A07]/35'
+          'font-curia-serif text-sm text-[#0B0B0F] placeholder:text-[#0B0B0F]/35'
         )}
       />
       <button
         onClick={handleSend}
         disabled={disabled || !value.trim()}
-        className="shrink-0 flex h-9 w-9 items-center justify-center rounded-lg bg-[#FF6F1E] text-[#2B1A07] shadow-sm transition-all hover:opacity-90 active:scale-95 disabled:pointer-events-none disabled:opacity-30"
+        className="shrink-0 flex h-9 w-9 items-center justify-center rounded-lg bg-[#0B0B0F] text-[#FDFBF9] shadow-sm transition-all hover:opacity-90 active:scale-95 disabled:pointer-events-none disabled:opacity-30"
       >
         <Send className="h-4 w-4" />
       </button>

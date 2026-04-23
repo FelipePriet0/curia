@@ -110,17 +110,17 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#FDFBF9] px-4 py-10">
-      <div className="w-full max-w-md rounded-[28px] border border-[#2B1A07]/10 bg-white p-8 shadow-[0_24px_80px_rgba(43,26,7,0.08)]">
+      <div className="w-full max-w-md rounded-[28px] border border-[#0B0B0F]/10 bg-white p-8 shadow-[0_24px_80px_rgba(11,11,15,0.08)]">
         <div className="mb-8 text-center">
           <Link href="/" className="mb-5 inline-block">
-            <span className="font-curia-rounded text-4xl leading-none text-[#2B1A07]">Curia</span>
+            <span className="myriad-bold--display text-4xl leading-none text-[#0B0B0F]">Curia</span>
           </Link>
-          <h1 className="font-curia-rounded text-2xl text-[#2B1A07]">
+          <h1 className="font-curia-rounded text-2xl text-[#0B0B0F]">
             {step === 'request' && 'Recuperar senha'}
             {step === 'reset' && 'Defina sua nova senha'}
             {step === 'done' && 'Senha atualizada'}
           </h1>
-          <p className="mt-2 font-curia-serif text-sm text-[#2B1A07]/60">
+          <p className="mt-2 font-curia-serif text-sm text-[#0B0B0F]/60">
             {step === 'request' && 'Digite o e-mail da sua conta para receber o código de recuperação.'}
             {step === 'reset' && `Enviamos um código para ${email}.`}
             {step === 'done' && 'Login concluído. Redirecionando para o Board.'}
@@ -130,8 +130,11 @@ export default function ForgotPasswordPage() {
         {step === 'request' && (
           <form onSubmit={handleSendCode} className="space-y-4">
             <div>
-              <label className="mb-1.5 block font-curia-serif text-sm font-medium text-[#2B1A07]">E-mail</label>
+              <label htmlFor="forgot-password-email" className="mb-1.5 block font-curia-serif text-sm font-medium text-[#0B0B0F]">
+                E-mail
+              </label>
               <input
+                id="forgot-password-email"
                 type="email"
                 value={email}
                 onChange={(e) => {
@@ -142,7 +145,7 @@ export default function ForgotPasswordPage() {
                 required
                 disabled={loading}
                 autoComplete="email"
-                className="flex h-11 w-full rounded-xl border border-[#2B1A07]/15 bg-white px-4 font-curia-serif text-sm text-[#2B1A07] shadow-sm outline-none transition-all placeholder:text-[#2B1A07]/35 focus-visible:border-[#FF6F1E]/60 focus-visible:ring-2 focus-visible:ring-[#FF6F1E]/50"
+                className="flex h-11 w-full rounded-xl border border-[#0B0B0F]/15 bg-white px-4 font-curia-serif text-sm text-[#0B0B0F] shadow-sm outline-none transition-all placeholder:text-[#0B0B0F]/35 focus-visible:border-[#C9A84C]/60 focus-visible:ring-2 focus-visible:ring-[#C9A84C]/40"
               />
             </div>
 
@@ -155,7 +158,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="flex w-full items-center justify-center rounded-xl bg-[#FF6F1E] px-5 py-3 font-curia-serif text-sm font-semibold text-[#2B1A07] shadow-sm transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex w-full items-center justify-center rounded-xl bg-[#0B0B0F] px-5 py-3 font-curia-serif text-sm font-semibold text-[#FDFBF9] shadow-sm transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? 'Enviando...' : 'Enviar código'}
             </button>
@@ -165,8 +168,11 @@ export default function ForgotPasswordPage() {
         {step === 'reset' && (
           <form onSubmit={handleResetPassword} className="space-y-4">
             <div>
-              <label className="mb-1.5 block font-curia-serif text-sm font-medium text-[#2B1A07]">Código de verificação</label>
+              <label htmlFor="forgot-password-code" className="mb-1.5 block font-curia-serif text-sm font-medium text-[#0B0B0F]">
+                Código de verificação
+              </label>
               <input
+                id="forgot-password-code"
                 type="text"
                 inputMode="numeric"
                 value={code}
@@ -177,13 +183,16 @@ export default function ForgotPasswordPage() {
                 placeholder="123456"
                 required
                 disabled={loading}
-                className="flex h-11 w-full rounded-xl border border-[#2B1A07]/15 bg-white px-4 font-curia-serif text-sm text-[#2B1A07] shadow-sm outline-none transition-all placeholder:text-[#2B1A07]/35 focus-visible:border-[#FF6F1E]/60 focus-visible:ring-2 focus-visible:ring-[#FF6F1E]/50"
+                className="flex h-11 w-full rounded-xl border border-[#0B0B0F]/15 bg-white px-4 font-curia-serif text-sm text-[#0B0B0F] shadow-sm outline-none transition-all placeholder:text-[#0B0B0F]/35 focus-visible:border-[#C9A84C]/60 focus-visible:ring-2 focus-visible:ring-[#C9A84C]/40"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block font-curia-serif text-sm font-medium text-[#2B1A07]">Nova senha</label>
+              <label htmlFor="forgot-password-new" className="mb-1.5 block font-curia-serif text-sm font-medium text-[#0B0B0F]">
+                Nova senha
+              </label>
               <input
+                id="forgot-password-new"
                 type="password"
                 value={password}
                 onChange={(e) => {
@@ -195,13 +204,16 @@ export default function ForgotPasswordPage() {
                 minLength={8}
                 disabled={loading}
                 autoComplete="new-password"
-                className="flex h-11 w-full rounded-xl border border-[#2B1A07]/15 bg-white px-4 font-curia-serif text-sm text-[#2B1A07] shadow-sm outline-none transition-all placeholder:text-[#2B1A07]/35 focus-visible:border-[#FF6F1E]/60 focus-visible:ring-2 focus-visible:ring-[#FF6F1E]/50"
+                className="flex h-11 w-full rounded-xl border border-[#0B0B0F]/15 bg-white px-4 font-curia-serif text-sm text-[#0B0B0F] shadow-sm outline-none transition-all placeholder:text-[#0B0B0F]/35 focus-visible:border-[#C9A84C]/60 focus-visible:ring-2 focus-visible:ring-[#C9A84C]/40"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block font-curia-serif text-sm font-medium text-[#2B1A07]">Confirmar nova senha</label>
+              <label htmlFor="forgot-password-confirm" className="mb-1.5 block font-curia-serif text-sm font-medium text-[#0B0B0F]">
+                Confirmar nova senha
+              </label>
               <input
+                id="forgot-password-confirm"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => {
@@ -213,7 +225,7 @@ export default function ForgotPasswordPage() {
                 minLength={8}
                 disabled={loading}
                 autoComplete="new-password"
-                className="flex h-11 w-full rounded-xl border border-[#2B1A07]/15 bg-white px-4 font-curia-serif text-sm text-[#2B1A07] shadow-sm outline-none transition-all placeholder:text-[#2B1A07]/35 focus-visible:border-[#FF6F1E]/60 focus-visible:ring-2 focus-visible:ring-[#FF6F1E]/50"
+                className="flex h-11 w-full rounded-xl border border-[#0B0B0F]/15 bg-white px-4 font-curia-serif text-sm text-[#0B0B0F] shadow-sm outline-none transition-all placeholder:text-[#0B0B0F]/35 focus-visible:border-[#C9A84C]/60 focus-visible:ring-2 focus-visible:ring-[#C9A84C]/40"
               />
             </div>
 
@@ -226,7 +238,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={loading || passwordMismatch}
-              className="flex w-full items-center justify-center rounded-xl bg-[#FF6F1E] px-5 py-3 font-curia-serif text-sm font-semibold text-[#2B1A07] shadow-sm transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex w-full items-center justify-center rounded-xl bg-[#0B0B0F] px-5 py-3 font-curia-serif text-sm font-semibold text-[#FDFBF9] shadow-sm transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? 'Atualizando...' : 'Atualizar senha'}
             </button>
@@ -240,7 +252,7 @@ export default function ForgotPasswordPage() {
         )}
 
         <p className="mt-6 text-center">
-          <Link href="/login" className="font-curia-serif text-xs text-[#2B1A07]/35 transition-colors hover:text-[#2B1A07]/60">
+          <Link href="/login" className="font-curia-serif text-xs text-[#0B0B0F]/35 transition-colors hover:text-[#0B0B0F]/60">
             ← Continuar
           </Link>
         </p>

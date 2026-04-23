@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Myriad-like V2 — mais quadrada</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@700;800;900&family=Nunito:wght@800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --font-myriad-like: 'Source Sans 3', 'Fira Sans', 'Segoe UI', sans-serif;
+      --font-old: 'Nunito', sans-serif;
+
+      --color-adobe-red: #FA0F00;
+      --color-black: #1a1a1a;
+      --color-gray-mid: #444;
+      --color-gray-light: #888;
+      --color-bg: #f5f5f5;
+      --color-surface: #fff;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--color-bg);
+      font-family: var(--font-myriad-like);
+      padding: 3rem 2rem;
+      color: var(--color-black);
+    }
+
+    /* ── Utility classes ── */
+    .myriad-bold--display {
+      font-family: var(--font-myriad-like);
+      font-weight: 900;
+      letter-spacing: -0.025em;
+      line-height: 1;
+      -webkit-font-smoothing: antialiased;
+      display: inline-block;
+    }
+
+    .myriad-bold--body {
+      font-family: var(--font-myriad-like);
+      font-weight: 700;
+      letter-spacing: -0.005em;
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Adobe logo ── */
+    .adobe-logo {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.2em;
+      line-height: 1;
+    }
+    .adobe-logo__adobe {
+      font-family: var(--font-myriad-like);
+      font-weight: 900;
+      color: var(--color-adobe-red);
+      letter-spacing: -0.025em;
+      -webkit-font-smoothing: antialiased;
+      display: inline-block;
+    }
+    .adobe-logo__product {
+      font-family: var(--font-myriad-like);
+      font-weight: 900;
+      color: var(--color-black);
+      letter-spacing: -0.025em;
+      -webkit-font-smoothing: antialiased;
+      display: inline-block;
+    }
+
+    /* ── Page layout ── */
+    .demo-page {
+      max-width: 820px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .demo-card {
+      background: var(--color-surface);
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 2px 20px rgba(0,0,0,.07);
+    }
+
+    .demo-card__label {
+      font-family: var(--font-myriad-like);
+      font-weight: 700;
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-gray-light);
+      margin-bottom: 1.25rem;
+    }
+
+    .demo-card__note {
+      font-family: var(--font-myriad-like);
+      font-weight: 600;
+      font-size: 0.78rem;
+      color: var(--color-gray-light);
+      margin-top: 0.85rem;
+    }
+
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 640px) { .comparison { grid-template-columns: 1fr; } }
+
+    .comparison__item {
+      border: 1px solid #eee;
+      border-radius: 12px;
+      padding: 1.5rem;
+      background: #fafafa;
+    }
+    .comparison__item--bad { border-color: #fdd; background: #fff8f8; }
+    .comparison__item--good { border-color: #d4f0d4; background: #f8fff8; }
+
+    .comparison__tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      margin-bottom: 0.8rem;
+    }
+    .comparison__tag--bad { background: #fecaca; color: #991b1b; }
+    .comparison__tag--good { background: #bbf7d0; color: #166534; }
+
+    .scale-row { display: flex; flex-direction: column; gap: 0.6rem; }
+    .divider { border: none; border-top: 1px solid #e8e8e8; margin: 0.5rem 0; }
+
+    code {
+      background: #f0f0f0;
+      border-radius: 4px;
+      padding: 0.15em 0.45em;
+      font-size: 0.8rem;
+      font-family: 'Courier New', monospace;
+      color: #555;
+    }
+
+    pre {
+      background: #1e1e1e;
+      color: #e8e8e8;
+      border-radius: 8px;
+      padding: 1.25rem;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="demo-page">
+
+    <!-- COMPARAÇÃO -->
+    <div class="demo-card">
+      <p class="demo-card__label">Antes × Depois</p>
+      <div class="comparison">
+        <div class="comparison__item comparison__item--bad">
+          <span class="comparison__tag comparison__tag--bad">V1 — muito redonda</span>
+          <div style="font-family: var(--font-old); font-weight: 900; font-size: 2.2rem; letter-spacing: -0.03em; line-height: 1;">
+            <span style="color: var(--color-adobe-red)">Adobe</span>
+            <span style="color: var(--color-black)">Illustrator</span>
+          </div>
+          <p class="demo-card__note">Nunito — terminais arredondados, bowls circulares</p>
+        </div>
+        <div class="comparison__item comparison__item--good">
+          <span class="comparison__tag comparison__tag--good">V2 — quadrada, estilo Myriad</span>
+          <div style="font-size: 2.2rem;">
+            <span class="adobe-logo">
+              <span class="adobe-logo__adobe">Adobe</span>
+              <span class="adobe-logo__product">Illustrator</span>
+            </span>
+          </div>
+          <p class="demo-card__note">Source Sans 3 (Adobe) — terminais retos, desenho condensado</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGO DEMO GRANDE -->
+    <div class="demo-card">
+      <p class="demo-card__label">Logo final em vários tamanhos</p>
+      <div class="scale-row">
+        <div style="font-size: clamp(2rem, 7vw, 4rem)">
+          <span class="adobe-logo">
+            <span class="adobe-logo__adobe">Adobe</span>
+            <span class="adobe-logo__product">Illustrator</span>
+          </span>
+        </div>
+        <hr class="divider" />
+        <div style="font-size: 2.4rem">
+          <span class="adobe-logo">
+            <span class="adobe-logo__adobe">Adobe</span>
+            <span class="adobe-logo__product">Photoshop</span>
+          </span>
+        </div>
+        <hr class="divider" />
+        <div style="font-size: 1.6rem">
+          <span class="adobe-logo">
+            <span class="adobe-logo__adobe">Adobe</span>
+            <span class="adobe-logo__product">Premiere Pro</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ESCALA -->
+    <div class="demo-card">
+      <p class="demo-card__label">Escala tipográfica</p>
+      <div class="scale-row">
+        <span class="myriad-bold--display" style="font-size:3.5rem">Display 56</span>
+        <hr class="divider" />
+        <span class="myriad-bold--display" style="font-size:2.5rem">Display 40</span>
+        <hr class="divider" />
+        <span class="myriad-bold--display" style="font-size:1.75rem">Display 28</span>
+        <hr class="divider" />
+        <span class="myriad-bold--display" style="font-size:1.25rem">Display 20</span>
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="demo-card">
+      <p class="demo-card__label">Texto corrido</p>
+      <p class="myriad-bold--body" style="font-size:1.05rem; color:var(--color-gray-mid)">
+        A Myriad Pro é uma fonte sans-serif humanista desenvolvida pela Adobe.
+        Esta versão V2 usa Source Sans 3 — também da Adobe, criada como sucessora
+        espiritual da Myriad. Terminais retos, bowls mais quadradas e proporção
+        condensada reproduzem com mais fidelidade o desenho original.
+      </p>
+    </div>
+
+    <!-- USO -->
+    <div class="demo-card">
+      <p class="demo-card__label">Como usar</p>
+      <pre><code>&lt;!-- 1. Importe no &lt;head&gt; --&gt;
+&lt;link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@700;800;900&amp;display=swap" rel="stylesheet"&gt;
+&lt;link rel="stylesheet" href="myriad-like.css"&gt;
+
+&lt;!-- 2. Use as classes --&gt;
+&lt;h1 class="myriad-bold--display"&gt;Seu título&lt;/h1&gt;
+&lt;p class="myriad-bold--body"&gt;Parágrafo...&lt;/p&gt;
+
+&lt;!-- Logo estilo Adobe --&gt;
+&lt;span class="adobe-logo"&gt;
+  &lt;span class="adobe-logo__adobe"&gt;Adobe&lt;/span&gt;
+  &lt;span class="adobe-logo__product"&gt;Illustrator&lt;/span&gt;
+&lt;/span&gt;</code></pre>
+    </div>
+
+  </div>
+</body>
+</html>

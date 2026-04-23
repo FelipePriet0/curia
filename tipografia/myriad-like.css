@@ -1,0 +1,75 @@
+/* ================================================
+   Fonte similar a Myriad Pro Bold — V2 (mais quadrada)
+
+   Base: Source Sans 3 (da própria Adobe, sucessora
+   espiritual da Myriad). Terminais retos, bowls
+   quadradas, proporção mais condensada.
+   ================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@700;800;900&display=swap');
+
+:root {
+  --font-myriad-like: 'Source Sans 3', 'Fira Sans', 'Segoe UI', sans-serif;
+}
+
+/* Classe principal */
+.myriad-bold {
+  font-family: var(--font-myriad-like);
+  font-weight: 800;
+  font-style: normal;
+  letter-spacing: -0.015em;
+  font-feature-settings: "kern" 1, "liga" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Variante display — títulos e logos */
+.myriad-bold--display {
+  font-family: var(--font-myriad-like);
+  font-weight: 900;                /* Black para bater o peso Bold da Myriad real */
+  letter-spacing: -0.025em;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  display: inline-block;
+}
+
+/* Variante body */
+.myriad-bold--body {
+  font-family: var(--font-myriad-like);
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ================================================
+   Adobe Illustrator logo
+   ================================================ */
+
+.adobe-logo {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.2em;
+  font-size: clamp(2rem, 8vw, 5rem);
+  line-height: 1;
+}
+
+.adobe-logo__adobe {
+  font-family: var(--font-myriad-like);
+  font-weight: 900;
+  color: #FA0F00;                  /* Vermelho oficial Adobe */
+  letter-spacing: -0.025em;
+  -webkit-font-smoothing: antialiased;
+  display: inline-block;
+}
+
+.adobe-logo__product {
+  font-family: var(--font-myriad-like);
+  font-weight: 900;
+  color: #1a1a1a;
+  letter-spacing: -0.025em;
+  -webkit-font-smoothing: antialiased;
+  display: inline-block;
+}

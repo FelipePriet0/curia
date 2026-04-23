@@ -8,7 +8,7 @@ import { companies, conversations, messages, plans, strategies } from '@/db/sche
 import { requireUserSession } from '@/lib/auth/request'
 import { serializeCompany, serializeMessage } from '@/lib/db/serializers'
 import { buildSystemPrompt } from '@/lib/llm/board-prompt'
-import { streamBoardEvents } from '@/lib/llm/client'
+import { resolveCouncilModeForUser, streamBoardEvents } from '@/lib/llm/client'
 import type { LLMMessage } from '@/lib/llm/client'
 import type { QueryEvent } from '@/lib/llm/query-loop'
 import { hasDiagnosis, hasProblemCentral, isPlanRequest } from '@/lib/metrics/detectors'
@@ -114,6 +114,14 @@ export async function POST(
     acquisition_channel: serializedCompany.acquisition_channel ?? undefined,
     main_bottleneck: serializedCompany.main_bottleneck ?? undefined,
     main_bottleneck_detail: serializedCompany.main_bottleneck_detail ?? undefined,
+    ideal_customer_story: serializedCompany.ideal_customer_story ?? undefined,
+    why_they_paid: serializedCompany.why_they_paid ?? undefined,
+    current_moment: serializedCompany.current_moment ?? undefined,
+    keeping_up_at_night: serializedCompany.keeping_up_at_night ?? undefined,
+    current_hypothesis: serializedCompany.current_hypothesis ?? undefined,
+    what_tried: serializedCompany.what_tried ?? undefined,
+    pending_decision: serializedCompany.pending_decision ?? undefined,
+    briefing_memo: serializedCompany.briefing_memo ?? undefined,
     diagnosed_stage: serializedCompany.diagnosed_stage ?? undefined,
     diagnostic_summary: serializedCompany.diagnostic_summary ?? undefined,
     priority_ladder: serializedCompany.priority_ladder as CompanyContext['priority_ladder'],
@@ -218,7 +226,13 @@ export async function POST(
     }
   }
 
-  const eventStream = streamBoardEvents({ system, messages: llmMessages, signal: req.signal })
+  const councilMode = resolveCouncilModeForUser(session.user.id)
+  const eventStream = streamBoardEvents({
+    system,
+    messages: llmMessages,
+    signal: req.signal,
+    councilModeOverride: councilMode,
+  })
 
   const readable = new ReadableStream({
     async start(controller) {
@@ -255,6 +269,7 @@ export async function POST(
             conversationId: id,
             role: 'assistant',
             content: fullText,
+            councilMode,
           })
           .returning({ id: messages.id })
 

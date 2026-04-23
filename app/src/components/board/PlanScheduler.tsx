@@ -42,7 +42,13 @@ export function PlanScheduler({
     const summary = [diagnosisText, problemText].filter(Boolean).join('\n\n') ||
       messageContent.slice(0, 600)
 
+    // A seção "▶️ Próximos Passos" foi fundida em "💡 Recomendações Estratégicas"
+    // — cada recomendação carrega "Movimento desta semana" + "Como saber que
+    // funcionou" dentro dela. O DB field "next_steps" continua existindo
+    // (compat com schema), mas recebe agora o bloco de recomendações completo.
+    // Fallback para scaffold legado.
     const next_steps =
+      extractSection(messageContent, ['💡 Recomendações Estratégicas', 'Recomendações Estratégicas']) ||
       extractSection(messageContent, ['▶️ Próximos Passos', 'Próximos Passos']) ||
       'Ver conversa de origem'
 

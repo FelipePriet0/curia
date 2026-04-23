@@ -27,7 +27,27 @@ export function hasProblemCentral(text: string): boolean {
   return hasSection(text, '🎯 problema central') || hasSection(text, 'problema central')
 }
 
+// Detecta se a resposta tem plano acionável.
+//
+// A seção "▶️ Próximos Passos" foi fundida em "💡 Recomendações Estratégicas":
+// cada recomendação agora carrega "Movimento desta semana" + "Como saber que
+// funcionou" como parte da própria unidade. O sinal de plano acionável passa a
+// ser a presença da seção de recomendações JUNTO com pelo menos uma ocorrência
+// da marca de movimento semanal — se só tem recomendação solta sem prazo, não
+// é plano pronto pra agendamento.
+//
+// Backward compat: mantemos os marcadores antigos ("▶️ Próximos Passos", etc)
+// porque conversas antigas no histórico podem ter sido geradas com o scaffold
+// anterior e ainda precisam ser reconhecidas como tendo plano.
 export function hasNextSteps(text: string): boolean {
+  const t = (text || '').toLowerCase()
+  const hasRecomendacoes =
+    hasSection(text, '💡 recomendações estratégicas') ||
+    hasSection(text, 'recomendações estratégicas')
+  const hasMovimento = t.includes('movimento desta semana')
+  if (hasRecomendacoes && hasMovimento) return true
+
+  // Legacy scaffold (pré-fusão de Próximos Passos em Recomendações).
   return (
     hasSection(text, '▶️ próximos passos') ||
     hasSection(text, 'próximos passos (7') ||

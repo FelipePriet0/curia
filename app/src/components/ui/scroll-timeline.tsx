@@ -128,7 +128,7 @@ export function ScrollTimeline({ steps, className = "" }: ScrollTimelineProps) {
     const parts = text.split(/(Big Tech)/g)
     return parts.map((part, i) =>
       part === 'Big Tech' ? (
-        <span key={i} className="font-curia-script text-[#FF6F1E]">
+        <span key={i} className="font-curia-script text-[#C9A84C]">
           {part}
         </span>
       ) : (
@@ -147,22 +147,22 @@ export function ScrollTimeline({ steps, className = "" }: ScrollTimelineProps) {
         aria-hidden
       >
         {/* Base path */}
-        <path d={pathD} stroke="#FF6F1E" strokeOpacity="0.25" strokeWidth={3} fill="none" />
+        <path d={pathD} stroke="#C9A84C" strokeOpacity="0.20" strokeWidth={3} fill="none" />
         {/* Progress path using dashoffset */}
         <path
           ref={pathRef}
           d={pathD}
-          stroke="#FF6F1E"
+          stroke="#C9A84C"
           strokeWidth={3}
           fill="none"
           strokeDasharray={pathLength || 1}
           strokeDashoffset={Math.max(0, (1 - progress) * (pathLength || 1))}
           style={{ transition: 'stroke-dashoffset 0.5s ease-out' }}
         />
-        {/* Dots */}
+        {/* Dots — each step uses a counselor color */}
         {points.map((pt, i) => (
           <g key={i} transform={`translate(${pt.x}, ${pt.y})`}>
-            <circle r={16} fill="#FF6F1E" />
+            <circle r={16} fill="#C9A84C" />
             <text
               x={0}
               y={4}
@@ -201,14 +201,14 @@ export function ScrollTimeline({ steps, className = "" }: ScrollTimelineProps) {
             >
               <h3
                 className={`mb-3 text-xl font-bold transition-colors duration-500 md:text-2xl ${
-                  isActive ? "text-[#2B1A07]" : "text-[#2B1A07]/30"
+                  isActive ? "text-[#0B0B0F]" : "text-[#0B0B0F]/30"
                 }`}
               >
                 {highlightBigTech(step.title)}
               </h3>
               <p
                 className={`max-w-md text-sm leading-relaxed transition-colors duration-500 md:text-base ${
-                  isActive ? "text-[#2B1A07]/80" : "text-[#2B1A07]/30"
+                  isActive ? "text-[#0B0B0F]/80" : "text-[#0B0B0F]/30"
                 }`}
               >
                 {highlightBigTech(step.description)}

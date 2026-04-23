@@ -23,14 +23,14 @@ export function ReviewBanner({ plan, onStartReview, onDismiss }: ReviewBannerPro
     daysOverdue === 0 ? 'hoje' : `há ${daysOverdue} dia${daysOverdue !== 1 ? 's' : ''}`
 
   return (
-    <div className="mx-4 mt-3 flex items-center justify-between gap-3 rounded-xl border border-[#FF6F1E]/25 bg-[#FF6F1E]/[0.08] px-4 py-3">
+    <div className="mx-4 mt-3 flex items-center justify-between gap-3 rounded-xl border border-[#0B0B0F]/25 bg-[#0B0B0F]/[0.08] px-4 py-3">
       <div className="flex items-center gap-3 min-w-0">
-        <Calendar className="h-4 w-4 shrink-0 text-[#FF6F1E]" />
+        <Calendar className="h-4 w-4 shrink-0 text-[#0B0B0F]" />
         <div className="min-w-0">
-          <p className="truncate font-curia-serif text-sm font-medium text-[#2B1A07]">
+          <p className="truncate font-curia-serif text-sm font-medium text-[#0B0B0F]">
             Revisão pendente — {plan.title}
           </p>
-          <p className="font-curia-serif text-xs text-[#2B1A07]/50">
+          <p className="font-curia-serif text-xs text-[#0B0B0F]/50">
             Agendada para {dateLabel}
           </p>
         </div>
@@ -38,13 +38,13 @@ export function ReviewBanner({ plan, onStartReview, onDismiss }: ReviewBannerPro
       <div className="flex shrink-0 items-center gap-2">
         <button
           onClick={() => onStartReview(plan.id)}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[#FF6F1E] px-3 py-1.5 font-curia-serif text-sm font-semibold text-[#2B1A07] shadow-sm transition-all hover:opacity-90"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[#0B0B0F] px-3 py-1.5 font-curia-serif text-sm font-semibold text-[#FDFBF9] shadow-sm transition-all hover:opacity-90"
         >
           Iniciar <ArrowRight className="h-3.5 w-3.5" />
         </button>
         <button
           onClick={() => onDismiss(plan.id)}
-          className="text-[#2B1A07]/35 hover:text-[#2B1A07]/70 transition-colors"
+          className="text-[#0B0B0F]/35 hover:text-[#0B0B0F]/70 transition-colors"
           aria-label="Dispensar"
         >
           <X className="h-4 w-4" />

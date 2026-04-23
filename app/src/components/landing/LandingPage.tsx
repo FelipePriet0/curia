@@ -18,10 +18,10 @@ const DEMO_Q = 'Nosso churn subiu para 8% este mês. Quais são as causas mais p
 const DEMO_R = 'Três vetores dominam esse padrão: onboarding incompleto nos primeiros 7 dias responde por ~60% dos cancelamentos. Clientes que não ativam a função principal churnam 3× mais rápido. Ausência de check-in estruturado nas contas acima de R$500/mês. Priorize nessa ordem antes de qualquer campanha de retenção.'
 const DEMO_CONVOS = ['Análise de churn Q1', 'Estratégia de expansão', 'Review financeiro', 'Posicionamento de marca']
 const DEMO_BOARDS = [
-  { name: 'Estratégia', cls: 'bg-[#FF6F1E]' },
-  { name: 'Finanças',   cls: 'bg-emerald-600' },
-  { name: 'Produto',    cls: 'bg-blue-600' },
-  { name: 'Crescimento',cls: 'bg-purple-600' },
+  { name: 'Estratégia', cls: 'bg-[#C9A84C]' },
+  { name: 'Finanças',   cls: 'bg-[#A8B5C0]' },
+  { name: 'Produto',    cls: 'bg-[#4A6FA5]' },
+  { name: 'Crescimento',cls: 'bg-[#4A9B6F]' },
 ]
 
 type DemoPhase = 'idle' | 'typing' | 'thinking' | 'counselors' | 'streaming' | 'done'
@@ -101,29 +101,29 @@ function HeroDemo() {
   const showResponse  = ['streaming','done'].includes(phase)
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#2B1A07]/12 shadow-2xl" style={{ background: '#FDFBF9' }}>
+    <div className="overflow-hidden rounded-2xl border border-[#0B0B0F]/12 shadow-2xl" style={{ background: '#FDFBF9' }}>
       {/* Window chrome */}
-      <div className="flex items-center gap-2 border-b border-[#2B1A07]/10 bg-[#F5EDE0]/60 px-4 py-2.5">
+      <div className="flex items-center gap-2 border-b border-[#0B0B0F]/10 bg-[#F5EDE0]/60 px-4 py-2.5">
         <div className="flex gap-1.5">
           <div className="h-3 w-3 rounded-full bg-red-400/70" />
           <div className="h-3 w-3 rounded-full bg-amber-300/70" />
           <div className="h-3 w-3 rounded-full bg-emerald-400/70" />
         </div>
-        <span className="mx-auto font-curia-serif text-xs text-[#2B1A07]/50">Curia — Board Room</span>
+        <span className="mx-auto font-curia-serif text-xs text-[#0B0B0F]/50">Curia — Board Room</span>
       </div>
 
       {/* App layout */}
       <div className="flex" style={{ height: '420px' }}>
 
         {/* Sidebar */}
-        <div className="flex w-44 shrink-0 flex-col border-r border-[#2B1A07]/08" style={{ background: '#1C0F06' }}>
+        <div className="flex w-44 shrink-0 flex-col border-r border-[#0B0B0F]/08" style={{ background: '#1C0F06' }}>
           <div className="px-3 pt-4 pb-2">
             <p className="font-curia-serif text-[10px] font-semibold uppercase tracking-[0.15em] text-white/30">Conversas</p>
           </div>
           {DEMO_CONVOS.map((c, i) => (
             <div
               key={c}
-              className={`mx-2 mb-0.5 rounded-lg px-2.5 py-2 transition-all ${i === 0 ? 'bg-[#FF6F1E]/20' : ''}`}
+              className={`mx-2 mb-0.5 rounded-lg px-2.5 py-2 transition-all ${i === 0 ? 'bg-[#0B0B0F]/20' : ''}`}
             >
               <p className={`font-curia-serif text-xs leading-tight ${i === 0 ? 'text-white/90' : 'text-white/35'}`}>
                 {c}
@@ -140,7 +140,7 @@ function HeroDemo() {
             {/* User message */}
             {showQuestion && (
               <div className="flex justify-end">
-                <div className="max-w-[75%] rounded-2xl rounded-tr-sm bg-[#2B1A07] px-4 py-2.5">
+                <div className="max-w-[75%] rounded-2xl rounded-tr-sm bg-[#0B0B0F] px-4 py-2.5">
                   <p className="font-curia-serif text-xs leading-relaxed text-white/90">{DEMO_Q}</p>
                 </div>
               </div>
@@ -151,10 +151,10 @@ function HeroDemo() {
               <div className="flex items-center gap-2">
                 <div className="flex gap-1">
                   {[0,1,2].map(i => (
-                    <div key={i} className="h-1.5 w-1.5 rounded-full bg-[#FF6F1E]/60 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                    <div key={i} className="h-1.5 w-1.5 rounded-full bg-[#0B0B0F]/60 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
                   ))}
                 </div>
-                <p className="font-curia-serif text-xs text-[#2B1A07]/40">Board deliberando...</p>
+                <p className="font-curia-serif text-xs text-[#0B0B0F]/40">Board deliberando...</p>
               </div>
             )}
 
@@ -162,10 +162,10 @@ function HeroDemo() {
             {showCounselors && (
               <div className="flex flex-wrap gap-1.5">
                 {DEMO_BOARDS.slice(0, counselors).map(b => (
-                  <div key={b.name} className="flex items-center gap-1.5 rounded-full border border-[#2B1A07]/10 bg-white px-2.5 py-1 shadow-sm">
+                  <div key={b.name} className="flex items-center gap-1.5 rounded-full border border-[#0B0B0F]/10 bg-white px-2.5 py-1 shadow-sm">
                     <div className={`h-2 w-2 rounded-full ${b.cls}`} />
-                    <span className="font-curia-serif text-[10px] font-medium text-[#2B1A07]/70">{b.name}</span>
-                    {phase !== 'done' && <div className="h-1.5 w-1.5 animate-spin rounded-full border border-[#2B1A07]/20 border-t-[#2B1A07]/60" />}
+                    <span className="font-curia-serif text-[10px] font-medium text-[#0B0B0F]/70">{b.name}</span>
+                    {phase !== 'done' && <div className="h-1.5 w-1.5 animate-spin rounded-full border border-[#0B0B0F]/20 border-t-[#0B0B0F]/60" />}
                     {phase === 'done' && <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />}
                   </div>
                 ))}
@@ -175,24 +175,24 @@ function HeroDemo() {
             {/* AI response */}
             {showResponse && (
               <div className="max-w-[85%]">
-                <p className="font-curia-serif text-xs leading-relaxed text-[#2B1A07]/80">
+                <p className="font-curia-serif text-xs leading-relaxed text-[#0B0B0F]/80">
                   {streamed}
-                  {phase === 'streaming' && <span className="ml-0.5 inline-block h-3 w-0.5 animate-pulse bg-[#2B1A07]/60" />}
+                  {phase === 'streaming' && <span className="ml-0.5 inline-block h-3 w-0.5 animate-pulse bg-[#0B0B0F]/60" />}
                 </p>
               </div>
             )}
           </div>
 
           {/* Input bar */}
-          <div className="border-t border-[#2B1A07]/08 px-4 py-3">
-            <div className="flex items-center gap-2 rounded-xl border border-[#2B1A07]/15 bg-white px-3 py-2 shadow-sm">
-              <p className="flex-1 font-curia-serif text-xs text-[#2B1A07]/80">
+          <div className="border-t border-[#0B0B0F]/08 px-4 py-3">
+            <div className="flex items-center gap-2 rounded-xl border border-[#0B0B0F]/15 bg-white px-3 py-2 shadow-sm">
+              <p className="flex-1 font-curia-serif text-xs text-[#0B0B0F]/80">
                 {typed}
-                {phase === 'typing' && <span className="ml-px inline-block h-3 w-px animate-pulse bg-[#2B1A07]/60" />}
-                {phase === 'idle' && <span className="text-[#2B1A07]/30">Pergunte ao seu Board...</span>}
+                {phase === 'typing' && <span className="ml-px inline-block h-3 w-px animate-pulse bg-[#0B0B0F]/60" />}
+                {phase === 'idle' && <span className="text-[#0B0B0F]/30">Pergunte ao seu Board...</span>}
               </p>
-              <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg transition-colors ${phase === 'typing' && typed.length > 5 ? 'bg-[#FF6F1E]' : 'bg-[#2B1A07]/10'}`}>
-                <ArrowRight className={`h-3 w-3 ${phase === 'typing' && typed.length > 5 ? 'text-white' : 'text-[#2B1A07]/40'}`} />
+              <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg transition-colors ${phase === 'typing' && typed.length > 5 ? 'bg-[#0B0B0F]' : 'bg-[#0B0B0F]/10'}`}>
+                <ArrowRight className={`h-3 w-3 ${phase === 'typing' && typed.length > 5 ? 'text-white' : 'text-[#0B0B0F]/40'}`} />
               </div>
             </div>
           </div>
@@ -219,8 +219,8 @@ function ChamberSVG({ className = 'w-full max-w-[260px]' }: { className?: string
     <svg viewBox="0 0 300 210" className={className} aria-hidden>
       <defs>
         <radialGradient id="mg" cx="50%" cy="50%" r="50%">
-          <stop offset="0%"   stopColor="#FF6F1E" stopOpacity="0.5" />
-          <stop offset="100%" stopColor="#FF6F1E" stopOpacity="0" />
+          <stop offset="0%"   stopColor="#0B0B0F" stopOpacity="0.5" />
+          <stop offset="100%" stopColor="#0B0B0F" stopOpacity="0" />
         </radialGradient>
         <radialGradient id="fg" cx="50%" cy="30%" r="70%">
           <stop offset="0%"   stopColor="#F8F0E6" />
@@ -230,7 +230,7 @@ function ChamberSVG({ className = 'w-full max-w-[260px]' }: { className?: string
 
       {/* Plataforma isométrica — face superior */}
       <path d="M 150 35 L 268 98 L 150 162 L 32 98 Z"
-            fill="url(#fg)" stroke="#2B1A07" strokeOpacity="0.08" strokeWidth="1" />
+            fill="url(#fg)" stroke="#0B0B0F" strokeOpacity="0.08" strokeWidth="1" />
 
       {/* Face lateral direita */}
       <path d="M 268 98 L 150 162 L 150 192 L 268 128 Z"
@@ -241,27 +241,27 @@ function ChamberSVG({ className = 'w-full max-w-[260px]' }: { className?: string
             fill="#CEB895" stroke="none" />
 
       {/* Linha divisória plataforma */}
-      <line x1="150" y1="162" x2="150" y2="192" stroke="#2B1A07" strokeOpacity="0.06" strokeWidth="1" />
+      <line x1="150" y1="162" x2="150" y2="192" stroke="#0B0B0F" strokeOpacity="0.06" strokeWidth="1" />
 
       {/* Mesa central (oval isométrica) */}
       <ellipse cx="150" cy="98" rx="48" ry="28"
-               fill="#2B1A07" fillOpacity="0.05"
-               stroke="#2B1A07" strokeOpacity="0.12" strokeWidth="1"
+               fill="#0B0B0F" fillOpacity="0.05"
+               stroke="#0B0B0F" strokeOpacity="0.12" strokeWidth="1"
                transform="rotate(-0 150 98)" />
 
       {/* Glow central */}
       <circle cx="150" cy="98" r="34" fill="url(#mg)" />
-      <circle cx="150" cy="98" r="12" fill="#FF6F1E" fillOpacity="0.18" />
-      <circle cx="150" cy="98" r="5"  fill="#FF6F1E" fillOpacity="0.6" />
+      <circle cx="150" cy="98" r="12" fill="#0B0B0F" fillOpacity="0.18" />
+      <circle cx="150" cy="98" r="5"  fill="#0B0B0F" fillOpacity="0.6" />
 
       {/* Assentos dos conselheiros */}
       {seats.map((s, i) => (
         <g key={i}>
           <circle cx={s.cx} cy={s.cy} r={7}
-                  fill="#2B1A07" fillOpacity="0.85"
-                  stroke="#FF6F1E" strokeOpacity="0.35" strokeWidth="1.5" />
+                  fill="#0B0B0F" fillOpacity="0.85"
+                  stroke="#0B0B0F" strokeOpacity="0.35" strokeWidth="1.5" />
           <circle cx={s.cx} cy={s.cy} r={2.5}
-                  fill="#FF6F1E" fillOpacity="0.6" />
+                  fill="#0B0B0F" fillOpacity="0.6" />
         </g>
       ))}
     </svg>
@@ -270,15 +270,15 @@ function ChamberSVG({ className = 'w-full max-w-[260px]' }: { className?: string
 
 function BoardMockup() {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#2B1A07]/15 bg-[#FDFBF9] shadow-2xl">
+    <div className="overflow-hidden rounded-2xl border border-[#0B0B0F]/15 bg-[#FDFBF9] shadow-2xl">
       {/* Chrome */}
-      <div className="flex items-center gap-2 border-b border-[#2B1A07]/10 bg-[#F5EDE0]/60 px-4 py-2.5">
+      <div className="flex items-center gap-2 border-b border-[#0B0B0F]/10 bg-[#F5EDE0]/60 px-4 py-2.5">
         <div className="flex gap-1.5">
           <div className="h-2.5 w-2.5 rounded-full bg-red-400/70" />
           <div className="h-2.5 w-2.5 rounded-full bg-amber-300/70" />
           <div className="h-2.5 w-2.5 rounded-full bg-emerald-400/70" />
         </div>
-        <span className="mx-auto font-curia-serif text-xs text-[#2B1A07]/50">Curia — Board Room</span>
+        <span className="mx-auto font-curia-serif text-xs text-[#0B0B0F]/50">Curia — Board Room</span>
       </div>
 
       {/* App body */}
@@ -286,8 +286,8 @@ function BoardMockup() {
 
         {/* Saudação */}
         <div className="mb-5 text-center">
-          <h3 className="font-curia-rounded text-xl text-[#2B1A07] md:text-2xl">Olá, Empresário</h3>
-          <p className="mt-1 font-curia-serif text-sm text-[#2B1A07]/50">O que você deseja resolver hoje?</p>
+          <h3 className="myriad-bold--display text-xl text-[#0B0B0F] md:text-2xl">Olá, Empresário</h3>
+          <p className="mt-1 font-curia-serif text-sm text-[#0B0B0F]/50">O que você deseja resolver hoje?</p>
         </div>
 
         {/* Câmara isométrica */}
@@ -297,12 +297,12 @@ function BoardMockup() {
 
         {/* Input */}
         <div className="mt-4 w-full">
-          <div className="flex items-center gap-2 rounded-xl border border-[#2B1A07]/15 bg-white px-4 py-3 shadow-sm">
-            <span className="flex-1 font-curia-serif text-sm text-[#2B1A07]/30">
+          <div className="flex items-center gap-2 rounded-xl border border-[#0B0B0F]/15 bg-white px-4 py-3 shadow-sm">
+            <span className="flex-1 font-curia-serif text-sm text-[#0B0B0F]/30">
               Apresente seu desafio ao Board...
             </span>
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#2B1A07]/08">
-              <ArrowRight className="h-3.5 w-3.5 text-[#2B1A07]/35" />
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#0B0B0F]/08">
+              <ArrowRight className="h-3.5 w-3.5 text-[#0B0B0F]/35" />
             </div>
           </div>
         </div>
@@ -318,14 +318,20 @@ function CuriaLogo({ size = 'md' }: { size?: 'sm' | 'md' }) {
   const sizeClass = size === 'sm' ? 'text-3xl' : 'text-4xl'
   return (
     <div className="flex items-center">
-      <span className={`font-curia-rounded text-[#2B1A07] ${sizeClass} leading-none`}>
+      <span className={`myriad-bold--display text-[#0B0B0F] ${sizeClass} leading-none`}>
         Curia
       </span>
     </div>
   )
 }
 
-export function LandingPage({ initialSignedIn = false }: { initialSignedIn?: boolean }) {
+export function LandingPage({
+  initialSignedIn = false,
+  mode = 'waitlist',
+}: {
+  initialSignedIn?: boolean
+  mode?: 'waitlist' | 'product'
+}) {
   const router = useRouter()
   const { signOut } = useClerk()
   const [signedIn, setSignedIn] = useState(initialSignedIn)
@@ -366,15 +372,14 @@ export function LandingPage({ initialSignedIn = false }: { initialSignedIn?: boo
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFBF9] text-[#2B1A07]">
-      <Nav signedIn={signedIn} signingOut={signingOut} onSignOut={handleSignOut} />
-      <Hero signedIn={signedIn} />
-      <MeetCuria signedIn={signedIn} />
+    <div className="min-h-screen bg-[#FDFBF9] text-[#0B0B0F]">
+      <Nav signedIn={signedIn} signingOut={signingOut} onSignOut={handleSignOut} mode={mode} />
+      <Hero signedIn={signedIn} mode={mode} />
+      <MeetCuria signedIn={signedIn} mode={mode} />
       <HowItWorks />
       <Authority />
-      <BigTechs />
-      <Pricing signedIn={signedIn} />
-      <Footer signedIn={signedIn} signingOut={signingOut} onSignOut={handleSignOut} />
+      {mode === 'waitlist' ? <WaitlistSection /> : <Pricing signedIn={signedIn} />}
+      <Footer signedIn={signedIn} signingOut={signingOut} onSignOut={handleSignOut} mode={mode} />
     </div>
   )
 }
@@ -393,12 +398,33 @@ function LandingSessionActions({
   signedIn = false,
   signingOut = false,
   onSignOut,
+  mode = 'product',
 }: {
   compact?: boolean
   signedIn?: boolean
   signingOut?: boolean
   onSignOut?: () => void | Promise<void>
+  mode?: 'waitlist' | 'product'
 }) {
+  if (mode === 'waitlist') {
+    if (compact) {
+      return (
+        <a href="#waitlist">
+          <button className="rounded-full bg-[#0B0B0F] px-4 py-1.5 text-sm font-semibold text-[#FDFBF9] hover:opacity-90 transition-opacity">
+            Reserve sua vaga
+          </button>
+        </a>
+      )
+    }
+    return (
+      <a href="#waitlist">
+        <Button size="md" className="bg-[#0B0B0F] text-[#FDFBF9] hover:opacity-90">
+          Reserve sua vaga <ArrowRight className="ml-1.5 h-4 w-4" />
+        </Button>
+      </a>
+    )
+  }
+
   if (signedIn) {
     if (compact) {
       return (
@@ -406,12 +432,12 @@ function LandingSessionActions({
           <button
             onClick={() => void onSignOut?.()}
             disabled={signingOut}
-            className="rounded-full bg-[#2B1A07] px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+            className="rounded-full bg-[#0B0B0F] px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
           >
             {signingOut ? 'Saindo...' : 'Sair'}
           </button>
           <Link href="/board">
-            <button className="rounded-full bg-[#FF6F1E] px-4 py-1.5 text-sm font-semibold text-[#2B1A07] hover:opacity-90 transition-opacity">
+            <button className="rounded-full bg-[#0B0B0F] px-4 py-1.5 text-sm font-semibold text-[#FDFBF9] hover:opacity-90 transition-opacity">
               Entrar
             </button>
           </Link>
@@ -421,11 +447,11 @@ function LandingSessionActions({
 
     return (
       <div className="flex items-center gap-3">
-        <Button size="md" onClick={() => void onSignOut?.()} disabled={signingOut} className="bg-[#2B1A07] text-white hover:opacity-90">
+        <Button size="md" onClick={() => void onSignOut?.()} disabled={signingOut} className="bg-[#0B0B0F] text-white hover:opacity-90">
           {signingOut ? 'Saindo...' : 'Sair'}
         </Button>
         <Link href="/board">
-          <Button size="md" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
+          <Button size="md" className="bg-[#0B0B0F] text-[#FDFBF9] hover:opacity-90">
             Entrar <ArrowRight className="ml-1.5 h-4 w-4" />
           </Button>
         </Link>
@@ -437,12 +463,12 @@ function LandingSessionActions({
     return (
       <div className="flex items-center gap-2">
         <Link href="/login">
-          <button className="rounded-full bg-[#2B1A07] px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity">
+          <button className="rounded-full bg-[#0B0B0F] px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity">
             Entrar
           </button>
         </Link>
         <Link href="/signup">
-          <button className="rounded-full bg-[#FF6F1E] px-4 py-1.5 text-sm font-semibold text-[#2B1A07] hover:opacity-90 transition-opacity">
+          <button className="rounded-full bg-[#0B0B0F] px-4 py-1.5 text-sm font-semibold text-[#FDFBF9] hover:opacity-90 transition-opacity">
             Comece agora
           </button>
         </Link>
@@ -453,10 +479,10 @@ function LandingSessionActions({
   return (
     <div className="flex items-center gap-3">
       <Link href="/login">
-        <Button size="md" className="bg-[#2B1A07] text-white hover:opacity-90">Entrar</Button>
+        <Button size="md" className="bg-[#0B0B0F] text-white hover:opacity-90">Entrar</Button>
       </Link>
       <Link href="/signup">
-        <Button size="md" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
+        <Button size="md" className="bg-[#0B0B0F] text-[#FDFBF9] hover:opacity-90">
           Comece agora <ArrowRight className="ml-1.5 h-4 w-4" />
         </Button>
       </Link>
@@ -464,16 +490,25 @@ function LandingSessionActions({
   )
 }
 
-function PrimaryLandingCta({ signedIn = false }: { signedIn?: boolean }) {
+function PrimaryLandingCta({ signedIn = false, mode = 'product' }: { signedIn?: boolean; mode?: 'waitlist' | 'product' }) {
+  if (mode === 'waitlist') {
+    return (
+      <a href="#waitlist">
+        <Button size="lg" className="w-full sm:w-auto bg-[#0B0B0F] text-[#FDFBF9] hover:opacity-90">
+          Reserve sua vaga <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+      </a>
+    )
+  }
   return signedIn ? (
     <Link href="/board">
-      <Button size="lg" className="w-full sm:w-auto bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
+      <Button size="lg" className="w-full sm:w-auto bg-[#0B0B0F] text-[#FDFBF9] hover:opacity-90">
         Entrar <ArrowRight className="ml-2 h-4 w-4" />
       </Button>
     </Link>
   ) : (
     <Link href="/signup">
-      <Button size="lg" className="w-full sm:w-auto bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90">
+      <Button size="lg" className="w-full sm:w-auto bg-[#0B0B0F] text-[#FDFBF9] hover:opacity-90">
         Comece agora <ArrowRight className="ml-2 h-4 w-4" />
       </Button>
     </Link>
@@ -484,22 +519,40 @@ function FooterProductLinks({
   signedIn = false,
   signingOut = false,
   onSignOut,
+  mode = 'product',
 }: {
   signedIn?: boolean
   signingOut?: boolean
   onSignOut?: () => void | Promise<void>
+  mode?: 'waitlist' | 'product'
 }) {
+  if (mode === 'waitlist') {
+    return (
+      <>
+        <li>
+          <a href="#como-funciona" className="text-[#0B0B0F]/80 hover:text-[#C9A84C] transition-colors">Como funciona</a>
+        </li>
+        <li>
+          <a href="#autoridade" className="text-[#0B0B0F]/80 hover:text-[#C9A84C] transition-colors">Autoridade</a>
+        </li>
+        <li>
+          <a href="#waitlist" className="text-[#0B0B0F]/80 hover:text-[#C9A84C] transition-colors">Reserve sua vaga</a>
+        </li>
+      </>
+    )
+  }
+
   if (signedIn) {
     return (
       <>
         <li>
-          <a href="#como-funciona" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Como funciona</a>
+          <a href="#como-funciona" className="text-[#0B0B0F]/80 hover:text-[#C9A84C] transition-colors">Como funciona</a>
         </li>
         <li>
-          <Link href="/board" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Entrar</Link>
+          <Link href="/board" className="text-[#0B0B0F]/80 hover:text-[#C9A84C] transition-colors">Entrar</Link>
         </li>
         <li>
-          <button onClick={() => void onSignOut?.()} disabled={signingOut} className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors disabled:opacity-50">
+          <button onClick={() => void onSignOut?.()} disabled={signingOut} className="text-[#0B0B0F]/80 hover:text-[#C9A84C] transition-colors disabled:opacity-50">
             {signingOut ? 'Saindo...' : 'Sair'}
           </button>
         </li>
@@ -510,13 +563,13 @@ function FooterProductLinks({
   return (
     <>
       <li>
-        <a href="#como-funciona" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Como funciona</a>
+        <a href="#como-funciona" className="text-[#0B0B0F]/80 hover:text-[#C9A84C] transition-colors">Como funciona</a>
       </li>
       <li>
-        <Link href="/login" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Entrar</Link>
+        <Link href="/login" className="text-[#0B0B0F]/80 hover:text-[#C9A84C] transition-colors">Entrar</Link>
       </li>
       <li>
-        <Link href="/signup" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Começar agora</Link>
+        <Link href="/signup" className="text-[#0B0B0F]/80 hover:text-[#C9A84C] transition-colors">Começar agora</Link>
       </li>
     </>
   )
@@ -526,18 +579,30 @@ function FooterCtaButton({
   signedIn = false,
   signingOut = false,
   onSignOut,
+  mode = 'product',
 }: {
   signedIn?: boolean
   signingOut?: boolean
   onSignOut?: () => void | Promise<void>
+  mode?: 'waitlist' | 'product'
 }) {
+  if (mode === 'waitlist') {
+    return (
+      <a href="#waitlist">
+        <Button size="md" className="bg-[#0B0B0F] text-[#FDFBF9] hover:opacity-90 w-full sm:w-auto">
+          Reserve sua vaga
+        </Button>
+      </a>
+    )
+  }
+
   return signedIn ? (
-    <Button size="md" onClick={() => void onSignOut?.()} disabled={signingOut} className="bg-[#2B1A07] text-white hover:opacity-90 w-full sm:w-auto">
+    <Button size="md" onClick={() => void onSignOut?.()} disabled={signingOut} className="bg-[#0B0B0F] text-white hover:opacity-90 w-full sm:w-auto">
       {signingOut ? 'Saindo...' : 'Sair'}
     </Button>
   ) : (
     <Link href="/signup">
-      <Button size="md" className="bg-[#FF6F1E] text-[#2B1A07] hover:opacity-90 w-full sm:w-auto">
+      <Button size="md" className="bg-[#0B0B0F] text-[#FDFBF9] hover:opacity-90 w-full sm:w-auto">
         Comece agora
       </Button>
     </Link>
@@ -548,73 +613,105 @@ function Nav({
   signedIn = false,
   signingOut = false,
   onSignOut,
+  mode = 'product',
 }: {
   signedIn?: boolean
   signingOut?: boolean
   onSignOut?: () => void | Promise<void>
+  mode?: 'waitlist' | 'product'
 }) {
   return (
     <>
-      {/* Static top bar — visible at the top of the page */}
       <header className="relative z-40 px-6 bg-[#FDFBF9]">
         <div className="mx-auto flex h-20 max-w-6xl items-center justify-between">
           <CuriaLogo size="md" />
-          <LandingSessionActions signedIn={signedIn} signingOut={signingOut} onSignOut={onSignOut} />
+          <LandingSessionActions signedIn={signedIn} signingOut={signingOut} onSignOut={onSignOut} mode={mode} />
         </div>
       </header>
 
-      {/* Floating pill — appears when scrolling back up */}
       <FloatingNav
         navItems={NAV_ITEMS}
         brand={<CuriaLogo size="sm" />}
-        cta={<LandingSessionActions compact signedIn={signedIn} signingOut={signingOut} onSignOut={onSignOut} />}
+        cta={<LandingSessionActions compact signedIn={signedIn} signingOut={signingOut} onSignOut={onSignOut} mode={mode} />}
       />
     </>
   )
 }
 
+// ─── Cycling Text ─────────────────────────────────────────────────────────────
+
+const HERO_PHRASES = [
+  'Olá, Empresário',
+  'O que você deseja resolver hoje?',
+]
+
+function CyclingText({ phrases, className = '' }: { phrases: string[]; className?: string }) {
+  const [index, setIndex] = useState(0)
+  const [visible, setVisible] = useState(true)
+
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(false), 3000)
+    return () => clearTimeout(t)
+  }, [index])
+
+  useEffect(() => {
+    if (visible) return
+    const t = setTimeout(() => {
+      setIndex((i) => (i + 1) % phrases.length)
+      setVisible(true)
+    }, 450)
+    return () => clearTimeout(t)
+  }, [visible, phrases.length])
+
+  return (
+    <span
+      className={`block transition-all duration-450 ${className}`}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(-10px)',
+      }}
+    >
+      {phrases[index]}
+    </span>
+  )
+}
+
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 
-function Hero({ signedIn = false }: { signedIn?: boolean }) {
+function Hero({ signedIn = false, mode = 'product' }: { signedIn?: boolean; mode?: 'waitlist' | 'product' }) {
   return (
     <section className="relative overflow-hidden px-6 pb-24 pt-20 text-center">
-      {/* Glow background */}
       <div aria-hidden className="pointer-events-none absolute inset-0 flex items-start justify-center">
-        <div className="h-[600px] w-[600px] rounded-full bg-[#FF6F1E] opacity-[0.07] blur-3xl" />
+        <div className="h-[600px] w-[600px] rounded-full bg-[#0B0B0F] opacity-[0.07] blur-3xl" />
       </div>
 
       <div className="relative mx-auto max-w-3xl">
-        {/* Toggle-like label (tertiary font) */}
         <div className="mb-6 inline-flex items-center">
-          <span className="font-curia-script text-xl md:text-2xl tracking-wide text-[#FF6F1E]">
+          <span className="font-curia-script text-xl md:text-2xl tracking-wide text-[#C9A84C]">
             Acesso antecipado — vagas limitadas
           </span>
         </div>
 
-        {/* H1 */}
-        <h1 className="mb-6 text-4xl leading-[1.15] text-[#2B1A07] md:text-6xl font-curia-rounded">
+        <h1 className="mb-6 text-4xl leading-[1.15] text-[#0B0B0F] md:text-6xl myriad-bold--display">
           <span className="block">Os conselheiros estratégicos</span>
           <span className="block">das grandes empresas</span>
-          <span className="block font-curia-script text-[#FF6F1E]">trabalhando para você</span>
+          <span className="block font-curia-script text-[#C9A84C]">trabalhando para você</span>
         </h1>
 
-        {/* Oferta */}
-        <p className="mx-auto mb-10 font-curia-serif text-2xl text-[#2B1A07]/50">
+        <p className="mx-auto mb-10 myriad-bold--body text-2xl text-[#0B0B0F]/50">
           Teste grátis por 14 dias.
         </p>
 
-        {/* CTAs */}
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <a href="#como-funciona">
             <Button variant="outline" size="lg" className="w-full sm:w-auto">
               Ver como funciona
             </Button>
           </a>
-          <PrimaryLandingCta signedIn={signedIn} />
+          <PrimaryLandingCta signedIn={signedIn} mode={mode} />
         </div>
       </div>
 
-      {/* Board home art — ambient, no card frame */}
       <div className="relative mx-auto mt-16 max-w-3xl">
         <BoardHomePreview />
       </div>
@@ -695,7 +792,7 @@ const QUOTES = [
 
 function QuoteCard({ quote, author, company, image }: typeof QUOTES[number]) {
   return (
-    <div className="relative h-[520px] w-full overflow-hidden rounded-2xl border border-[#2B1A07]/15 shadow-2xl md:h-[600px]">
+    <div className="relative h-[520px] w-full overflow-hidden rounded-2xl border border-[#0B0B0F]/15 shadow-2xl md:h-[600px]">
       {/* Background image — object-position foca no rosto (topo centralizado) */}
       <img
         src={image}
@@ -707,7 +804,7 @@ function QuoteCard({ quote, author, company, image }: typeof QUOTES[number]) {
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
       {/* Glassmorphism quote panel at bottom */}
-      <div className="absolute inset-x-3 bottom-3 rounded-xl border border-[#2B1A07]/20 bg-[#2B1A07]/10 p-5 backdrop-blur-xl md:inset-x-4 md:bottom-4 md:p-6 font-curia-serif">
+      <div className="absolute inset-x-3 bottom-3 rounded-xl border border-[#0B0B0F]/20 bg-[#0B0B0F]/10 p-5 backdrop-blur-xl md:inset-x-4 md:bottom-4 md:p-6 font-curia-serif">
         <blockquote className="mb-3 text-sm font-medium leading-relaxed text-white md:text-base">
           &ldquo;{noWidows(quote)}&rdquo;
         </blockquote>
@@ -749,7 +846,7 @@ function AnimatedStickyHeadlines() {
 
   return (
     <div ref={containerRef} className="mx-auto max-w-3xl text-center">
-      <h2 className="text-3xl md:text-5xl font-curia-rounded text-[#2B1A07] tracking-[-0.01em] leading-tight">
+      <h2 className="text-3xl md:text-5xl myriad-bold--display text-[#0B0B0F] tracking-[-0.01em] leading-tight">
         <span className={`inline-block ${base} ${step >= 1 ? shown : hidden}`}>
           <NoWidows>Pense </NoWidows>
           <CorrectionComo />
@@ -775,7 +872,7 @@ function CorrectionComo() {
         <path
           d="M4 18 C 28 14, 72 10, 96 6"
           fill="none"
-          stroke="#FF6F1E"
+          stroke="#0B0B0F"
           strokeWidth="2.4"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -784,14 +881,14 @@ function CorrectionComo() {
         <path
           d="M4 6 C 28 10, 72 14, 96 18"
           fill="none"
-          stroke="#FF6F1E"
+          stroke="#0B0B0F"
           strokeWidth="2.4"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
       </svg>
       {/* Handwritten correction in Curia Script (same look as toggle) */}
-      <span className="pointer-events-none absolute -top-4 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[#FF6F1E] font-curia-script text-[1.05em] leading-none">
+      <span className="pointer-events-none absolute -top-4 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[#C9A84C] font-curia-script text-[1.05em] leading-none">
         com
       </span>
     </span>
@@ -997,14 +1094,9 @@ function Authority() {
 function BoardHomePreview() {
   return (
     <div className="flex flex-col items-center w-full">
-      {/* Greeting texts — above the chamber in normal flow */}
-      <div className="flex flex-col items-center text-center pointer-events-none">
-        <span className="font-curia-script text-[#2B1A07] text-3xl md:text-4xl leading-none">
-          Olá, Empresário
-        </span>
-        <span className="font-curia-script text-[#FF6F1E] text-lg md:text-2xl leading-snug mt-2 whitespace-nowrap">
-          O que você deseja resolver hoje?
-        </span>
+      {/* Greeting texts — cycling above the chamber */}
+      <div className="flex flex-col items-center text-center pointer-events-none" style={{ minHeight: '3.5rem' }}>
+        <CyclingText phrases={HERO_PHRASES} className="font-curia-script text-[#C9A84C] text-3xl md:text-4xl leading-none" />
       </div>
 
       {/* Chamber — pushed below the greeting */}
@@ -1038,30 +1130,28 @@ function BoardHomePreview() {
   )
 }
 
-function MeetCuria({ signedIn = false }: { signedIn?: boolean }) {
+function MeetCuria({ signedIn = false, mode = 'product' }: { signedIn?: boolean; mode?: 'waitlist' | 'product' }) {
   return (
     <section id="conheca" className="bg-[#FDFBF9] px-6 py-24">
       <div className="mx-auto max-w-6xl">
         <div className="grid items-center gap-8 md:grid-cols-2 md:gap-10">
 
-          {/* Left: Copy */}
           <div>
-            <h2 className="mb-5 text-3xl font-curia-rounded text-[#2B1A07] md:text-5xl tracking-[-0.02em]"><NoWidows>Conheça a Curia</NoWidows></h2>
-            <p className="text-lg leading-relaxed text-[#2B1A07]/80 font-curia-serif">
+            <h2 className="mb-5 text-3xl myriad-bold--display text-[#0B0B0F] md:text-5xl tracking-[-0.02em]"><NoWidows>Conheça a Curia</NoWidows></h2>
+            <p className="text-lg leading-relaxed text-[#0B0B0F]/80 myriad-bold--body">
               <NoWidows>Curia é o seu conselho consultivo de IA, disponível 24 horas por dia. Estratégico, preciso e sempre pronto para orientar suas decisões.</NoWidows>
             </p>
-            <p className="mt-4 text-lg leading-relaxed text-[#2B1A07]/70 font-curia-serif">
+            <p className="mt-4 text-lg leading-relaxed text-[#0B0B0F]/70 myriad-bold--body">
               <NoWidows>Criada para dar a empresas em crescimento o mesmo nível de inteligência que antes só as grandes tinham acesso.</NoWidows>
             </p>
             <div className="mt-8 flex items-center gap-3">
               <a href="#como-funciona">
                 <Button variant="outline" size="lg">Ver como funciona</Button>
               </a>
-              <PrimaryLandingCta signedIn={signedIn} />
+              <PrimaryLandingCta signedIn={signedIn} mode={mode} />
             </div>
           </div>
 
-          {/* Right: Board home UI (no card frame) */}
           <div className="relative">
             <BoardHomePreview />
           </div>
@@ -1104,16 +1194,16 @@ function HowItWorks() {
 
           {/* Left — sticky title */}
           <div className="md:sticky md:top-32 md:w-80 md:shrink-0">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-[#2B1A07]/60">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-[#0B0B0F]/60">
               Processo
             </p>
-            <h2 className="mb-4 text-3xl font-curia-rounded leading-tight text-[#2B1A07] md:text-5xl tracking-[-0.02em]"><NoWidows>Como funciona</NoWidows></h2>
-            <p className="text-base leading-relaxed text-[#2B1A07]/70 font-curia-serif">
+            <h2 className="mb-4 text-3xl myriad-bold--display leading-tight text-[#0B0B0F] md:text-5xl tracking-[-0.02em]"><NoWidows>Como funciona</NoWidows></h2>
+            <p className="text-base leading-relaxed text-[#0B0B0F]/70 myriad-bold--body">
               <NoWidows>Três passos para ter um board estratégico operando no seu negócio.</NoWidows>
             </p>
 
             {/* Decorative rule */}
-            <div className="mt-8 h-px w-12 bg-[#2B1A07]/40" />
+            <div className="mt-8 h-px w-12 bg-[#C9A84C]/60" />
           </div>
 
           {/* Right — scrolling timeline */}
@@ -1127,62 +1217,130 @@ function HowItWorks() {
   )
 }
 
-// ─── Big Techs — Two-Line Marquee ───────────────────────────────────────────
+// ─── Waitlist ─────────────────────────────────────────────────────────────────
 
-function BigTechs() {
-  const LOGOS = [
-    'apple','google','netflix','meta','stripe','openai','tesla','spotify',
-    'airbnb','uber','github','shopify','notion','figma','zoom','youtube'
-  ]
+type WaitlistState = 'idle' | 'loading' | 'success' | 'duplicate' | 'error'
 
-  const rotate = <T,>(arr: T[], offset: number) => arr.slice(offset).concat(arr.slice(0, offset))
+function maskWhatsapp(value: string) {
+  const digits = value.replace(/\D/g, '').slice(0, 11)
+  if (digits.length <= 2) return digits.length ? `(${digits}` : ''
+  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
+}
 
-  const makeColumn = (index: number) => {
-    const extended = [...LOGOS, ...LOGOS, ...LOGOS]
-    // 12 itens por coluna, com deslocamento para variar
-    const items = rotate(extended, index * 2).slice(0, 12)
-    // duplicado para loop perfeito
-    return [...items, ...items]
+const INPUT_CLS = 'w-full rounded-lg border border-[#0B0B0F]/20 bg-white/70 px-4 py-2.5 font-curia-serif text-sm text-[#0B0B0F] placeholder-[#0B0B0F]/30 outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]'
+
+function WaitlistSection() {
+  const [name, setName]         = useState('')
+  const [whatsapp, setWhatsapp] = useState('')
+  const [email, setEmail]       = useState('')
+  const [state, setState]       = useState<WaitlistState>('idle')
+
+  function handleWhatsapp(e: React.ChangeEvent<HTMLInputElement>) {
+    setWhatsapp(maskWhatsapp(e.target.value))
   }
 
-  const columns = Array.from({ length: 10 }, (_, i) => makeColumn(i))
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (state === 'loading' || state === 'success') return
+    setState('loading')
+
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, whatsapp, email, source: 'lp_waitlist' }),
+      })
+      const data = await res.json() as { ok?: boolean; duplicate?: boolean }
+
+      if (res.ok && data.ok) {
+        setState(data.duplicate ? 'duplicate' : 'success')
+      } else {
+        setState('error')
+      }
+    } catch {
+      setState('error')
+    }
+  }
 
   return (
-    <section id="big-techs" className="bg-[#FDFBF9] px-6 py-24 overflow-hidden">
-      <style>{`
-        @keyframes ticker-up { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
-        @keyframes ticker-down { 0% { transform: translateY(-50%); } 100% { transform: translateY(0); } }
-      `}</style>
-
-      <div className="mx-auto max-w-7xl text-center">
-        <h2 className="mb-16 text-5xl md:text-7xl font-curia-rounded text-[#2B1A07] tracking-[-0.02em] leading-tight">
-          <span className="block"><NoWidows>Jogue no nível de</NoWidows></span>
-          <span className="block">
-            <span>quem você </span>
-            <span className="font-curia-script text-[#FF6F1E]">se inspira</span>
-          </span>
+    <section id="waitlist" className="bg-[#FDFBF9] px-6 py-28">
+      <div className="mx-auto max-w-5xl text-center">
+        <h2 className="mb-4 text-3xl myriad-bold--display text-[#0B0B0F] md:text-5xl tracking-[-0.02em]">
+          <NoWidows>Curia está chegando</NoWidows>
         </h2>
+        <p className="mb-14 text-lg text-[#0B0B0F]/70 myriad-bold--body">
+          <NoWidows>Seja um dos primeiros a testar o conselho de IA que pensa junto com você.</NoWidows>
+        </p>
 
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
-          {columns.map((col, i) => (
-            <div key={`col-${i}`} className="relative overflow-hidden h-[420px]">
-              {/* Fades */}
-              <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-16 bg-gradient-to-b from-[#FDFBF9] to-transparent" />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16 bg-gradient-to-t from-[#FDFBF9] to-transparent" />
+        <div className="mx-auto max-w-sm">
+          <div className="relative overflow-hidden rounded-2xl border border-[#C9A84C]/25 bg-[#C9A84C]/[0.04] p-6 text-left ring-1 ring-[#C9A84C]/15">
 
-              <div
-                className="flex flex-col items-center gap-6"
-                style={{ animation: `${i % 2 === 0 ? 'ticker-up' : 'ticker-down'} ${32 + (i % 3) * 4}s linear infinite` }}
-              >
-                {col.map((slug, j) => (
-                  <div key={`cell-${i}-${j}`} className="opacity-[0.45] transition-opacity hover:opacity-90">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`/logos/${slug}.svg`} alt={slug} width={28} height={28} className="h-7 w-7 filter invert" loading="lazy" />
-                  </div>
-                ))}
+            {state === 'success' ? (
+              <div className="flex flex-col items-center gap-3 py-4 text-center">
+                <svg viewBox="0 0 40 40" className="h-10 w-10 text-[#4A9B6F]" fill="none">
+                  <circle cx="20" cy="20" r="19" stroke="currentColor" strokeOpacity="0.3" />
+                  <path d="M11 20l6 6 12-12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <p className="myriad-bold--display text-lg text-[#0B0B0F]">Você está na lista!</p>
+                <p className="font-curia-serif text-sm text-[#0B0B0F]/60">Vamos te avisar assim que as vagas abrirem.</p>
               </div>
-            </div>
-          ))}
+            ) : state === 'duplicate' ? (
+              <div className="flex flex-col items-center gap-3 py-4 text-center">
+                <p className="myriad-bold--display text-lg text-[#0B0B0F]">Você já está na lista!</p>
+                <p className="font-curia-serif text-sm text-[#0B0B0F]/60">Assim que as vagas abrirem, você será o primeiro a saber.</p>
+              </div>
+            ) : (
+              <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
+                <label className="myriad-bold--display text-xl text-[#0B0B0F]">
+                  Reserve sua vaga
+                </label>
+                <p className="font-curia-serif text-xs text-[#0B0B0F]/50">
+                  Vagas limitadas para o beta fechado.
+                </p>
+                <input
+                  type="text"
+                  required
+                  placeholder="Seu nome"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className={INPUT_CLS}
+                />
+                <input
+                  type="tel"
+                  required
+                  placeholder="(11) 99999-9999"
+                  value={whatsapp}
+                  onChange={handleWhatsapp}
+                  className={INPUT_CLS}
+                />
+                <input
+                  type="email"
+                  required
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={INPUT_CLS}
+                />
+                <Button
+                  type="submit"
+                  size="md"
+                  disabled={state === 'loading'}
+                  className="w-full bg-[#0B0B0F] text-white hover:opacity-90 disabled:opacity-60"
+                >
+                  {state === 'loading' ? 'Entrando...' : 'Quero entrar na lista'}
+                </Button>
+                {state === 'error' && (
+                  <p className="text-center font-curia-serif text-xs text-red-500">
+                    Algo deu errado. Tente novamente.
+                  </p>
+                )}
+              </form>
+            )}
+
+            {/* Glow accent */}
+            <div aria-hidden className="pointer-events-none absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-[#C9A84C] opacity-[0.10] blur-2xl" />
+          </div>
         </div>
       </div>
     </section>
@@ -1205,29 +1363,29 @@ function Pricing({ signedIn = false }: { signedIn?: boolean }) {
   return (
     <section id="planos" className="bg-[#FDFBF9] px-6 py-28">
       <div className="mx-auto max-w-5xl text-center">
-        <h2 className="mb-4 text-3xl font-curia-rounded text-[#2B1A07] md:text-5xl tracking-[-0.02em]">
+        <h2 className="mb-4 text-3xl myriad-bold--display text-[#0B0B0F] md:text-5xl tracking-[-0.02em]">
           <NoWidows>Fortaleça suas decisões</NoWidows>
         </h2>
-        <p className="mb-14 text-lg text-[#2B1A07]/70 font-curia-serif">
+        <p className="mb-14 text-lg text-[#0B0B0F]/70 myriad-bold--body">
           <NoWidows>Teste grátis por 14 dias · Sem cadastrar seu cartão.</NoWidows>
         </p>
 
         {/* Single card — Starter */}
         <div className="mx-auto max-w-sm">
-          <div className="relative overflow-hidden rounded-2xl border border-[#2B1A07]/15 bg-[#2B1A07]/10 p-6 text-left ring-1 ring-[#2B1A07]/10">
+          <div className="relative overflow-hidden rounded-2xl border border-[#C9A84C]/25 bg-[#C9A84C]/[0.04] p-6 text-left ring-1 ring-[#C9A84C]/15">
             {/* Title */}
-            <h3 className="text-2xl text-[#2B1A07]">
-              <span className="font-curia-rounded">Curia </span>
-              <span className="font-curia-script text-[#FF6F1E]">Starter</span>
+            <h3 className="text-2xl text-[#0B0B0F]">
+              <span className="myriad-bold--display">Curia </span>
+              <span className="font-curia-script text-[#C9A84C]">Starter</span>
             </h3>
             {/* Price */}
-            <p className="mt-6 font-curia-rounded text-3xl font-bold text-[#2B1A07]">R$0<span className="text-base font-medium text-[#2B1A07]/70">/mês</span></p>
+            <p className="mt-6 myriad-bold--display text-3xl font-bold text-[#0B0B0F]">R$0<span className="text-base font-medium text-[#0B0B0F]/70">/mês</span></p>
 
             {/* Features */}
             <ul className="mt-6 space-y-3">
               {STARTER_FEATURES.map((feat) => (
-                <li key={feat} className="flex items-start gap-3 font-curia-serif text-sm text-[#2B1A07]/80">
-                  <svg viewBox="0 0 16 16" className="mt-0.5 h-4 w-4 shrink-0 text-[#FF6F1E]" fill="none">
+                <li key={feat} className="flex items-start gap-3 font-curia-serif text-sm text-[#0B0B0F]/80">
+                  <svg viewBox="0 0 16 16" className="mt-0.5 h-4 w-4 shrink-0 text-[#C9A84C]" fill="none">
                     <circle cx="8" cy="8" r="7.5" stroke="currentColor" strokeOpacity="0.3" />
                     <path d="M4.5 8l2.5 2.5 4.5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
@@ -1242,7 +1400,7 @@ function Pricing({ signedIn = false }: { signedIn?: boolean }) {
             </div>
 
             {/* Glow accent */}
-            <div aria-hidden className="pointer-events-none absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-[#FF6F1E] opacity-[0.06] blur-2xl" />
+            <div aria-hidden className="pointer-events-none absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-[#C9A84C] opacity-[0.10] blur-2xl" />
           </div>
         </div>
       </div>
@@ -1256,10 +1414,12 @@ function Footer({
   signedIn = false,
   signingOut = false,
   onSignOut,
+  mode = 'product',
 }: {
   signedIn?: boolean
   signingOut?: boolean
   onSignOut?: () => void | Promise<void>
+  mode?: 'waitlist' | 'product'
 }) {
   return (
     <footer className="bg-[#FDFBF9] px-6">
@@ -1269,40 +1429,40 @@ function Footer({
           {/* Brand */}
           <div className="space-y-3">
             <CuriaLogo size="sm" />
-            <p className="text-sm text-[#2B1A07]/70">
+            <p className="text-sm text-[#0B0B0F]/70">
               Onde boas empresas se tornam ótimas.
             </p>
           </div>
 
           {/* Produto */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#2B1A07]/60 mb-3">Produto</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0B0B0F]/60 mb-3">Produto</h3>
             <ul className="space-y-2 text-sm">
-              <FooterProductLinks signedIn={signedIn} signingOut={signingOut} onSignOut={onSignOut} />
+              <FooterProductLinks signedIn={signedIn} signingOut={signingOut} onSignOut={onSignOut} mode={mode} />
             </ul>
           </div>
 
           {/* Recursos */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#2B1A07]/60 mb-3">Recursos</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0B0B0F]/60 mb-3">Recursos</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/board" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Board</Link>
+                <Link href="/board" className="text-[#0B0B0F]/80 hover:text-[#C9A84C] transition-colors">Board</Link>
               </li>
               <li>
-                <a href="#" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Guia rápido</a>
+                <a href="#" className="text-[#0B0B0F]/80 hover:text-[#C9A84C] transition-colors">Guia rápido</a>
               </li>
               <li>
-                <a href="mailto:hello@curia.app" className="text-[#2B1A07]/80 hover:text-[#2B1A07] transition-colors">Contato</a>
+                <a href="mailto:hello@curia.app" className="text-[#0B0B0F]/80 hover:text-[#C9A84C] transition-colors">Contato</a>
               </li>
             </ul>
           </div>
 
           {/* CTA */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#2B1A07]/60 mb-3">Começar</h3>
-            <p className="text-sm text-[#2B1A07]/70 mb-4 font-curia-serif">Leva menos de 2 minutos.</p>
-            <FooterCtaButton signedIn={signedIn} signingOut={signingOut} onSignOut={onSignOut} />
+            <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0B0B0F]/60 mb-3">Começar</h3>
+            <p className="text-sm text-[#0B0B0F]/70 mb-4 font-curia-serif">Leva menos de 2 minutos.</p>
+            <FooterCtaButton signedIn={signedIn} signingOut={signingOut} onSignOut={onSignOut} mode={mode} />
           </div>
         </div>
 
@@ -1311,28 +1471,28 @@ function Footer({
 
         {/* Bottom bar */}
         <div className="flex flex-col-reverse items-center justify-between gap-4 py-6 sm:flex-row">
-          <p className="text-xs text-[#2B1A07]/60">© {new Date().getFullYear()} Curia. Todos os direitos reservados.</p>
-          <div className="flex items-center gap-4 text-[#2B1A07]/60">
+          <p className="text-xs text-[#0B0B0F]/60">© {new Date().getFullYear()} Curia. Todos os direitos reservados.</p>
+          <div className="flex items-center gap-4 text-[#0B0B0F]/60">
             {/* X */}
-            <a href="#" aria-label="X / Twitter" className="hover:text-[#2B1A07] transition-colors">
+            <a href="#" aria-label="X / Twitter" className="hover:text-[#C9A84C] transition-colors">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                 <path d="M18 2h3l-7.5 8.5L22 22h-6l-4.5-6L6 22H3l8.1-9.2L2 2h6l4 5.3L18 2z"/>
               </svg>
             </a>
             {/* LinkedIn */}
-            <a href="#" aria-label="LinkedIn" className="hover:text-[#2B1A07] transition-colors">
+            <a href="#" aria-label="LinkedIn" className="hover:text-[#C9A84C] transition-colors">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                 <path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4V24h-4V8zm7.5 0h3.8v2.2h.1c.5-1 1.8-2.2 3.7-2.2 4 0 4.8 2.6 4.8 6V24h-4v-5.8c0-1.4 0-3.2-2-3.2s-2.3 1.6-2.3 3.1V24h-4V8z"/>
               </svg>
             </a>
             {/* YouTube */}
-            <a href="#" aria-label="YouTube" className="hover:text-[#2B1A07] transition-colors">
+            <a href="#" aria-label="YouTube" className="hover:text-[#C9A84C] transition-colors">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                 <path d="M23.5 6.2s-.2-1.7-.8-2.5c-.8-.8-1.7-.8-2.1-.9C17.8 2.5 12 2.5 12 2.5h0s-5.8 0-8.6.3c-.4 0-1.3.1-2.1.9-.6.8-.8 2.5-.8 2.5S0 8.3 0 10.5v2.9c0 2.2.2 4.3.2 4.3s.2 1.7.8 2.5c.8.8 1.9.8 2.4.9 1.8.2 7.6.3 7.6.3s5.8 0 8.6-.3c.4 0 1.3-.1 2.1-.9.6-.8.8-2.5.8-2.5s.2-2.1.2-4.3v-2.9c0-2.2-.2-4.3-.2-4.3zM9.5 14.8V7.7l6.4 3.5-6.4 3.6z"/>
               </svg>
             </a>
             {/* Instagram */}
-            <a href="#" aria-label="Instagram" className="hover:text-[#2B1A07] transition-colors">
+            <a href="#" aria-label="Instagram" className="hover:text-[#C9A84C] transition-colors">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                 <path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.9.3 2.4.5.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.5.4 1.2.5 2.4.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.3 1.9-.5 2.4-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.5.2-1.2.4-2.4.5-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.9-.3-2.4-.5-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.5-.4-1.2-.5-2.4C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.3-1.9.5-2.4.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.5-.2 1.2-.4 2.4-.5C8.4 2.2 8.8 2.2 12 2.2m0 1.8c-3.1 0-3.5 0-4.7.1-1 .1-1.5.2-1.9.3-.5.2-.8.3-1 .6-.3.3-.5.6-.6 1-.1.4-.3.9-.3 1.9-.1 1.2-.1 1.6-.1 4.7s0 3.5.1 4.7c.1 1 .2 1.5.3 1.9.1.4.3.8.6 1 .3.3.6.5 1 .6.4.1.9.3 1.9.3 1.2.1 1.6.1 4.7.1s3.5 0 4.7-.1c1-.1 1.5-.2 1.9-.3.4-.1.8-.3 1-.6.3-.3.6-.5 1-.6.1-.4.3-.9.3-1.9.1-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c-.1-1-.2-1.5-.3-1.9-.1-.4-.3-.8-.6-1-.3-.3-.6-.5-1-.6-.4-.1-.9-.3-1.9-.3-1.2-.1-1.6-.1-4.7-.1zM12 5.9a6.1 6.1 0 1 1 0 12.2 6.1 6.1 0 0 1 0-12.2m0 1.8a4.3 4.3 0 1 0 0 8.6 4.3 4.3 0 0 0 0-8.6M18.4 4.9a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6z"/>
               </svg>

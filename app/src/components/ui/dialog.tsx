@@ -61,11 +61,11 @@ export function DialogHeader({ children, className }: { children: React.ReactNod
 }
 
 export function DialogTitle({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <h2 className={cn('font-curia-serif text-base font-semibold text-[#2B1A07]', className)}>{children}</h2>
+  return <h2 className={cn('font-curia-serif text-base font-semibold text-[#0B0B0F]', className)}>{children}</h2>
 }
 
 export function DialogDescription({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <p className={cn('mt-1.5 text-sm text-[#2B1A07]/55 leading-relaxed font-curia-serif', className)}>{children}</p>
+  return <p className={cn('mt-1.5 text-sm text-[#0B0B0F]/55 leading-relaxed font-curia-serif', className)}>{children}</p>
 }
 
 export function DialogBody({ children, className }: { children: React.ReactNode; className?: string }) {

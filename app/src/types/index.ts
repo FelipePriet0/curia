@@ -35,6 +35,7 @@ export interface Message {
   conversation_id: string
   role: 'user' | 'assistant'
   content: string
+  council_mode?: 'full' | 'direct' | 'synthetic_council' | null
   created_at: string
 }
 
@@ -138,6 +139,17 @@ export interface CompanyContext {
   main_problem?: string
   main_bottleneck?: string
   main_bottleneck_detail?: string
+  // Onboarding v2 — narrativa
+  ideal_customer_story?: string
+  why_they_paid?: string
+  current_moment?: string
+  // Onboarding v2 — tensão
+  keeping_up_at_night?: string
+  current_hypothesis?: string
+  what_tried?: string
+  pending_decision?: string
+  // Memo em linguagem natural gerado pela LLM a partir de todo o onboarding
+  briefing_memo?: string
   // Metrics — subscription
   mrr?: number
   churn_rate?: number

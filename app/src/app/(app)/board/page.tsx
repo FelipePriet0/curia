@@ -19,15 +19,17 @@ import {
   contextBadgeColor,
   contextUsagePercent,
 } from '@/lib/deliberation/store'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import type { Conversation, Message, Plan, Strategy, StrategyProposal } from '@/types'
 import { ContextDisclaimer } from '@/components/ui/ContextDisclaimer'
 
 export default function BoardPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const pendingConversationId = searchParams?.get('conversation') ?? null
   const { signOut } = useClerk()
   const [conversations, setConversations] = useState<Conversation[]>([])
-  const [activeId, setActiveId] = useState<string | undefined>()
+  const [activeId, setActiveId] = useState<string | undefined>(pendingConversationId ?? undefined)
   const [messages, setMessages] = useState<Message[]>([])
   const [streamingContent, setStreamingContent] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
@@ -72,10 +74,18 @@ export default function BoardPage() {
     if (!silent) setLoadingConvs(true)
     const res = await fetch('/api/conversations')
     if (res.ok) {
-      const data = await res.json()
+      const data = await res.json() as Conversation[]
       setConversations(data)
-      // Auto-select first only on initial load (when nothing is active)
-      setActiveId((cur) => (cur ? cur : data.length > 0 ? data[0].id : undefined))
+      // Priority order: keep current activeId > handoff via ?conversation=<id> > first conversation.
+      setActiveId((cur) => {
+        if (cur) {
+          return data.some((c) => c.id === cur) ? cur : (data.length > 0 ? data[0].id : undefined)
+        }
+        if (pendingConversationId && data.some((c) => c.id === pendingConversationId)) {
+          return pendingConversationId
+        }
+        return data.length > 0 ? data[0].id : undefined
+      })
     }
     if (!silent) setLoadingConvs(false)
   }
@@ -338,7 +348,7 @@ export default function BoardPage() {
           <div className="flex items-center px-3 py-1.5" style={{ minHeight: '40px' }}>
             <button
               onClick={() => setSidebarOpen(true)}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-[#2B1A07]/40 hover:bg-[#2B1A07]/[0.06] hover:text-[#2B1A07]/70 transition-colors"
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-[#0B0B0F]/40 hover:bg-[#0B0B0F]/[0.06] hover:text-[#0B0B0F]/70 transition-colors"
               title="Abrir sidebar"
             >
               <PanelLeftOpen size={16} />
@@ -362,7 +372,7 @@ export default function BoardPage() {
             <div className="w-full min-h-0 relative" style={{ height: '38vh' }}>
               {userName && (
                 <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-2 md:-top-3">
-                  <span className="font-curia-script text-[#FF6F1E] text-2xl md:text-4xl leading-none">
+                  <span className="font-curia-script text-[#C9A84C] text-2xl md:text-4xl leading-none">
                     Olá, {userName}
                   </span>
                 </div>
@@ -373,7 +383,7 @@ export default function BoardPage() {
               {/* Removed home subtitle per UX request */}
               <div className="w-full px-4">
                 <CouncilInput ref={inputRef} onSend={handleSend} isStreaming={isStreaming} variant="home" />
-                <p className="mt-2 text-center font-curia-serif text-[11px] text-[#2B1A07]/40">
+                <p className="mt-2 text-center font-curia-serif text-[11px] text-[#0B0B0F]/40">
                   A Curia pode cometer erros. Confira informações importantes.{' '}
                   <a href="/cookies" className="underline hover:opacity-80">Consulte as Preferências de cookies</a>.
                 </p>
@@ -422,7 +432,7 @@ export default function BoardPage() {
               <div className="mt-auto px-4 pb-4">
                 <div className="mx-auto w-full max-w-2xl">
                   <CouncilInput ref={inputRef} onSend={handleSend} isStreaming={isStreaming} variant="chat" />
-                  <p className="mt-2 text-center font-curia-serif text-[11px] text-[#2B1A07]/40">
+                  <p className="mt-2 text-center font-curia-serif text-[11px] text-[#0B0B0F]/40">
                     A Curia pode cometer erros. Confira informações importantes.{' '}
                     <a href="/cookies" className="underline hover:opacity-80">Consulte as Preferências de cookies</a>.
                   </p>

@@ -44,7 +44,7 @@ Arquivo: `app/src/lib/metrics/detectors.ts`
 
 Arquivo: `app/src/lib/metrics/track.ts`
 
-- `trackEvent(supabase, { userId, conversationId, type, metadata })` — insere na tabela `events` (melhor esforço; não quebra o fluxo se falhar).
+- `trackEvent({ userId, conversationId?, type, metadata? })` — insere na tabela `events` via Drizzle (melhor esforço; não quebra o fluxo se falhar).
 
 ## Como ler as métricas
 

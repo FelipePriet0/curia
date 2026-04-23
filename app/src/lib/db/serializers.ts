@@ -1,6 +1,7 @@
 import type {
   companies,
   conversations,
+  messageFeedbacks,
   messages,
   plans,
   sharedConversations,
@@ -29,6 +30,21 @@ export function serializeMessage(row: typeof messages.$inferSelect) {
     conversation_id: row.conversationId,
     role: row.role,
     content: row.content,
+    council_mode: row.councilMode ?? null,
+    created_at: row.createdAt.toISOString(),
+  }
+}
+
+export function serializeMessageFeedback(row: typeof messageFeedbacks.$inferSelect) {
+  return {
+    id: row.id,
+    message_id: row.messageId,
+    user_id: row.userId,
+    thumbs: row.thumbs ?? null,
+    rating: row.rating ?? null,
+    dimensions: row.dimensions ?? null,
+    comment: row.comment ?? null,
+    evaluator_role: row.evaluatorRole ?? 'founder',
     created_at: row.createdAt.toISOString(),
   }
 }
@@ -97,6 +113,14 @@ export function serializeCompany(row: typeof companies.$inferSelect) {
     acquisition_channel: row.acquisitionChannel,
     main_bottleneck: row.mainBottleneck,
     main_bottleneck_detail: row.mainBottleneckDetail,
+    ideal_customer_story: row.idealCustomerStory,
+    why_they_paid: row.whyTheyPaid,
+    current_moment: row.currentMoment,
+    keeping_up_at_night: row.keepingUpAtNight,
+    current_hypothesis: row.currentHypothesis,
+    what_tried: row.whatTried,
+    pending_decision: row.pendingDecision,
+    briefing_memo: row.briefingMemo,
     diagnosed_stage: row.diagnosedStage,
     stage_confirmed: row.stageConfirmed,
     diagnostic_summary: row.diagnosticSummary,

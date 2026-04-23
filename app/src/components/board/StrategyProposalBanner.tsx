@@ -43,18 +43,18 @@ export function StrategyProposalBanner({
 
   return (
     <div className="mx-auto max-w-3xl px-4 pb-4">
-      <div className="rounded-xl border border-[#FF6F1E]/25 bg-[#FF6F1E]/[0.05] px-4 py-3">
+      <div className="rounded-xl border border-[#0B0B0F]/25 bg-[#0B0B0F]/[0.05] px-4 py-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 min-w-0">
-            <BookmarkPlus className="mt-0.5 h-4 w-4 shrink-0 text-[#FF6F1E]" />
+            <BookmarkPlus className="mt-0.5 h-4 w-4 shrink-0 text-[#0B0B0F]" />
             <div className="min-w-0">
-              <p className="font-curia-serif text-sm font-medium text-[#2B1A07]">
+              <p className="font-curia-serif text-sm font-medium text-[#0B0B0F]">
                 Isso virou uma estratégia
               </p>
-              <p className="mt-0.5 font-curia-serif text-xs text-[#2B1A07]/60 truncate">
+              <p className="mt-0.5 font-curia-serif text-xs text-[#0B0B0F]/60 truncate">
                 {proposal.name}
               </p>
-              <p className="mt-2 font-curia-serif text-[11px] text-[#2B1A07]/50">
+              <p className="mt-2 font-curia-serif text-[11px] text-[#0B0B0F]/50">
                 Revise criticamente antes de implementar. Este conteúdo não substitui assessoria profissional.
               </p>
             </div>
@@ -63,13 +63,13 @@ export function StrategyProposalBanner({
             <button
               onClick={handleSave}
               disabled={saving}
-              className="rounded-lg bg-[#FF6F1E] px-3 py-1.5 font-curia-serif text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="rounded-lg bg-[#0B0B0F] px-3 py-1.5 font-curia-serif text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               {saving ? 'Salvando...' : 'Salvar'}
             </button>
             <button
               onClick={onDismiss}
-              className="rounded-lg p-1.5 text-[#2B1A07]/40 transition-colors hover:text-[#2B1A07]"
+              className="rounded-lg p-1.5 text-[#0B0B0F]/40 transition-colors hover:text-[#0B0B0F]"
             >
               <X className="h-3.5 w-3.5" />
             </button>

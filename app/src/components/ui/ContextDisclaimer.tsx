@@ -18,7 +18,7 @@ export function ContextDisclaimer({ size = 'normal', className, children }: Cont
         <div className="leading-relaxed">
           {children ?? (
             <>
-              <span className="font-medium text-[#2B1A07]">Revise criticamente.</span>{' '}
+              <span className="font-medium text-[#0B0B0F]">Revise criticamente.</span>{' '}
               Este conteúdo não substitui assessoria profissional.
             </>
           )}

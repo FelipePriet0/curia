@@ -6,23 +6,23 @@ const TERMS_VERSION = '1.0.0'
 export default function TermsPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="font-curia-rounded text-2xl text-[#2B1A07]">Termos de Uso</h1>
+      <h1 className="font-curia-rounded text-2xl text-[#0B0B0F]">Termos de Uso</h1>
 
-      <p className="mt-3 font-curia-serif text-sm text-[#2B1A07]/70 leading-relaxed">
+      <p className="mt-3 font-curia-serif text-sm text-[#0B0B0F]/70 leading-relaxed">
         Estes Termos de Uso regulam o acesso e a utilização da plataforma Curia, seus produtos,
         funcionalidades, conteúdos, interfaces, agentes, modelos de inteligência artificial,
         painéis, integrações e demais serviços relacionados.
       </p>
 
-      <p className="mt-3 font-curia-serif text-sm text-[#2B1A07]/70 leading-relaxed">
+      <p className="mt-3 font-curia-serif text-sm text-[#0B0B0F]/70 leading-relaxed">
         Ao criar conta, acessar ou utilizar a Curia, você declara que leu, compreendeu e concorda
         integralmente com estes Termos, com a Política de Privacidade e com as demais políticas e
         avisos aplicáveis divulgados na plataforma.
       </p>
 
-      <section className="mt-6 space-y-5 font-curia-serif text-sm text-[#2B1A07]/80 leading-relaxed">
+      <section className="mt-6 space-y-5 font-curia-serif text-sm text-[#0B0B0F]/80 leading-relaxed">
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">1. Identificação do fornecedor</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">1. Identificação do fornecedor</h2>
           <p>
             A Curia é oferecida por [RAZÃO SOCIAL], inscrita no CNPJ sob o nº [CNPJ], com sede em
             [ENDEREÇO COMPLETO], e-mail de contato [EMAIL], doravante denominada “Curia”.
@@ -34,7 +34,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">2. Natureza do serviço</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">2. Natureza do serviço</h2>
           <p>
             A Curia é uma plataforma tecnológica de apoio à análise, organização de raciocínio,
             geração de hipóteses, estruturação de cenários, priorização de caminhos, produção de
@@ -58,7 +58,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">3. Não substituição de aconselhamento profissional</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">3. Não substituição de aconselhamento profissional</h2>
           <p>
             A Curia não substitui aconselhamento jurídico, contábil, fiscal, tributário, societário,
             trabalhista, regulatório, financeiro, de investimentos, crédito, compliance, auditoria,
@@ -76,7 +76,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">4. Uso vedado para decisões críticas sem revisão humana</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">4. Uso vedado para decisões críticas sem revisão humana</h2>
           <p>
             É expressamente vedado utilizar a Curia, isoladamente e sem revisão humana qualificada,
             como fundamento único ou determinante para:
@@ -99,7 +99,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">5. Responsabilidade do usuário e dever de validação</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">5. Responsabilidade do usuário e dever de validação</h2>
           <p>
             O usuário é o único responsável por interpretar, avaliar, testar, validar, aprovar ou
             rejeitar qualquer output da Curia, bem como por toda decisão, ação, omissão,
@@ -120,7 +120,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">6. Sem garantia de exatidão, disponibilidade ou resultado</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">6. Sem garantia de exatidão, disponibilidade ou resultado</h2>
           <p>
             A Curia é fornecida “no estado em que se encontra” e “conforme disponibilidade”, podendo
             conter erros, omissões, vieses, desatualizações, inconsistências, indisponibilidades,
@@ -141,7 +141,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">7. Limitação de responsabilidade</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">7. Limitação de responsabilidade</h2>
           <p>
             Na máxima extensão permitida pela legislação aplicável, a Curia não será responsável por
             perdas indiretas, lucros cessantes, perda de chance, perda de receita, perda de dados,
@@ -169,7 +169,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">8. Ausência de relação fiduciária, mandato ou representação</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">8. Ausência de relação fiduciária, mandato ou representação</h2>
           <p>
             O uso da Curia não cria relação fiduciária, mandato, representação, sociedade, joint
             venture, vínculo empregatício, consultoria regulada ou qualquer obrigação de agir no
@@ -179,7 +179,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">9. Cadastro, conta e segurança</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">9. Cadastro, conta e segurança</h2>
           <p>
             Para utilizar determinadas funcionalidades, o usuário poderá precisar criar conta,
             fornecer informações verdadeiras, completas e atualizadas e manter a confidencialidade de
@@ -197,7 +197,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">10. Conteúdo do usuário</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">10. Conteúdo do usuário</h2>
           <p>
             O usuário declara e garante que possui todos os direitos, bases legais, autorizações e
             permissões necessárias sobre os dados, documentos, textos, imagens, prompts, planilhas,
@@ -218,7 +218,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">11. Dados pessoais, privacidade e decisões automatizadas</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">11. Dados pessoais, privacidade e decisões automatizadas</h2>
           <p>
             O tratamento de dados pessoais realizado pela Curia observará a Política de Privacidade e
             a legislação aplicável, especialmente a Lei Geral de Proteção de Dados Pessoais (LGPD).
@@ -235,7 +235,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">12. Propriedade intelectual</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">12. Propriedade intelectual</h2>
           <p>
             A plataforma, sua marca, nome empresarial, layout, interface, código-fonte, arquitetura,
             prompts de sistema, fluxos, bancos de dados, modelos de organização, documentação,
@@ -255,7 +255,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">13. Restrições de uso</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">13. Restrições de uso</h2>
           <p>Sem prejuízo de outras vedações previstas nestes Termos, o usuário não poderá:</p>
           <ul className="mt-2 list-disc pl-5 space-y-1">
             <li>utilizar a Curia para prática de atos ilícitos ou violação de direitos de terceiros;</li>
@@ -268,7 +268,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">14. Planos, pagamentos, renovação e inadimplemento</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">14. Planos, pagamentos, renovação e inadimplemento</h2>
           <p>
             O acesso a determinadas funcionalidades poderá depender de contratação paga, assinatura,
             período experimental, limites de uso, créditos, franquias ou regras comerciais
@@ -289,7 +289,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">15. Disponibilidade, manutenção e alterações do serviço</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">15. Disponibilidade, manutenção e alterações do serviço</h2>
           <p>
             A Curia poderá, a qualquer tempo, modificar, evoluir, descontinuar, restringir, remover,
             substituir ou atualizar funcionalidades, integrações, provedores, modelos, fluxos,
@@ -305,7 +305,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">16. Indenização regressiva pelo usuário</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">16. Indenização regressiva pelo usuário</h2>
           <p>
             O usuário concorda em defender, indenizar e manter a Curia, seus sócios, administradores,
             empregados, representantes, parceiros e licenciantes indenes de reclamações, demandas,
@@ -324,7 +324,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">17. Suspensão e encerramento</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">17. Suspensão e encerramento</h2>
           <p>
             A Curia poderá, a seu critério e sem necessidade de aviso prévio quando houver risco
             relevante, suspender, limitar ou encerrar o acesso do usuário em caso de suspeita de
@@ -339,7 +339,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">18. Comunicações e prova de aceite</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">18. Comunicações e prova de aceite</h2>
           <p>
             O usuário concorda que o aceite eletrônico destes Termos, inclusive por clique, marcação
             de checkbox, continuidade de uso, autenticação de conta ou contratação de plano, constitui
@@ -353,7 +353,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">19. Alterações destes Termos</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">19. Alterações destes Termos</h2>
           <p>
             A Curia poderá alterar estes Termos a qualquer tempo para refletir mudanças legais,
             regulatórias, técnicas, operacionais, comerciais ou de produto.
@@ -371,7 +371,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">20. Lei aplicável e foro</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">20. Lei aplicável e foro</h2>
           <p>
             Estes Termos serão regidos pelas leis da República Federativa do Brasil.
           </p>
@@ -384,7 +384,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">21. Contato</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">21. Contato</h2>
           <p>
             Em caso de dúvidas, solicitações ou comunicações relacionadas a estes Termos, o usuário
             poderá entrar em contato pelos canais oficiais informados pela Curia.
@@ -392,7 +392,7 @@ export default function TermsPage() {
         </div>
 
         <div>
-          <h2 className="font-semibold text-[#2B1A07]">22. Declaração final de ciência</h2>
+          <h2 className="font-semibold text-[#0B0B0F]">22. Declaração final de ciência</h2>
           <p>
             AO UTILIZAR A CURIA, O USUÁRIO DECLARA CIÊNCIA DE QUE: (I) A PLATAFORMA UTILIZA SISTEMAS
             AUTOMATIZADOS E PODE GERAR ERROS, OMISSÕES, VIESES OU CONTEÚDOS INADEQUADOS; (II) OS
@@ -402,7 +402,7 @@ export default function TermsPage() {
           </p>
         </div>
 
-        <p className="text-[12px] text-[#2B1A07]/50 mt-6">
+        <p className="text-[12px] text-[#0B0B0F]/50 mt-6">
           Versão: {TERMS_VERSION} · Última atualização: {LAST_UPDATED}
         </p>
       </section>

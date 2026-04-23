@@ -5,8 +5,15 @@
 import OpenAI from 'openai'
 import Anthropic from '@anthropic-ai/sdk'
 import type { StrategyProposal } from '@/types'
-import { runCounselorPhase, buildCounselorContext, type CounselorBriefs } from './counselors'
+import {
+  runCounselorPhase,
+  runSyntheticCouncilPhase,
+  buildCounselorContext,
+  buildDirectModeGuide,
+  type CounselorBriefs,
+} from './counselors'
 import { autoCompact, roughTokenEstimate } from './compact'
+import type { CouncilMode } from './council-mode'
 
 // ─── Tipos de evento ──────────────────────────────────────────────────────────
 
@@ -14,6 +21,7 @@ export type TerminalReason = 'completed' | 'model_error' | 'aborted' | 'max_turn
 
 export type QueryEvent =
   | { type: 'delta'; text: string }
+  | { type: 'council_mode'; mode: CouncilMode }
   | { type: 'counselor_start'; counselorId: string }
   | { type: 'counselor_end'; counselorId: string; brief: string }
   | { type: 'tool_call'; name: string }
@@ -22,7 +30,7 @@ export type QueryEvent =
   | { type: 'token_estimate'; tokens: number; budget: number }
   | { type: 'turn'; turn: number }
   | { type: 'error'; code: string; message: string }
-  | { type: 'done'; reason: TerminalReason; strategyProposal?: StrategyProposal | null }
+  | { type: 'done'; reason: TerminalReason; strategyProposal?: StrategyProposal | null; councilMode?: CouncilMode }
 
 // ─── Constantes do loop ───────────────────────────────────────────────────────
 
@@ -146,7 +154,14 @@ If fewer than 3 cases survive this filter: return only the ones that do. Do NOT 
 
 async function execSearchFailureCase(client: OpenAI, brief: string): Promise<string> {
   const response = await client.chat.completions.create({
-    model: 'gpt-4o-mini-search-preview',
+    // Upgrade de modelo de busca — 2026-04:
+    // Saímos de gpt-4o-mini-search-preview (barato mas superficial — trazia casos
+    // genéricos tipo "Quibi falhou porque mobile") para gpt-5-search-preview.
+    // A qualidade da busca é onde a Wald/Survivorship lens justifica existir —
+    // case genérico destrói a premissa do produto. Custo/case aceitável.
+    // Próxima etapa após validação: avaliar Perplexity API (busca dedicada, mais
+    // rigor em fontes primárias) para os mesmos dois executors.
+    model: 'gpt-5-search-preview',
     messages: [
       {
         role: 'system',
@@ -172,7 +187,14 @@ ${CASE_QUALITY_RULES}`,
 
 async function execSearchSuccessCase(client: OpenAI, brief: string): Promise<string> {
   const response = await client.chat.completions.create({
-    model: 'gpt-4o-mini-search-preview',
+    // Upgrade de modelo de busca — 2026-04:
+    // Saímos de gpt-4o-mini-search-preview (barato mas superficial — trazia casos
+    // genéricos tipo "Quibi falhou porque mobile") para gpt-5-search-preview.
+    // A qualidade da busca é onde a Wald/Survivorship lens justifica existir —
+    // case genérico destrói a premissa do produto. Custo/case aceitável.
+    // Próxima etapa após validação: avaliar Perplexity API (busca dedicada, mais
+    // rigor em fontes primárias) para os mesmos dois executors.
+    model: 'gpt-5-search-preview',
     messages: [
       {
         role: 'system',
@@ -197,6 +219,8 @@ export interface QueryLoopParams {
   openai: OpenAI
   anthropic?: Anthropic
   signal?: AbortSignal
+  /** Modo do A/B do conselho. Default: 'full' (fluxo original). */
+  councilMode?: CouncilMode
 }
 
 // ─── Loop principal ───────────────────────────────────────────────────────────
@@ -211,6 +235,7 @@ export interface QueryLoopParams {
 //
 export async function* queryLoop(params: QueryLoopParams): AsyncGenerator<QueryEvent> {
   const { system, openai, anthropic, signal } = params
+  const councilMode: CouncilMode = params.councilMode ?? 'full'
 
   // Histórico de mensagens da conversa (sem system — passado separadamente)
   let history: OAIMessage[] = params.messages.map((m) => ({
@@ -221,6 +246,9 @@ export async function* queryLoop(params: QueryLoopParams): AsyncGenerator<QueryE
   let strategyProposal: StrategyProposal | null = null
   let turn = 0
   let useClaude = false  // ativado quando OpenAI falha
+
+  // ── Emite o modo do A/B bem no início — frontend e telemetria capturam ────
+  yield { type: 'council_mode', mode: councilMode }
 
   // ── Token estimate inicial (AppState pattern: emite estado observável cedo) ──
   const TOKEN_BUDGET = 120_000
@@ -248,33 +276,49 @@ export async function* queryLoop(params: QueryLoopParams): AsyncGenerator<QueryE
     }
   }
 
-  // ── Fase dos conselheiros (paralela, antes do loop principal) ────────────────
+  // ── Fase do conselho — três modos (A/B do COUNCIL_MODE) ─────────────────────
   // Inspirado no StreamingToolExecutor do Agentfriend:
   // Read-only tools rodam em paralelo → síntese roda em série depois.
+  //
+  //   'full'              → Haikus reais paralelos, briefs injetados na síntese.
+  //   'direct'            → sem Haikus; síntese ganha guia das 6 lentes como checklist.
+  //   'synthetic_council' → anima a UI sem chamar Haiku; síntese idêntica ao direct.
   const lastUserMsg = params.messages.filter((m) => m.role === 'user').slice(-1)[0]?.content ?? ''
+  // Contexto recente truncado em 600 chars/msg (era 200). Conselheiros precisam
+  // ancoragem concreta no que o founder disse pra não produzir parecer genérico.
+  // 600 ≈ 150 tokens × 6 msgs = ~900 tokens extras — trivial dado max_tokens 750.
   const recentContext = params.messages
     .slice(-6)
-    .map((m) => `${m.role === 'user' ? 'Fundador' : 'Conselho'}: ${m.content.slice(0, 200)}`)
+    .map((m) => `${m.role === 'user' ? 'Fundador' : 'Conselho'}: ${m.content.slice(0, 600)}`)
     .join('\n')
 
   const briefs: CounselorBriefs = new Map()
-  if (anthropic) {
+
+  if (councilMode === 'full' && anthropic) {
     for await (const event of runCounselorPhase(lastUserMsg, recentContext, anthropic)) {
       if (event.type === 'counselor_end' && event.brief) {
         briefs.set(event.counselorId, event.brief)
       }
       yield event
     }
+  } else if (councilMode === 'synthetic_council') {
+    for await (const event of runSyntheticCouncilPhase()) {
+      yield event
+    }
   }
+  // 'direct' → não emite eventos; pula direto pra síntese.
 
-  // Injetar briefs no system prompt da síntese (não polui o histórico)
+  // Montagem do system prompt:
+  //   - 'full' com briefs reais → injeta <deliberacao_interna_do_conselho>
+  //   - 'direct' ou 'synthetic_council' (ou 'full' sem briefs) → guia das 6 lentes
   const counselorContext = buildCounselorContext(briefs)
-  const synthesisSystem = counselorContext ? `${system}\n\n${counselorContext}` : system
+  const synthesisAddon = counselorContext || buildDirectModeGuide()
+  const synthesisSystem = `${system}\n\n${synthesisAddon}`
 
   while (turn < MAX_TURNS) {
     // ── 1. Abort check ────────────────────────────────────────────────────────
     if (signal?.aborted) {
-      yield { type: 'done', reason: 'aborted', strategyProposal }
+      yield { type: 'done', reason: 'aborted', strategyProposal, councilMode }
       return
     }
 
@@ -302,16 +346,16 @@ export async function* queryLoop(params: QueryLoopParams): AsyncGenerator<QueryE
           messages: claudeMessages,
         })
         for await (const chunk of stream) {
-          if (signal?.aborted) { yield { type: 'done', reason: 'aborted', strategyProposal }; return }
+          if (signal?.aborted) { yield { type: 'done', reason: 'aborted', strategyProposal, councilMode }; return }
           if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
             yield { type: 'delta', text: chunk.delta.text }
           }
         }
-        yield { type: 'done', reason: 'completed', strategyProposal }
+        yield { type: 'done', reason: 'completed', strategyProposal, councilMode }
         return
       } catch (err) {
         yield { type: 'error', code: 'model_error', message: String(err) }
-        yield { type: 'done', reason: 'model_error', strategyProposal }
+        yield { type: 'done', reason: 'model_error', strategyProposal, councilMode }
         return
       }
     }
@@ -342,7 +386,7 @@ export async function* queryLoop(params: QueryLoopParams): AsyncGenerator<QueryE
 
       for await (const chunk of (stream as any)) {
         if (signal?.aborted) {
-          yield { type: 'done', reason: 'aborted', strategyProposal }
+          yield { type: 'done', reason: 'aborted', strategyProposal, councilMode }
           return
         }
 
@@ -390,7 +434,7 @@ export async function* queryLoop(params: QueryLoopParams): AsyncGenerator<QueryE
         continue
       }
       yield { type: 'error', code: 'model_error', message: String(err) }
-      yield { type: 'done', reason: 'model_error', strategyProposal }
+      yield { type: 'done', reason: 'model_error', strategyProposal, councilMode }
       continue
     }
 
@@ -447,9 +491,9 @@ export async function* queryLoop(params: QueryLoopParams): AsyncGenerator<QueryE
     if (assistantContent) {
       history.push({ role: 'assistant', content: assistantContent })
     }
-    yield { type: 'done', reason: 'completed', strategyProposal }
+    yield { type: 'done', reason: 'completed', strategyProposal, councilMode }
     return
   }
 
-  yield { type: 'done', reason: 'max_turns', strategyProposal }
+  yield { type: 'done', reason: 'max_turns', strategyProposal, councilMode }
 }

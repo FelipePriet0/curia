@@ -2,11 +2,13 @@ import Anthropic from '@anthropic-ai/sdk'
 import OpenAI from 'openai'
 import { queryLoop } from './query-loop'
 import type { QueryEvent } from './query-loop'
+import { resolveCouncilModeForUser, type CouncilMode } from './council-mode'
 
 // ─── Re-exports para compatibilidade ─────────────────────────────────────────
 
 export type { QueryEvent }
 export type { TerminalReason } from './query-loop'
+export type { CouncilMode }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -19,6 +21,13 @@ export interface LLMOptions {
   system: string
   messages: LLMMessage[]
   signal?: AbortSignal
+  /**
+   * userId do fundador — usado pra resolver o COUNCIL_MODE via sampling sticky
+   * (mesmo user sempre no mesmo bucket). Passe undefined pra usar o modo global.
+   */
+  userId?: string
+  /** Override explícito do modo (ex: debug, endpoint admin). */
+  councilModeOverride?: CouncilMode
 }
 
 // ─── Clients ──────────────────────────────────────────────────────────────────
@@ -43,12 +52,16 @@ export function streamBoardEvents(options: LLMOptions): ReadableStream<string> {
   const openai = getOpenAIClient()
   const anthropic = getAnthropicClient()
 
+  const councilMode =
+    options.councilModeOverride ?? resolveCouncilModeForUser(options.userId)
+
   const loop = queryLoop({
     system: options.system,
     messages: options.messages,
     openai,
     anthropic,
     signal: options.signal,
+    councilMode,
   })
 
   return new ReadableStream<string>({
@@ -100,3 +113,10 @@ export async function generateConversationTitle(firstMessage: string): Promise<s
 // Mantido para não quebrar imports existentes. Com NDJSON, não é mais usado.
 
 export const STRATEGY_PROPOSAL_MARKER = '\n[STRATEGY_PROPOSAL]:'
+
+// ─── Helpers de inspeção do A/B ──────────────────────────────────────────────
+// Permite que o route handler do /api/chat (ou equivalente) extraia o modo
+// resolvido antes de iniciar o stream — necessário pra gravar messages.council_mode
+// quando a resposta do assistant for persistida.
+
+export { resolveCouncilModeForUser, getGlobalCouncilMode } from './council-mode'

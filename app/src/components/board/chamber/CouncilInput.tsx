@@ -108,7 +108,7 @@ function CouncilInput({ onSend, isStreaming, variant = 'chat' }, ref) {
                       setAttachOpen(false)
                       fileInputRef.current?.click()
                     }}
-                    className="flex w-full items-center gap-2 px-3 py-1.5 text-xs font-curia-serif text-[#2B1A07]/80 hover:bg-[#2B1A07]/[0.06]"
+                    className="flex w-full items-center gap-2 px-3 py-1.5 text-xs font-curia-serif text-[#0B0B0F]/80 hover:bg-[#0B0B0F]/[0.06]"
                   >
                     <Paperclip size={13} />
                     Adicionar arquivos ou fotos
@@ -135,7 +135,7 @@ function CouncilInput({ onSend, isStreaming, variant = 'chat' }, ref) {
               }}
             />
             {attachments.length > 0 && (
-              <span className="ml-2 rounded-md border border-[#2B1A07]/15 bg-white px-2 py-0.5 text-[10px] text-[#2B1A07]/70 font-curia-serif">
+              <span className="ml-2 rounded-md border border-[#0B0B0F]/15 bg-white px-2 py-0.5 text-[10px] text-[#0B0B0F]/70 font-curia-serif">
                 {attachments.length} anexo{attachments.length > 1 ? 's' : ''}
               </span>
             )}
@@ -165,10 +165,10 @@ function CouncilInput({ onSend, isStreaming, variant = 'chat' }, ref) {
                   <button
                     role="menuitem"
                     onClick={() => setModelOpen(false)}
-                    className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-xs font-curia-serif text-[#2B1A07]/80 hover:bg-[#2B1A07]/[0.06] font-medium"
+                    className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-xs font-curia-serif text-[#0B0B0F]/80 hover:bg-[#0B0B0F]/[0.06] font-medium"
                   >
                     Curia Strategist
-                    <Check size={12} className="text-[#FF6F1E]" />
+                    <Check size={12} className="text-[#0B0B0F]" />
                   </button>
                 </div>
               )}

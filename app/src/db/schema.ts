@@ -8,6 +8,7 @@ import {
   numeric,
   pgEnum,
   pgTable,
+  smallint,
   text,
   timestamp,
   uniqueIndex,
@@ -112,6 +113,17 @@ export const companies = pgTable('companies', {
   acquisitionChannel: text('acquisition_channel'),
   mainBottleneck: text('main_bottleneck'),
   mainBottleneckDetail: text('main_bottleneck_detail'),
+  // ── Onboarding v2 — narrativa ───────────────────────────────────────────────
+  idealCustomerStory: text('ideal_customer_story'),
+  whyTheyPaid: text('why_they_paid'),
+  currentMoment: text('current_moment'),
+  // ── Onboarding v2 — tensão ──────────────────────────────────────────────────
+  keepingUpAtNight: text('keeping_up_at_night'),
+  currentHypothesis: text('current_hypothesis'),
+  whatTried: text('what_tried'),
+  pendingDecision: text('pending_decision'),
+  // Memo em linguagem natural gerado pela LLM e injetado no system prompt
+  briefingMemo: text('briefing_memo'),
   diagnosedStage: text('diagnosed_stage'),
   stageConfirmed: boolean('stage_confirmed').notNull().default(false),
   diagnosticSummary: text('diagnostic_summary'),
@@ -181,9 +193,49 @@ export const messages = pgTable('messages', {
   conversationId: uuid('conversation_id').notNull().references(() => conversations.id, { onDelete: 'cascade' }),
   role: messageRoleEnum('role').notNull(),
   content: text('content').notNull(),
+  // council_mode: qual modo gerou essa resposta (null para mensagens do user).
+  // Valores: 'full' | 'direct' | 'synthetic_council'. Essencial para o A/B test.
+  councilMode: text('council_mode'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, (table) => [
   index('messages_conversation_id_idx').on(table.conversationId, table.createdAt),
+  index('messages_council_mode_idx').on(table.councilMode),
+])
+
+// ─── message_feedbacks — avaliação tipada de cada resposta do assistant ──────
+// Usada pelo A/B do COUNCIL_MODE. Múltiplos feedbacks por mensagem são ok
+// (founder + advisor avaliando o mesmo output, ou o mesmo founder reavaliando).
+export const messageFeedbacks = pgTable('message_feedbacks', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  messageId: uuid('message_id').notNull().references(() => messages.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  thumbs: text('thumbs'),                  // 'up' | 'down'
+  rating: smallint('rating'),              // 1-5 geral
+  dimensions: jsonb('dimensions'),         // { utility, rigor, generic, actionable } cada 1-5
+  comment: text('comment'),
+  evaluatorRole: text('evaluator_role').default('founder'),  // 'founder' | 'advisor' | 'internal'
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('message_feedbacks_message_idx').on(table.messageId),
+  index('message_feedbacks_user_idx').on(table.userId, table.createdAt),
+  index('message_feedbacks_role_idx').on(table.evaluatorRole, table.createdAt),
+])
+
+// ─── company_memory — dossier vivo por empresa (memória institucional) ───────
+// Único registro por company_id. O dossier é regerado por Haiku ao fim de cada
+// conversa; decisions_log acumula snapshots de propose_strategy.
+export const companyMemory = pgTable('company_memory', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  companyId: uuid('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+  dossier: text('dossier'),
+  decisionsLog: jsonb('decisions_log').notNull().default([]),
+  lastRefreshedAt: timestamp('last_refreshed_at', { withTimezone: true }),
+  lastConversationAt: timestamp('last_conversation_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex('company_memory_company_unique').on(table.companyId),
+  index('company_memory_last_refreshed_idx').on(table.lastRefreshedAt),
 ])
 
 export const events = pgTable('events', {
@@ -220,6 +272,18 @@ export const userTermsAcceptances = pgTable('user_terms_acceptances', {
   userAgent: text('user_agent'),
 }, (table) => [
   index('terms_accept_user_idx').on(table.userId, table.acceptedAt),
+])
+
+export const waitlistLeads = pgTable('waitlist_leads', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name'),
+  email: text('email').notNull(),
+  whatsapp: text('whatsapp'),
+  source: text('source'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex('waitlist_leads_email_unique').on(table.email),
+  index('waitlist_leads_created_at_idx').on(table.createdAt),
 ])
 
 export const usersRelations = relations(users, ({ many, one }) => ({
@@ -296,10 +360,29 @@ export const conversationsRelations = relations(conversations, ({ one, many }) =
   events: many(events),
 }))
 
-export const messagesRelations = relations(messages, ({ one }) => ({
+export const messagesRelations = relations(messages, ({ one, many }) => ({
   conversation: one(conversations, {
     fields: [messages.conversationId],
     references: [conversations.id],
+  }),
+  feedbacks: many(messageFeedbacks),
+}))
+
+export const messageFeedbacksRelations = relations(messageFeedbacks, ({ one }) => ({
+  message: one(messages, {
+    fields: [messageFeedbacks.messageId],
+    references: [messages.id],
+  }),
+  user: one(users, {
+    fields: [messageFeedbacks.userId],
+    references: [users.id],
+  }),
+}))
+
+export const companyMemoryRelations = relations(companyMemory, ({ one }) => ({
+  company: one(companies, {
+    fields: [companyMemory.companyId],
+    references: [companies.id],
   }),
 }))
 
