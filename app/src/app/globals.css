@@ -434,9 +434,9 @@
 /* ─── LOGO — Apenas para a palavra "Curia" ─── */
 
 .curia-logo {
-  font-family: var(--font-curia-logo);
-  font-weight: 400;
-  letter-spacing: -0.005em;
+  font-family: var(--font-curia-ui);
+  font-weight: 900;
+  letter-spacing: var(--tracking-tighter);
   color: var(--chamber-obsidian);
 }
 

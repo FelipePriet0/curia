@@ -286,8 +286,8 @@ function BoardMockup() {
 
         {/* Saudação */}
         <div className="mb-5 text-center">
-          <h3 className="curia-heading text-xl text-[var(--chamber-obsidian)] md:text-2xl">Olá, Empresário</h3>
-          <p className="mt-1 curia-body-sm text-[var(--chamber-obsidian)]">O que você deseja resolver hoje?</p>
+          <h3 className="text-xl font-[var(--font-curia-ui)] font-black tracking-[-0.04em] leading-none text-transparent md:text-2xl bg-[linear-gradient(180deg,_rgba(26,26,26,0.58)_0%,_rgba(26,26,26,0.34)_100%)] bg-clip-text">Olá, Empresário</h3>
+          <p className="mt-1 text-sm font-[var(--font-curia-ui)] font-black tracking-[-0.03em] leading-tight text-transparent md:text-base bg-[linear-gradient(180deg,_rgba(26,26,26,0.58)_0%,_rgba(26,26,26,0.34)_100%)] bg-clip-text">O que você deseja resolver hoje?</p>
         </div>
 
         {/* Câmara isométrica */}
@@ -316,8 +316,10 @@ function BoardMockup() {
 
 function CuriaLogo({ size = 'md' }: { size?: 'sm' | 'md' }) {
   const sizeClass = size === 'sm' ? 'text-3xl' : 'text-4xl'
+  const iconClass = size === 'sm' ? 'h-11 w-11' : 'h-14 w-14'
   return (
-    <div className="flex items-center">
+    <div className="flex items-center gap-0">
+      <img src="/logo-sfundo-1.svg" alt="" className={`${iconClass} -mr-1 shrink-0 object-contain`} aria-hidden />
       <span className={`curia-logo ${sizeClass} leading-none`}>
         Curia
       </span>
@@ -393,7 +395,6 @@ const NAV_ITEMS = [
   { name: 'Conheça',        link: '#conheca' },
   { name: 'Como funciona',  link: '#como-funciona' },
   { name: 'Autoridade',     link: '#autoridade' },
-  { name: 'Big Techs',      link: '#big-techs' },
 ]
 
 function LandingSessionActions({
@@ -1101,7 +1102,7 @@ function BoardHomePreview() {
     <div className="flex flex-col items-center w-full">
       {/* Greeting texts — cycling above the chamber */}
       <div className="flex flex-col items-center text-center pointer-events-none" style={{ minHeight: '3.5rem' }}>
-        <CyclingText phrases={HERO_PHRASES} className="font-curia-script text-[var(--chamber-obsidian)] text-3xl md:text-4xl leading-none" />
+        <CyclingText phrases={HERO_PHRASES} className="font-[var(--font-curia-ui)] font-black tracking-[-0.04em] text-3xl md:text-4xl leading-none text-transparent bg-[linear-gradient(180deg,_rgba(26,26,26,0.58)_0%,_rgba(26,26,26,0.34)_100%)] bg-clip-text" />
       </div>
 
       {/* Chamber — pushed below the greeting */}
@@ -1475,34 +1476,8 @@ function Footer({
         
 
         {/* Bottom bar */}
-        <div className="flex flex-col-reverse items-center justify-between gap-4 py-6 sm:flex-row">
+        <div className="flex items-center justify-center py-6 sm:justify-start">
           <p className="text-xs text-[#0B0B0F]/60">© {new Date().getFullYear()} Curia. Todos os direitos reservados.</p>
-          <div className="flex items-center gap-4 text-[#0B0B0F]/60">
-            {/* X */}
-            <a href="#" aria-label="X / Twitter" className="hover:text-[#C9A84C] transition-colors">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                <path d="M18 2h3l-7.5 8.5L22 22h-6l-4.5-6L6 22H3l8.1-9.2L2 2h6l4 5.3L18 2z"/>
-              </svg>
-            </a>
-            {/* LinkedIn */}
-            <a href="#" aria-label="LinkedIn" className="hover:text-[#C9A84C] transition-colors">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                <path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4V24h-4V8zm7.5 0h3.8v2.2h.1c.5-1 1.8-2.2 3.7-2.2 4 0 4.8 2.6 4.8 6V24h-4v-5.8c0-1.4 0-3.2-2-3.2s-2.3 1.6-2.3 3.1V24h-4V8z"/>
-              </svg>
-            </a>
-            {/* YouTube */}
-            <a href="#" aria-label="YouTube" className="hover:text-[#C9A84C] transition-colors">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                <path d="M23.5 6.2s-.2-1.7-.8-2.5c-.8-.8-1.7-.8-2.1-.9C17.8 2.5 12 2.5 12 2.5h0s-5.8 0-8.6.3c-.4 0-1.3.1-2.1.9-.6.8-.8 2.5-.8 2.5S0 8.3 0 10.5v2.9c0 2.2.2 4.3.2 4.3s.2 1.7.8 2.5c.8.8 1.9.8 2.4.9 1.8.2 7.6.3 7.6.3s5.8 0 8.6-.3c.4 0 1.3-.1 2.1-.9.6-.8.8-2.5.8-2.5s.2-2.1.2-4.3v-2.9c0-2.2-.2-4.3-.2-4.3zM9.5 14.8V7.7l6.4 3.5-6.4 3.6z"/>
-              </svg>
-            </a>
-            {/* Instagram */}
-            <a href="#" aria-label="Instagram" className="hover:text-[#C9A84C] transition-colors">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                <path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.9.3 2.4.5.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.5.4 1.2.5 2.4.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.3 1.9-.5 2.4-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.5.2-1.2.4-2.4.5-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.9-.3-2.4-.5-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.5-.4-1.2-.5-2.4C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.3-1.9.5-2.4.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.5-.2 1.2-.4 2.4-.5C8.4 2.2 8.8 2.2 12 2.2m0 1.8c-3.1 0-3.5 0-4.7.1-1 .1-1.5.2-1.9.3-.5.2-.8.3-1 .6-.3.3-.5.6-.6 1-.1.4-.3.9-.3 1.9-.1 1.2-.1 1.6-.1 4.7s0 3.5.1 4.7c.1 1 .2 1.5.3 1.9.1.4.3.8.6 1 .3.3.6.5 1 .6.4.1.9.3 1.9.3 1.2.1 1.6.1 4.7.1s3.5 0 4.7-.1c1-.1 1.5-.2 1.9-.3.4-.1.8-.3 1-.6.3-.3.6-.5 1-.6.1-.4.3-.9.3-1.9.1-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c-.1-1-.2-1.5-.3-1.9-.1-.4-.3-.8-.6-1-.3-.3-.6-.5-1-.6-.4-.1-.9-.3-1.9-.3-1.2-.1-1.6-.1-4.7-.1zM12 5.9a6.1 6.1 0 1 1 0 12.2 6.1 6.1 0 0 1 0-12.2m0 1.8a4.3 4.3 0 1 0 0 8.6 4.3 4.3 0 0 0 0-8.6M18.4 4.9a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6z"/>
-              </svg>
-            </a>
-          </div>
         </div>
       </div>
     </footer>
