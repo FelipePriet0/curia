@@ -5,10 +5,10 @@ export interface CounselorConfig {
 }
 
 export const COUNSELORS: CounselorConfig[] = [
-  { id: 'strategy',   label: 'Estratégia', color: '#C9A84C' },
-  { id: 'finance',    label: 'Finanças',   color: '#A8B5C0' },
-  { id: 'growth',     label: 'Growth',     color: '#4A9B6F' },
-  { id: 'product',    label: 'Produto',    color: '#4A6FA5' },
-  { id: 'operations', label: 'Operações',  color: '#8B9BB4' },
-  { id: 'brand',      label: 'Marca',      color: '#9B6BB4' },
+  { id: 'strategy',   label: 'Estratégia', color: '#1E2A44' },
+  { id: 'finance',    label: 'Finanças',   color: '#6B2838' },
+  { id: 'growth',     label: 'Growth',     color: '#3A4A35' },
+  { id: 'product',    label: 'Produto',    color: '#2E3540' },
+  { id: 'operations', label: 'Operações',  color: '#5A3E2B' },
+  { id: 'brand',      label: 'Marca',      color: '#8B6F47' },
 ]

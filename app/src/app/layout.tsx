@@ -1,10 +1,46 @@
 import type { Metadata } from "next";
-import { ClerkProvider } from '@clerk/nextjs'
+import { Source_Sans_3, Eczar, Lilita_One } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
+/**
+ * CURIA — Sistema tipográfico
+ * -----------------------------------------------------------------------------
+ * Source Sans 3  → Tech/inovação. Headlines, UI, CTAs, números.
+ * Eczar          → Pensamento sério. Corpo, chat, citações.
+ * Lilita One     → Identidade de marca. Apenas o logotipo "Curia".
+ * Agfolan        → Acento raro da marca. Carregada via @font-face (local).
+ *
+ * Carregamento via next/font: self-hosted, zero layout shift, melhor
+ * performance que <link> do Google Fonts.
+ * -----------------------------------------------------------------------------
+ */
+
+const sourceSans = Source_Sans_3({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-curia-ui",
+  display: "swap",
+});
+
+const eczar = Eczar({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-curia-body",
+  display: "swap",
+});
+
+const lilitaOne = Lilita_One({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-curia-logo",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Curia — Seu Board Estratégico de IA",
-  description: "Board consultivo de IA para empresas em crescimento.",
+  title: "Curia — O conselho executivo de IA",
+  description:
+    "Um board de conselheiros de IA treinado sobre as decisões que construíram as empresas que mais cresceram no Brasil, dentro da sua empresa.",
 };
 
 export default function RootLayout({
@@ -13,60 +49,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" translate="no">
+    <html
+      lang="pt-BR"
+      translate="no"
+      className={`${sourceSans.variable} ${eczar.variable} ${lilitaOne.variable}`}
+    >
       <head>
         <meta name="google" content="notranslate" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800;900&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Notable&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Sniglet:wght@800&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Eczar:wght@500;600&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Lobster+Two:ital@1&display=swap"
-          rel="stylesheet"
-        />
       </head>
-      <body className="antialiased">
-        <ClerkProvider>
-          {children}
-        </ClerkProvider>
+      <body className="antialiased font-curia-body">
+        <ClerkProvider>{children}</ClerkProvider>
       </body>
     </html>
   );

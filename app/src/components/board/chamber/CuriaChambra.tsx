@@ -71,12 +71,12 @@ const SEAT_CY = OY
 // Per-counselor 3-face colors [top=light, right=mid, left=shadow]
 // Light source: top-left → top face brightest, right face medium, left face deep shadow
 const CHAR_COLORS: [string, string, string][] = [
-  ['#F2D060', '#C8980C', '#6A4C00'],  // Estratégia — gold    (yellow, strong contrast)
-  ['#7EC8F0', '#3A88C0', '#0E4070'],  // Finanças   — blue    (clear, trustworthy)
-  ['#6AC090', '#2E8050', '#0A4020'],  // Growth     — green
-  ['#6A90C8', '#2E58A0', '#0A2858'],  // Produto    — blue-slate
-  ['#B0C0D8', '#6880A0', '#283850'],  // Operações  — steel
-  ['#D090E8', '#8840B8', '#420868'],  // Marca      — purple  (vibrant, distinctive)
+  ['#4E6A96', '#243158', '#0C1525'],  // Estratégia — navy profundo
+  ['#A84858', '#6B2838', '#2C1018'],  // Finanças   — bordô
+  ['#6A7860', '#3A4A35', '#141C12'],  // Growth     — verde musgo
+  ['#5C6878', '#2E3540', '#10141A'],  // Produto    — grafite azulado
+  ['#8A6848', '#5A3E2B', '#221410'],  // Operações  — marrom tabaco
+  ['#BCA070', '#8B6F47', '#3C2810'],  // Marca      — camel/caramelo
 ]
 
 // ─── Seat layout ─────────────────────────────────────────────────────────────

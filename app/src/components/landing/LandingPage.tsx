@@ -18,10 +18,10 @@ const DEMO_Q = 'Nosso churn subiu para 8% este mês. Quais são as causas mais p
 const DEMO_R = 'Três vetores dominam esse padrão: onboarding incompleto nos primeiros 7 dias responde por ~60% dos cancelamentos. Clientes que não ativam a função principal churnam 3× mais rápido. Ausência de check-in estruturado nas contas acima de R$500/mês. Priorize nessa ordem antes de qualquer campanha de retenção.'
 const DEMO_CONVOS = ['Análise de churn Q1', 'Estratégia de expansão', 'Review financeiro', 'Posicionamento de marca']
 const DEMO_BOARDS = [
-  { name: 'Estratégia', cls: 'bg-[#C9A84C]' },
-  { name: 'Finanças',   cls: 'bg-[#A8B5C0]' },
-  { name: 'Produto',    cls: 'bg-[#4A6FA5]' },
-  { name: 'Crescimento',cls: 'bg-[#4A9B6F]' },
+  { name: 'Estratégia', cls: 'bg-[#1E2A44]' },
+  { name: 'Finanças',   cls: 'bg-[#6B2838]' },
+  { name: 'Produto',    cls: 'bg-[#2E3540]' },
+  { name: 'Crescimento',cls: 'bg-[#3A4A35]' },
 ]
 
 type DemoPhase = 'idle' | 'typing' | 'thinking' | 'counselors' | 'streaming' | 'done'
@@ -101,7 +101,7 @@ function HeroDemo() {
   const showResponse  = ['streaming','done'].includes(phase)
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#0B0B0F]/12 shadow-2xl" style={{ background: '#FDFBF9' }}>
+    <div className="overflow-hidden rounded-2xl border border-[#0B0B0F]/12 shadow-2xl" style={{ background: 'hsl(36 60% 98%)' }}>
       {/* Window chrome */}
       <div className="flex items-center gap-2 border-b border-[#0B0B0F]/10 bg-[#F5EDE0]/60 px-4 py-2.5">
         <div className="flex gap-1.5">
@@ -219,8 +219,8 @@ function ChamberSVG({ className = 'w-full max-w-[260px]' }: { className?: string
     <svg viewBox="0 0 300 210" className={className} aria-hidden>
       <defs>
         <radialGradient id="mg" cx="50%" cy="50%" r="50%">
-          <stop offset="0%"   stopColor="#0B0B0F" stopOpacity="0.5" />
-          <stop offset="100%" stopColor="#0B0B0F" stopOpacity="0" />
+          <stop offset="0%"   stopColor="#1A1A1A" stopOpacity="0.5" />
+          <stop offset="100%" stopColor="#1A1A1A" stopOpacity="0" />
         </radialGradient>
         <radialGradient id="fg" cx="50%" cy="30%" r="70%">
           <stop offset="0%"   stopColor="#F8F0E6" />
@@ -230,7 +230,7 @@ function ChamberSVG({ className = 'w-full max-w-[260px]' }: { className?: string
 
       {/* Plataforma isométrica — face superior */}
       <path d="M 150 35 L 268 98 L 150 162 L 32 98 Z"
-            fill="url(#fg)" stroke="#0B0B0F" strokeOpacity="0.08" strokeWidth="1" />
+            fill="url(#fg)" stroke="#1A1A1A" strokeOpacity="0.08" strokeWidth="1" />
 
       {/* Face lateral direita */}
       <path d="M 268 98 L 150 162 L 150 192 L 268 128 Z"
@@ -241,27 +241,27 @@ function ChamberSVG({ className = 'w-full max-w-[260px]' }: { className?: string
             fill="#CEB895" stroke="none" />
 
       {/* Linha divisória plataforma */}
-      <line x1="150" y1="162" x2="150" y2="192" stroke="#0B0B0F" strokeOpacity="0.06" strokeWidth="1" />
+      <line x1="150" y1="162" x2="150" y2="192" stroke="#1A1A1A" strokeOpacity="0.06" strokeWidth="1" />
 
       {/* Mesa central (oval isométrica) */}
       <ellipse cx="150" cy="98" rx="48" ry="28"
-               fill="#0B0B0F" fillOpacity="0.05"
-               stroke="#0B0B0F" strokeOpacity="0.12" strokeWidth="1"
+               fill="#1A1A1A" fillOpacity="0.05"
+               stroke="#1A1A1A" strokeOpacity="0.12" strokeWidth="1"
                transform="rotate(-0 150 98)" />
 
       {/* Glow central */}
       <circle cx="150" cy="98" r="34" fill="url(#mg)" />
-      <circle cx="150" cy="98" r="12" fill="#0B0B0F" fillOpacity="0.18" />
-      <circle cx="150" cy="98" r="5"  fill="#0B0B0F" fillOpacity="0.6" />
+      <circle cx="150" cy="98" r="12" fill="#1A1A1A" fillOpacity="0.18" />
+      <circle cx="150" cy="98" r="5"  fill="#1A1A1A" fillOpacity="0.6" />
 
       {/* Assentos dos conselheiros */}
       {seats.map((s, i) => (
         <g key={i}>
           <circle cx={s.cx} cy={s.cy} r={7}
-                  fill="#0B0B0F" fillOpacity="0.85"
-                  stroke="#0B0B0F" strokeOpacity="0.35" strokeWidth="1.5" />
+                  fill="#1A1A1A" fillOpacity="0.85"
+                  stroke="#1A1A1A" strokeOpacity="0.35" strokeWidth="1.5" />
           <circle cx={s.cx} cy={s.cy} r={2.5}
-                  fill="#0B0B0F" fillOpacity="0.6" />
+                  fill="#1A1A1A" fillOpacity="0.6" />
         </g>
       ))}
     </svg>
@@ -270,7 +270,7 @@ function ChamberSVG({ className = 'w-full max-w-[260px]' }: { className?: string
 
 function BoardMockup() {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#0B0B0F]/15 bg-[#FDFBF9] shadow-2xl">
+    <div className="overflow-hidden rounded-2xl border border-[#0B0B0F]/15 shadow-2xl">
       {/* Chrome */}
       <div className="flex items-center gap-2 border-b border-[#0B0B0F]/10 bg-[#F5EDE0]/60 px-4 py-2.5">
         <div className="flex gap-1.5">
@@ -286,8 +286,8 @@ function BoardMockup() {
 
         {/* Saudação */}
         <div className="mb-5 text-center">
-          <h3 className="myriad-bold--display text-xl text-[#0B0B0F] md:text-2xl">Olá, Empresário</h3>
-          <p className="mt-1 font-curia-serif text-sm text-[#0B0B0F]/50">O que você deseja resolver hoje?</p>
+          <h3 className="curia-heading text-xl text-[#1A1A1A] md:text-2xl">Olá, Empresário</h3>
+          <p className="mt-1 curia-body-sm text-[#1A1A1A]/50">O que você deseja resolver hoje?</p>
         </div>
 
         {/* Câmara isométrica */}
@@ -318,7 +318,7 @@ function CuriaLogo({ size = 'md' }: { size?: 'sm' | 'md' }) {
   const sizeClass = size === 'sm' ? 'text-3xl' : 'text-4xl'
   return (
     <div className="flex items-center">
-      <span className={`myriad-bold--display text-[#0B0B0F] ${sizeClass} leading-none`}>
+      <span className={`curia-logo ${sizeClass} leading-none`}>
         Curia
       </span>
     </div>
@@ -372,7 +372,7 @@ export function LandingPage({
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFBF9] text-[#0B0B0F]">
+    <div className="min-h-screen bg-white text-[#0B0B0F]">
       <Nav signedIn={signedIn} signingOut={signingOut} onSignOut={handleSignOut} mode={mode} />
       <Hero signedIn={signedIn} mode={mode} />
       <MeetCuria signedIn={signedIn} mode={mode} />
@@ -622,7 +622,7 @@ function Nav({
 }) {
   return (
     <>
-      <header className="relative z-40 px-6 bg-[#FDFBF9]">
+      <header className="relative z-40 px-6">
         <div className="mx-auto flex h-20 max-w-6xl items-center justify-between">
           <CuriaLogo size="md" />
           <LandingSessionActions signedIn={signedIn} signingOut={signingOut} onSignOut={onSignOut} mode={mode} />
@@ -687,19 +687,18 @@ function Hero({ signedIn = false, mode = 'product' }: { signedIn?: boolean; mode
 
       <div className="relative mx-auto max-w-3xl">
         <div className="mb-6 inline-flex items-center">
-          <span className="font-curia-script text-xl md:text-2xl tracking-wide text-[#C9A84C]">
+          <span className="curia-eyebrow-muted">
             Acesso antecipado — vagas limitadas
           </span>
         </div>
 
-        <h1 className="mb-6 text-4xl leading-[1.15] text-[#0B0B0F] md:text-6xl myriad-bold--display">
-          <span className="block">Os conselheiros estratégicos</span>
-          <span className="block">das grandes empresas</span>
-          <span className="block font-curia-script text-[#C9A84C]">trabalhando para você</span>
+        <h1 className="mb-6 curia-display-xl">
+          <span className="block">O conselho executivo de IA.</span>
+          <span className="block opacity-50">Para empresas que querem pensar como big techs.</span>
         </h1>
 
-        <p className="mx-auto mb-10 myriad-bold--body text-2xl text-[#0B0B0F]/50">
-          Teste grátis por 14 dias.
+        <p className="mx-auto mb-10 curia-lead text-center">
+          Um board de conselheiros de IA treinado sobre as decisões que construíram as empresas que mais cresceram no Brasil, dentro da sua empresa.
         </p>
 
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
@@ -1079,7 +1078,7 @@ function Authority() {
   const visible = QUOTES.filter((q) => !hidden.has(q.author))
 
   return (
-    <section id="autoridade" className="bg-[#FDFBF9] px-6 py-24 overflow-hidden">
+    <section id="autoridade" className="px-6 py-24 overflow-hidden">
       <div className="mx-auto max-w-5xl">
         <AnimatedStickyHeadlines />
         <div className="mt-12" />
@@ -1132,7 +1131,7 @@ function BoardHomePreview() {
 
 function MeetCuria({ signedIn = false, mode = 'product' }: { signedIn?: boolean; mode?: 'waitlist' | 'product' }) {
   return (
-    <section id="conheca" className="bg-[#FDFBF9] px-6 py-24">
+    <section id="conheca" className="px-6 py-24">
       <div className="mx-auto max-w-6xl">
         <div className="grid items-center gap-8 md:grid-cols-2 md:gap-10">
 
@@ -1187,7 +1186,7 @@ const HOW_STEPS = [
 
 function HowItWorks() {
   return (
-    <section id="como-funciona" className="bg-[#FDFBF9] px-6 pt-28 pb-24">
+    <section id="como-funciona" className="px-6 pt-28 pb-24">
       <div className="mx-auto max-w-5xl">
         {/* 2-column layout: sticky title left + scrolling timeline right */}
         <div className="flex flex-col gap-16 md:flex-row md:gap-20 md:items-start">
@@ -1264,7 +1263,7 @@ function WaitlistSection() {
   }
 
   return (
-    <section id="waitlist" className="bg-[#FDFBF9] px-6 py-28">
+    <section id="waitlist" className="px-6 py-28">
       <div className="mx-auto max-w-5xl text-center">
         <h2 className="mb-4 text-3xl myriad-bold--display text-[#0B0B0F] md:text-5xl tracking-[-0.02em]">
           <NoWidows>Curia está chegando</NoWidows>
@@ -1361,7 +1360,7 @@ const STARTER_FEATURES = [
 
 function Pricing({ signedIn = false }: { signedIn?: boolean }) {
   return (
-    <section id="planos" className="bg-[#FDFBF9] px-6 py-28">
+    <section id="planos" className="px-6 py-28">
       <div className="mx-auto max-w-5xl text-center">
         <h2 className="mb-4 text-3xl myriad-bold--display text-[#0B0B0F] md:text-5xl tracking-[-0.02em]">
           <NoWidows>Fortaleça suas decisões</NoWidows>
@@ -1422,7 +1421,7 @@ function Footer({
   mode?: 'waitlist' | 'product'
 }) {
   return (
-    <footer className="bg-[#FDFBF9] px-6">
+    <footer className="px-6">
       <div className="mx-auto max-w-7xl">
         {/* Top content */}
         <div className="grid gap-10 py-12 sm:grid-cols-2 md:grid-cols-4">

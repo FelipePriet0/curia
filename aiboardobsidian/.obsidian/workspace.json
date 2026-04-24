@@ -62,9 +62,23 @@
               "icon": "lucide-file",
               "title": "Como eu vejo a Curia"
             }
+          },
+          {
+            "id": "f584a3eb98683bd5",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Posicionamento Curia.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Posicionamento Curia"
+            }
           }
         ],
-        "currentTab": 3
+        "currentTab": 4
       },
       {
         "id": "02bc1294fdbf7b21",
@@ -246,10 +260,11 @@
       "bases:Criar nova base": false
     }
   },
-  "active": "fba817ad31fb6eef",
+  "active": "f584a3eb98683bd5",
   "lastOpenFiles": [
-    "CURIA — Como o Agente Funciona.md",
     "Como eu vejo a Curia.md",
+    "Posicionamento Curia.md",
+    "CURIA — Como o Agente Funciona.md",
     "Pontos a Colocar.md",
     "Board.md",
     "UI Isométrica — Como é Desenhada.md",
