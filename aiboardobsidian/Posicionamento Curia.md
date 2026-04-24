@@ -1,7 +1,7 @@
 
 1. Declaração de posicionamento (one-liner interno)
    
-   Para empresários brasileiros em crescimento que não têm um conselho executivo, a Curia é um board de conselheiros de IA — especializados em marketing, finanças, operações e marca — que traz para PMEs o mesmo nível de inteligência estratégica que antes só existia dentro das big techs.
+   Para empresários que não têm um conselho executivo, a Curia é um board de conselheiros de IA — especializados em marketing, finanças, operações e marca — que traz para PMEs o mesmo nível de inteligência estratégica que antes só existia dentro das big techs.
    
 2. Categoria: **Conselho executivo de IA**
    

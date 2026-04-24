@@ -128,7 +128,7 @@ export function ScrollTimeline({ steps, className = "" }: ScrollTimelineProps) {
     const parts = text.split(/(Big Tech)/g)
     return parts.map((part, i) =>
       part === 'Big Tech' ? (
-        <span key={i} className="font-curia-script text-[#C9A84C]">
+        <span key={i} className="font-curia-script text-[#0B0B0F]/50">
           {part}
         </span>
       ) : (
@@ -147,12 +147,12 @@ export function ScrollTimeline({ steps, className = "" }: ScrollTimelineProps) {
         aria-hidden
       >
         {/* Base path */}
-        <path d={pathD} stroke="#C9A84C" strokeOpacity="0.20" strokeWidth={3} fill="none" />
+        <path d={pathD} stroke="var(--chamber-obsidian)" strokeOpacity="0.20" strokeWidth={3} fill="none" />
         {/* Progress path using dashoffset */}
         <path
           ref={pathRef}
           d={pathD}
-          stroke="#C9A84C"
+          stroke="var(--chamber-obsidian)"
           strokeWidth={3}
           fill="none"
           strokeDasharray={pathLength || 1}
@@ -162,7 +162,7 @@ export function ScrollTimeline({ steps, className = "" }: ScrollTimelineProps) {
         {/* Dots — each step uses a counselor color */}
         {points.map((pt, i) => (
           <g key={i} transform={`translate(${pt.x}, ${pt.y})`}>
-            <circle r={16} fill="#C9A84C" />
+            <circle r={16} fill="var(--chamber-obsidian)" />
             <text
               x={0}
               y={4}
@@ -208,7 +208,7 @@ export function ScrollTimeline({ steps, className = "" }: ScrollTimelineProps) {
               </h3>
               <p
                 className={`max-w-md text-sm leading-relaxed transition-colors duration-500 md:text-base ${
-                  isActive ? "text-[#0B0B0F]/80" : "text-[#0B0B0F]/30"
+                  isActive ? "text-[#0B0B0F]/50" : "text-[#0B0B0F]/30"
                 }`}
               >
                 {highlightBigTech(step.description)}

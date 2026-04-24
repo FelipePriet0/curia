@@ -219,49 +219,49 @@ function ChamberSVG({ className = 'w-full max-w-[260px]' }: { className?: string
     <svg viewBox="0 0 300 210" className={className} aria-hidden>
       <defs>
         <radialGradient id="mg" cx="50%" cy="50%" r="50%">
-          <stop offset="0%"   stopColor="#1A1A1A" stopOpacity="0.5" />
-          <stop offset="100%" stopColor="#1A1A1A" stopOpacity="0" />
+          <stop offset="0%"   stopColor="var(--chamber-obsidian)" stopOpacity="0.5" />
+          <stop offset="100%" stopColor="var(--chamber-obsidian)" stopOpacity="0" />
         </radialGradient>
         <radialGradient id="fg" cx="50%" cy="30%" r="70%">
-          <stop offset="0%"   stopColor="#F8F0E6" />
-          <stop offset="100%" stopColor="#EDD9BF" />
+          <stop offset="0%"   stopColor="var(--chamber-silver)" stopOpacity="0.88" />
+          <stop offset="100%" stopColor="var(--chamber-text-secondary)" stopOpacity="0.78" />
         </radialGradient>
       </defs>
 
       {/* Plataforma isométrica — face superior */}
       <path d="M 150 35 L 268 98 L 150 162 L 32 98 Z"
-            fill="url(#fg)" stroke="#1A1A1A" strokeOpacity="0.08" strokeWidth="1" />
+            fill="url(#fg)" stroke="var(--chamber-obsidian)" strokeOpacity="0.12" strokeWidth="1" />
 
       {/* Face lateral direita */}
       <path d="M 268 98 L 150 162 L 150 192 L 268 128 Z"
-            fill="#DFC8A8" stroke="none" />
+            fill="var(--chamber-text-secondary)" fillOpacity="0.8" stroke="none" />
 
       {/* Face lateral esquerda */}
       <path d="M 32 98 L 150 162 L 150 192 L 32 128 Z"
-            fill="#CEB895" stroke="none" />
+            fill="var(--chamber-obsidian)" fillOpacity="0.45" stroke="none" />
 
       {/* Linha divisória plataforma */}
-      <line x1="150" y1="162" x2="150" y2="192" stroke="#1A1A1A" strokeOpacity="0.06" strokeWidth="1" />
+      <line x1="150" y1="162" x2="150" y2="192" stroke="var(--chamber-obsidian)" strokeOpacity="0.14" strokeWidth="1" />
 
       {/* Mesa central (oval isométrica) */}
       <ellipse cx="150" cy="98" rx="48" ry="28"
-               fill="#1A1A1A" fillOpacity="0.05"
-               stroke="#1A1A1A" strokeOpacity="0.12" strokeWidth="1"
+               fill="var(--chamber-obsidian)" fillOpacity="0.08"
+               stroke="var(--chamber-obsidian)" strokeOpacity="0.18" strokeWidth="1"
                transform="rotate(-0 150 98)" />
 
       {/* Glow central */}
       <circle cx="150" cy="98" r="34" fill="url(#mg)" />
-      <circle cx="150" cy="98" r="12" fill="#1A1A1A" fillOpacity="0.18" />
-      <circle cx="150" cy="98" r="5"  fill="#1A1A1A" fillOpacity="0.6" />
+      <circle cx="150" cy="98" r="12" fill="var(--chamber-obsidian)" fillOpacity="0.18" />
+      <circle cx="150" cy="98" r="5"  fill="var(--chamber-obsidian)" fillOpacity="0.6" />
 
       {/* Assentos dos conselheiros */}
       {seats.map((s, i) => (
         <g key={i}>
           <circle cx={s.cx} cy={s.cy} r={7}
-                  fill="#1A1A1A" fillOpacity="0.85"
-                  stroke="#1A1A1A" strokeOpacity="0.35" strokeWidth="1.5" />
+                  fill="var(--chamber-obsidian)" fillOpacity="0.85"
+                  stroke="var(--chamber-obsidian)" strokeOpacity="0.35" strokeWidth="1.5" />
           <circle cx={s.cx} cy={s.cy} r={2.5}
-                  fill="#1A1A1A" fillOpacity="0.6" />
+                  fill="var(--chamber-obsidian)" fillOpacity="0.6" />
         </g>
       ))}
     </svg>
@@ -286,8 +286,8 @@ function BoardMockup() {
 
         {/* Saudação */}
         <div className="mb-5 text-center">
-          <h3 className="curia-heading text-xl text-[#1A1A1A] md:text-2xl">Olá, Empresário</h3>
-          <p className="mt-1 curia-body-sm text-[#1A1A1A]/50">O que você deseja resolver hoje?</p>
+          <h3 className="curia-heading text-xl text-[var(--chamber-obsidian)] md:text-2xl">Olá, Empresário</h3>
+          <p className="mt-1 curia-body-sm text-[var(--chamber-obsidian)]">O que você deseja resolver hoje?</p>
         </div>
 
         {/* Câmara isométrica */}
@@ -372,7 +372,10 @@ export function LandingPage({
   }
 
   return (
-    <div className="min-h-screen bg-white text-[#0B0B0F]">
+    <div className="relative min-h-screen overflow-x-hidden bg-white text-[#0B0B0F]">
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 flex justify-center">
+        <div className="h-[760px] w-[760px] -translate-y-[34%] rounded-full bg-[var(--chamber-obsidian)] opacity-[0.07] blur-3xl" />
+      </div>
       <Nav signedIn={signedIn} signingOut={signingOut} onSignOut={handleSignOut} mode={mode} />
       <Hero signedIn={signedIn} mode={mode} />
       <MeetCuria signedIn={signedIn} mode={mode} />
@@ -681,11 +684,7 @@ function CyclingText({ phrases, className = '' }: { phrases: string[]; className
 function Hero({ signedIn = false, mode = 'product' }: { signedIn?: boolean; mode?: 'waitlist' | 'product' }) {
   return (
     <section className="relative overflow-hidden px-6 pb-24 pt-20 text-center">
-      <div aria-hidden className="pointer-events-none absolute inset-0 flex items-start justify-center">
-        <div className="h-[600px] w-[600px] rounded-full bg-[#0B0B0F] opacity-[0.07] blur-3xl" />
-      </div>
-
-      <div className="relative mx-auto max-w-3xl">
+      <div className="relative mx-auto max-w-5xl">
         <div className="mb-6 inline-flex items-center">
           <span className="curia-eyebrow-muted">
             Acesso antecipado — vagas limitadas
@@ -693,12 +692,19 @@ function Hero({ signedIn = false, mode = 'product' }: { signedIn?: boolean; mode
         </div>
 
         <h1 className="mb-6 curia-display-xl">
-          <span className="block">O conselho executivo de IA.</span>
-          <span className="block opacity-50">Para empresas que querem pensar como big techs.</span>
+          <span className="block">
+            <NoWidows>O conselho executivo das grandes empresas,</NoWidows>
+          </span>
+          <span
+            className="block bg-clip-text text-transparent"
+            style={{ backgroundImage: 'linear-gradient(180deg, rgba(26, 26, 26, 0.58) 0%, rgba(26, 26, 26, 0.34) 100%)' }}
+          >
+            <NoWidows>trabalhando na sua</NoWidows>
+          </span>
         </h1>
 
-        <p className="mx-auto mb-10 curia-lead text-center">
-          Um board de conselheiros de IA treinado sobre as decisões que construíram as empresas que mais cresceram no Brasil, dentro da sua empresa.
+        <p className="mx-auto mb-10 max-w-4xl curia-lead text-center">
+          <NoWidows>O board de conselheiros de IA, especializados em marketing, finanças, operações e marca que traz para a sua empresa o mesmo nível de inteligência estratégica que antes só existia dentro das grandes.</NoWidows>
         </p>
 
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
@@ -887,7 +893,7 @@ function CorrectionComo() {
         />
       </svg>
       {/* Handwritten correction in Curia Script (same look as toggle) */}
-      <span className="pointer-events-none absolute -top-4 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[#C9A84C] font-curia-script text-[1.05em] leading-none">
+      <span className="pointer-events-none absolute -top-4 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[#0B0B0F]/50 font-curia-script text-[1.05em] leading-none">
         com
       </span>
     </span>
@@ -1095,7 +1101,7 @@ function BoardHomePreview() {
     <div className="flex flex-col items-center w-full">
       {/* Greeting texts — cycling above the chamber */}
       <div className="flex flex-col items-center text-center pointer-events-none" style={{ minHeight: '3.5rem' }}>
-        <CyclingText phrases={HERO_PHRASES} className="font-curia-script text-[#C9A84C] text-3xl md:text-4xl leading-none" />
+        <CyclingText phrases={HERO_PHRASES} className="font-curia-script text-[var(--chamber-obsidian)] text-3xl md:text-4xl leading-none" />
       </div>
 
       {/* Chamber — pushed below the greeting */}
@@ -1138,7 +1144,7 @@ function MeetCuria({ signedIn = false, mode = 'product' }: { signedIn?: boolean;
           <div>
             <h2 className="mb-5 text-3xl myriad-bold--display text-[#0B0B0F] md:text-5xl tracking-[-0.02em]"><NoWidows>Conheça a Curia</NoWidows></h2>
             <p className="text-lg leading-relaxed text-[#0B0B0F]/80 myriad-bold--body">
-              <NoWidows>Curia é o seu conselho consultivo de IA, disponível 24 horas por dia. Estratégico, preciso e sempre pronto para orientar suas decisões.</NoWidows>
+              <NoWidows>Curia é o seu conselho executivo de IA, disponível 24 horas por dia. Estratégico, preciso e sempre pronto para orientar suas decisões.</NoWidows>
             </p>
             <p className="mt-4 text-lg leading-relaxed text-[#0B0B0F]/70 myriad-bold--body">
               <NoWidows>Criada para dar a empresas em crescimento o mesmo nível de inteligência que antes só as grandes tinham acesso.</NoWidows>
