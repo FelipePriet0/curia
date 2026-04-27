@@ -1,4 +1,4 @@
-export const dynamic = 'force-static'
+﻿export const dynamic = 'force-static'
 
 const LAST_UPDATED = '2026-04-05'
 const TERMS_VERSION = '1.0.0'
@@ -8,19 +8,19 @@ export default function TermsPage() {
     <div className="mx-auto max-w-3xl px-6 py-10">
       <h1 className="font-curia-rounded text-2xl text-[#0B0B0F]">Termos de Uso</h1>
 
-      <p className="mt-3 font-curia-serif text-sm text-[#0B0B0F]/70 leading-relaxed">
+      <p className="mt-3 text-sm text-[#0B0B0F]/70 leading-relaxed">
         Estes Termos de Uso regulam o acesso e a utilização da plataforma Curia, seus produtos,
         funcionalidades, conteúdos, interfaces, agentes, modelos de inteligência artificial,
         painéis, integrações e demais serviços relacionados.
       </p>
 
-      <p className="mt-3 font-curia-serif text-sm text-[#0B0B0F]/70 leading-relaxed">
+      <p className="mt-3 text-sm text-[#0B0B0F]/70 leading-relaxed">
         Ao criar conta, acessar ou utilizar a Curia, você declara que leu, compreendeu e concorda
         integralmente com estes Termos, com a Política de Privacidade e com as demais políticas e
         avisos aplicáveis divulgados na plataforma.
       </p>
 
-      <section className="mt-6 space-y-5 font-curia-serif text-sm text-[#0B0B0F]/80 leading-relaxed">
+      <section className="mt-6 space-y-5 text-sm text-[#0B0B0F]/80 leading-relaxed">
         <div>
           <h2 className="font-semibold text-[#0B0B0F]">1. Identificação do fornecedor</h2>
           <p>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { BookmarkPlus, X } from 'lucide-react'
@@ -48,13 +48,13 @@ export function StrategyProposalBanner({
           <div className="flex items-start gap-3 min-w-0">
             <BookmarkPlus className="mt-0.5 h-4 w-4 shrink-0 text-[#0B0B0F]" />
             <div className="min-w-0">
-              <p className="font-curia-serif text-sm font-medium text-[#0B0B0F]">
+              <p className="text-sm font-medium text-[#0B0B0F]">
                 Isso virou uma estratégia
               </p>
-              <p className="mt-0.5 font-curia-serif text-xs text-[#0B0B0F]/60 truncate">
+              <p className="mt-0.5 text-xs text-[#0B0B0F]/60 truncate">
                 {proposal.name}
               </p>
-              <p className="mt-2 font-curia-serif text-[11px] text-[#0B0B0F]/50">
+              <p className="mt-2 text-[11px] text-[#0B0B0F]/50">
                 Revise criticamente antes de implementar. Este conteúdo não substitui assessoria profissional.
               </p>
             </div>
@@ -63,7 +63,7 @@ export function StrategyProposalBanner({
             <button
               onClick={handleSave}
               disabled={saving}
-              className="rounded-lg bg-[#0B0B0F] px-3 py-1.5 font-curia-serif text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="rounded-lg bg-[#0B0B0F] px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               {saving ? 'Salvando...' : 'Salvar'}
             </button>

@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curia — Tipografia Editorial v3 (Fraunces)</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Fraunces variable + Source Sans 3 -->
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Source+Sans+3:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   CURIA — TIPOGRAFIA EDITORIAL-TECH v3
+   Fraunces (display) + Source Sans 3 (utility)
+   ============================================================ */
+
+:root {
+  /* Famílias */
+  --font-curia-editorial: "Fraunces", ui-serif, Georgia, serif;
+  --font-curia-tech:      "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+
+  /* Cores neutras */
+  --chamber-ink:        #1A1A1A;
+  --chamber-ink-deep:   #0A0A0B;
+  --chamber-cream:      #FAFAF7;
+  --chamber-ink-85:     rgba(26, 26, 26, 0.85);
+  --chamber-ink-60:     rgba(26, 26, 26, 0.60);
+  --chamber-ink-35:     rgba(26, 26, 26, 0.35);
+  --chamber-cream-85:   rgba(250, 250, 247, 0.85);
+  --chamber-cream-60:   rgba(250, 250, 247, 0.60);
+  --chamber-cream-35:   rgba(250, 250, 247, 0.35);
+
+  /* Escala */
+  --text-display-xl:    clamp(3rem, 7.5vw, 6rem);
+  --text-display:       clamp(2.25rem, 5vw, 4rem);
+  --text-display-sm:    clamp(1.875rem, 3.5vw, 2.75rem);
+  --text-heading:       clamp(1.5rem, 2.25vw, 1.875rem);
+  --text-lead:          clamp(1.25rem, 1.625vw, 1.4375rem);
+  --text-body:          1.0625rem;
+  --text-numeric-xl:    clamp(5rem, 12vw, 9rem);
+  --text-ui-lg:         1rem;
+  --text-ui:            0.875rem;
+  --text-ui-xs:         0.6875rem;
+
+  /* Line-heights */
+  --leading-display:   1.05;
+  --leading-tight:     1.15;
+  --leading-snug:      1.35;
+  --leading-body:      1.65;
+
+  /* Tracking */
+  --tracking-display:        -0.02em;
+  --tracking-heading:        -0.01em;
+  --tracking-body:           -0.005em;
+  --tracking-numeric:        -0.05em;
+  --tracking-ui-bold:        -0.02em;
+  --tracking-ui-eyebrow:     0.18em;
+
+  /* Fraunces variable settings — onde a mágica acontece */
+  /*
+     opsz (9-144):    optical size — adapta forma da letra ao tamanho.
+                      Em display grande, usa 144 (formas elegantes).
+                      Em texto pequeno, usa 9-14 (formas legíveis).
+
+     SOFT (0-100):    suaviza terminações. 0 = afiado, 100 = mole.
+                      Pra Curia: ~30 (sutil personalidade sem perder seriedade).
+
+     wght (300-900):  peso. 600 pra display, 400 pra body.
+  */
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-curia-editorial);
+  font-weight: 400;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-body);
+  color: var(--chamber-ink);
+  background: var(--chamber-cream);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1, "ss01" 1;
+  /* opsz default pra body (texto de leitura) */
+  font-variation-settings: "opsz" 14, "SOFT" 30;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   CLASSES UTILITÁRIAS — Sistema editorial-tech
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* DISPLAY EDITORIAL — Fraunces protagonista */
+.curia-display-xl {
+  font-family: var(--font-curia-editorial);
+  font-weight: 600;
+  font-size: var(--text-display-xl);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  text-wrap: balance;
+  /* Fraunces em modo display: opsz alto + SOFT médio = elegância editorial */
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+}
+
+.curia-display {
+  font-family: var(--font-curia-editorial);
+  font-weight: 600;
+  font-size: var(--text-display);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  text-wrap: balance;
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+}
+
+.curia-display-sm {
+  font-family: var(--font-curia-editorial);
+  font-weight: 600;
+  font-size: var(--text-display-sm);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-heading);
+  text-wrap: balance;
+  font-variation-settings: "opsz" 96, "SOFT" 30;
+}
+
+/* Itálico estratégico — assinatura editorial Curia */
+.curia-display-xl em,
+.curia-display em,
+.curia-display-sm em {
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* HEADING */
+.curia-heading {
+  font-family: var(--font-curia-editorial);
+  font-weight: 600;
+  font-size: var(--text-heading);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-heading);
+  font-variation-settings: "opsz" 72, "SOFT" 30;
+}
+
+/* LEAD — subheadline editorial */
+.curia-lead {
+  font-family: var(--font-curia-editorial);
+  font-weight: 400;
+  font-size: var(--text-lead);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-body);
+  text-wrap: pretty;
+  max-width: 42rem;
+  font-variation-settings: "opsz" 36, "SOFT" 30;
+}
+
+.curia-lead em {
+  font-style: italic;
+}
+
+/* BODY */
+.curia-body {
+  font-family: var(--font-curia-editorial);
+  font-weight: 400;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-body);
+  font-variation-settings: "opsz" 14, "SOFT" 30;
+}
+
+.curia-body-strong {
+  font-family: var(--font-curia-editorial);
+  font-weight: 600;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  font-variation-settings: "opsz" 14, "SOFT" 30;
+}
+
+/* QUOTE — citações editoriais */
+.curia-quote {
+  font-family: var(--font-curia-editorial);
+  font-weight: 400;
+  font-style: italic;
+  font-size: var(--text-lead);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-body);
+  border-left: 2px solid currentColor;
+  padding-left: 1.25rem;
+  text-wrap: pretty;
+  font-variation-settings: "opsz" 36, "SOFT" 30;
+}
+
+/* NUMERIC — Source Sans pra impacto técnico */
+.curia-numeric {
+  font-family: var(--font-curia-tech);
+  font-weight: 900;
+  font-size: var(--text-numeric-xl);
+  line-height: 1;
+  letter-spacing: var(--tracking-numeric);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  display: inline-block;
+}
+
+/* UI — Source Sans utilitário */
+.curia-cta {
+  font-family: var(--font-curia-tech);
+  font-weight: 800;
+  font-size: var(--text-ui-lg);
+  letter-spacing: var(--tracking-ui-bold);
+}
+
+.curia-eyebrow {
+  font-family: var(--font-curia-tech);
+  font-weight: 600;
+  font-size: var(--text-ui-xs);
+  letter-spacing: var(--tracking-ui-eyebrow);
+  text-transform: uppercase;
+  display: block;
+}
+
+.curia-caption {
+  font-family: var(--font-curia-tech);
+  font-weight: 400;
+  font-size: var(--text-ui-xs);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   HERO COM IMAGEM (igual ao Blank)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 80px 64px 64px;
+  color: var(--chamber-cream);
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://images.unsplash.com/photo-1517502884422-41eaead166d4?q=80&w=2400&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  z-index: 1;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 10, 11, 0.45) 0%,
+    rgba(10, 10, 11, 0.55) 40%,
+    rgba(10, 10, 11, 0.92) 100%
+  );
+  z-index: 2;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 3;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.hero-eyebrow {
+  color: var(--chamber-cream-60);
+}
+
+.hero-headline {
+  color: var(--chamber-cream);
+  max-width: 18ch;
+}
+
+.hero-sub {
+  color: var(--chamber-cream-85);
+  max-width: 38rem;
+}
+
+.hero-source {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--chamber-cream-35);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.hero-source-badge {
+  font-family: var(--font-curia-tech);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--chamber-cream);
+  padding: 4px 10px;
+  border: 1px solid var(--chamber-cream-60);
+  border-radius: 2px;
+}
+
+.hero-source-text {
+  font-family: var(--font-curia-tech);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--chamber-cream-60);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SEÇÃO DE INSPEÇÃO — pra você analisar cada peça
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.spec-section {
+  background: var(--chamber-cream);
+  padding: 96px 64px;
+}
+
+.spec-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 80px;
+}
+
+.spec-header {
+  text-align: center;
+  padding-bottom: 48px;
+  border-bottom: 1px solid var(--chamber-ink-35);
+}
+
+.spec-header .curia-eyebrow {
+  color: var(--chamber-ink-60);
+  margin-bottom: 16px;
+}
+
+.spec-block {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 48px;
+  align-items: start;
+  padding-bottom: 64px;
+  border-bottom: 1px solid var(--chamber-ink-35);
+}
+
+.spec-label {
+  font-family: var(--font-curia-tech);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--chamber-ink-60);
+  padding-top: 12px;
+}
+
+.spec-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.spec-meta {
+  font-family: var(--font-curia-tech);
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--chamber-ink-35);
+  letter-spacing: 0.02em;
+}
+
+.spec-content .curia-eyebrow {
+  color: var(--chamber-ink-60);
+}
+
+/* Versão escura pra simulação de carrossel */
+.dark-context {
+  background: var(--chamber-ink-deep);
+  padding: 64px;
+  border-radius: 8px;
+  color: var(--chamber-cream);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.dark-context .curia-eyebrow {
+  color: var(--chamber-cream-60);
+}
+
+.dark-context .curia-display-xl,
+.dark-context .curia-numeric {
+  color: var(--chamber-cream);
+}
+
+.dark-context .curia-lead {
+  color: var(--chamber-cream-85);
+}
+
+/* Botão CTA exemplo */
+.btn-primary {
+  background: var(--chamber-ink);
+  color: var(--chamber-cream);
+  border: none;
+  padding: 16px 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: opacity 0.2s ease;
+}
+
+.btn-primary:hover { opacity: 0.88; }
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .hero { padding: 60px 24px 40px; }
+  .spec-section { padding: 48px 24px; }
+  .spec-block {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .hero-headline { max-width: 100%; }
+  .dark-context { padding: 32px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     HERO EDITORIAL — Estilo Blank School com Fraunces
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+
+  <div class="hero-content">
+    <span class="curia-eyebrow hero-eyebrow">
+      Pesquisa BDC · 2024
+    </span>
+
+    <h1 class="curia-display-xl hero-headline">
+      A reunião que faz empresas crescerem
+      <em>24% mais.</em>
+    </h1>
+
+    <p class="curia-lead hero-sub">
+      Segundo o BDC — Banco de Desenvolvimento do Canadá.
+      <em>Que você pode aplicar em 1 dia.</em>
+    </p>
+
+    <div class="hero-source">
+      <span class="hero-source-badge">FONTE</span>
+      <span class="hero-source-text">
+        Banco de Desenvolvimento do Canadá &middot; Estudo sobre advisory boards em PMEs
+      </span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     SEÇÃO DE INSPEÇÃO TIPOGRÁFICA
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<section class="spec-section">
+  <div class="spec-container">
+
+    <div class="spec-header">
+      <span class="curia-eyebrow">Sistema tipográfico Curia · v3</span>
+      <h2 class="curia-display-sm" style="margin-top: 16px;">
+        <em>Fraunces</em> + Source Sans 3
+      </h2>
+    </div>
+
+    <!-- Display XL -->
+    <div class="spec-block">
+      <div class="spec-label">Display XL<br>(Hero)</div>
+      <div class="spec-content">
+        <h2 class="curia-display-xl">
+          A reunião que faz empresas crescerem <em>24% mais.</em>
+        </h2>
+        <span class="spec-meta">
+          Fraunces 600 · opsz 144 · SOFT 30 · clamp(3rem, 7.5vw, 6rem) · -0.02em
+        </span>
+      </div>
+    </div>
+
+    <!-- Display médio -->
+    <div class="spec-block">
+      <div class="spec-label">Display<br>(H1 seção)</div>
+      <div class="spec-content">
+        <h2 class="curia-display">
+          O conselho executivo de <em>IA.</em>
+        </h2>
+        <span class="spec-meta">
+          Fraunces 600 · opsz 144 · clamp(2.25rem, 5vw, 4rem)
+        </span>
+      </div>
+    </div>
+
+    <!-- Lead -->
+    <div class="spec-block">
+      <div class="spec-label">Lead<br>(Subtítulo)</div>
+      <div class="spec-content">
+        <p class="curia-lead">
+          Um board de conselheiros de IA com a inteligência estratégica
+          de uma big tech — <em>pela primeira vez, dentro da sua empresa.</em>
+        </p>
+        <span class="spec-meta">
+          Fraunces 400 · opsz 36 · clamp(1.25rem, 1.625vw, 1.4375rem) · line-height 1.35
+        </span>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="spec-block">
+      <div class="spec-label">Body<br>(Leitura)</div>
+      <div class="spec-content">
+        <p class="curia-body">
+          Texto de leitura corrida em Fraunces opsz 14, otimizado para conforto
+          visual em parágrafos longos. A variação opsz adapta a forma das letras
+          para o tamanho do texto, mantendo legibilidade sem perder personalidade.
+          É o que separa tipografia profissional de tipografia comum.
+        </p>
+        <span class="spec-meta">
+          Fraunces 400 · opsz 14 · 1.0625rem · line-height 1.65
+        </span>
+      </div>
+    </div>
+
+    <!-- Numeric -->
+    <div class="spec-block">
+      <div class="spec-label">Numeric XL<br>(Estatística)</div>
+      <div class="spec-content">
+        <span class="curia-numeric">24%</span>
+        <span class="spec-meta">
+          Source Sans 3 Black · clamp(5rem, 12vw, 9rem) · -0.05em · tabular-nums
+        </span>
+      </div>
+    </div>
+
+    <!-- Eyebrow -->
+    <div class="spec-block">
+      <div class="spec-label">Eyebrow<br>(Etiqueta)</div>
+      <div class="spec-content">
+        <span class="curia-eyebrow">Pesquisa BDC · 2024</span>
+        <span class="spec-meta">
+          Source Sans 3 SemiBold · 0.6875rem · +0.18em · UPPERCASE
+        </span>
+      </div>
+    </div>
+
+    <!-- Quote -->
+    <div class="spec-block">
+      <div class="spec-label">Quote<br>(Citação)</div>
+      <div class="spec-content">
+        <blockquote class="curia-quote">
+          O empresário brasileiro de PME nunca teve acesso a um conselho
+          executivo. Não porque não merecia — porque não existia maneira
+          de entregar isso a preço que coubesse.
+        </blockquote>
+        <span class="spec-meta">
+          Fraunces 400 italic · opsz 36 · com border-left
+        </span>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="spec-block">
+      <div class="spec-label">CTA<br>(Botão)</div>
+      <div class="spec-content">
+        <button class="btn-primary">
+          <span class="curia-cta">Reservar minha vaga →</span>
+        </button>
+        <span class="spec-meta">
+          Source Sans 3 ExtraBold · 1rem · -0.02em
+        </span>
+      </div>
+    </div>
+
+    <!-- Versão escura -->
+    <div class="spec-block">
+      <div class="spec-label">Em fundo<br>escuro</div>
+      <div class="spec-content">
+        <div class="dark-context">
+          <span class="curia-eyebrow">Pesquisa BDC · 2024</span>
+          <h2 class="curia-display-xl">
+            A reunião que faz empresas crescerem <em>24% mais.</em>
+          </h2>
+          <p class="curia-lead">
+            Segundo o BDC — Banco de Desenvolvimento do Canadá.
+            <em>Que você pode aplicar em 1 dia.</em>
+          </p>
+        </div>
+        <span class="spec-meta">
+          Mesmo sistema, fundo #0A0A0B, texto cream
+        </span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

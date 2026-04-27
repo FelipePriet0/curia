@@ -30,7 +30,7 @@ export default async function SharedPage({ params }: { params: Promise<{ token: 
     return (
       <div className="mx-auto max-w-3xl px-6 py-12">
         <h1 className="font-curia-rounded text-2xl text-[#0B0B0F]">Link inválido</h1>
-        <p className="mt-2 font-curia-serif text-sm text-[#0B0B0F]/60">Esta conversa não está mais disponível.</p>
+        <p className="mt-2 text-sm text-[#0B0B0F]/60">Esta conversa não está mais disponível.</p>
       </div>
     )
   }
@@ -38,9 +38,9 @@ export default async function SharedPage({ params }: { params: Promise<{ token: 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
       <div className="mb-6">
-        <span className="myriad-bold--display text-[#0B0B0F] text-3xl leading-none">Curia</span>
-        <p className="mt-2 font-curia-serif text-sm text-[#0B0B0F]/50">Conversa compartilhada — somente leitura</p>
-        <p className="mt-2 font-curia-serif text-[11px] text-[#0B0B0F]/45">
+        <span className="font-semibold text-[#0B0B0F] text-3xl leading-none">Curia</span>
+        <p className="mt-2 text-sm text-[#0B0B0F]/50">Conversa compartilhada — somente leitura</p>
+        <p className="mt-2 text-[11px] text-[#0B0B0F]/45">
           Revise criticamente antes de implementar. Este conteúdo não substitui assessoria profissional.
         </p>
         <h1 className="mt-4 font-curia-rounded text-xl text-[#0B0B0F]">{data.title}</h1>
@@ -49,7 +49,7 @@ export default async function SharedPage({ params }: { params: Promise<{ token: 
         {data.messages.map((m: any, i: number) => (
           <div key={i} className={m.role === 'user' ? 'text-right' : ''}>
             <div className={
-              'inline-block max-w-[85%] rounded-xl px-4 py-3 font-curia-serif text-sm leading-relaxed ' +
+              'inline-block max-w-[85%] rounded-xl px-4 py-3 text-sm leading-relaxed ' +
               (m.role === 'user' ? 'bg-[#0B0B0F] text-[#FDFBF9] rounded-br-sm' : 'bg-[#0B0B0F]/[0.06] text-[#0B0B0F] rounded-bl-sm')
             }>
               <pre className="whitespace-pre-wrap break-words">{m.content}</pre>

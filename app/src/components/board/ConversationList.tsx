@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useRef, useEffect } from 'react'
 import {
@@ -71,13 +71,13 @@ function DeleteDialog({ conv, onConfirm, onCancel }: DeleteDialogProps) {
       <DialogFooter>
         <button
           onClick={onCancel}
-          className="rounded-xl border border-[hsl(var(--border))] px-4 py-2 text-sm font-medium text-[#0B0B0F]/70 transition-colors hover:bg-[#0B0B0F]/[0.05] hover:text-[#0B0B0F] font-curia-serif"
+          className="rounded-xl border border-[hsl(var(--border))] px-4 py-2 text-sm font-medium text-[#0B0B0F]/70 transition-colors hover:bg-[#0B0B0F]/[0.05] hover:text-[#0B0B0F]"
         >
           Cancelar
         </button>
         <button
           onClick={onConfirm}
-          className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 font-curia-serif"
+          className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
         >
           Deletar conversa
         </button>
@@ -134,11 +134,11 @@ function ShareDialog({ conv, onClose }: ShareDialogProps) {
         {/* Conversation preview chip */}
         <div className="flex items-center gap-2.5 rounded-xl bg-[#0B0B0F]/[0.04] px-3.5 py-2.5 mb-4">
           <MessageSquare size={14} className="shrink-0 text-[#C9A84C]" />
-          <span className="text-sm font-medium text-[#0B0B0F]/80 font-curia-serif truncate">{conv.title}</span>
+          <span className="text-sm font-medium text-[#0B0B0F]/80 truncate">{conv.title}</span>
         </div>
 
         {state === 'idle' && (
-          <p className="text-xs text-[#0B0B0F]/45 font-curia-serif text-center py-2">
+          <p className="text-xs text-[#0B0B0F]/45 text-center py-2">
             Nenhum link criado ainda.
           </p>
         )}
@@ -146,17 +146,17 @@ function ShareDialog({ conv, onClose }: ShareDialogProps) {
         {state === 'creating' && (
           <div className="flex items-center justify-center gap-2 py-3">
             <span className="h-4 w-4 rounded-full border-2 border-[#C9A84C] border-t-transparent animate-spin" />
-            <span className="text-xs text-[#0B0B0F]/50 font-curia-serif">Gerando link…</span>
+            <span className="text-xs text-[#0B0B0F]/50">Gerando link…</span>
           </div>
         )}
 
         {state === 'ready' && (
           <div className="flex items-center gap-2 rounded-xl border border-[hsl(var(--border))] bg-[#0B0B0F]/[0.03] px-3.5 py-2.5">
             <Link2 size={13} className="shrink-0 text-[#0B0B0F]/35" />
-            <span className="flex-1 truncate text-xs text-[#0B0B0F]/60 font-curia-serif">{shareUrl}</span>
+            <span className="flex-1 truncate text-xs text-[#0B0B0F]/60">{shareUrl}</span>
             <button
               onClick={copyLink}
-              className="ml-1 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-[#0B0B0F]/[0.07] text-[#0B0B0F]/70 hover:text-[#0B0B0F] font-curia-serif"
+              className="ml-1 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-[#0B0B0F]/[0.07] text-[#0B0B0F]/70 hover:text-[#0B0B0F]"
             >
               {copied ? <CheckCheck size={13} className="text-green-600" /> : <Copy size={13} />}
               {copied ? 'Copiado!' : 'Copiar'}
@@ -164,7 +164,7 @@ function ShareDialog({ conv, onClose }: ShareDialogProps) {
           </div>
         )}
 
-        <p className="mt-3 text-[11px] text-[#0B0B0F]/35 font-curia-serif leading-relaxed">
+        <p className="mt-3 text-[11px] text-[#0B0B0F]/35 leading-relaxed">
           O link dará acesso somente à leitura desta conversa. Você poderá revogá-lo a qualquer momento.
         </p>
       </DialogBody>
@@ -172,14 +172,14 @@ function ShareDialog({ conv, onClose }: ShareDialogProps) {
       <DialogFooter className="border-t border-[hsl(var(--border))]">
         <button
           onClick={onClose}
-          className="rounded-xl border border-[hsl(var(--border))] px-4 py-2 text-sm font-medium text-[#0B0B0F]/70 transition-colors hover:bg-[#0B0B0F]/[0.05] hover:text-[#0B0B0F] font-curia-serif"
+          className="rounded-xl border border-[hsl(var(--border))] px-4 py-2 text-sm font-medium text-[#0B0B0F]/70 transition-colors hover:bg-[#0B0B0F]/[0.05] hover:text-[#0B0B0F]"
         >
           Fechar
         </button>
         {state === 'ready' ? (
           <button
             onClick={copyLink}
-            className="flex items-center gap-2 rounded-xl bg-[#4A9B6F] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 font-curia-serif"
+            className="flex items-center gap-2 rounded-xl bg-[#4A9B6F] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
           >
             {copied ? <CheckCheck size={14} /> : <Copy size={14} />}
             {copied ? 'Link copiado!' : 'Copiar link'}
@@ -188,7 +188,7 @@ function ShareDialog({ conv, onClose }: ShareDialogProps) {
           <button
             onClick={createLink}
             disabled={state === 'creating'}
-            className="flex items-center gap-2 rounded-xl bg-[#4A6FA5] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 font-curia-serif"
+            className="flex items-center gap-2 rounded-xl bg-[#4A6FA5] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             <Link2 size={14} />
             Criar link
@@ -217,13 +217,13 @@ function LogoutDialog({ onConfirm, onCancel }: LogoutDialogProps) {
       <DialogFooter>
         <button
           onClick={onCancel}
-          className="rounded-xl border border-[hsl(var(--border))] px-4 py-2 text-sm font-medium text-[#0B0B0F]/70 transition-colors hover:bg-[#0B0B0F]/[0.05] hover:text-[#0B0B0F] font-curia-serif"
+          className="rounded-xl border border-[hsl(var(--border))] px-4 py-2 text-sm font-medium text-[#0B0B0F]/70 transition-colors hover:bg-[#0B0B0F]/[0.05] hover:text-[#0B0B0F]"
         >
           Cancelar
         </button>
         <button
           onClick={onConfirm}
-          className="inline-flex items-center gap-2 rounded-xl bg-[#4A9B6F] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 font-curia-serif"
+          className="inline-flex items-center gap-2 rounded-xl bg-[#4A9B6F] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
         >
           <LogOut size={14} />
           Sair
@@ -340,7 +340,7 @@ function ConvItem({ conv, active, onSelect, onUpdate, onDelete }: ConvItemProps)
       <div className="flex items-center gap-1 rounded-xl px-2 py-1 bg-white border border-[rgba(11,11,15,0.4)]">
         <input
           ref={renameRef}
-          className="flex-1 min-w-0 bg-transparent text-sm text-[#0B0B0F] outline-none font-curia-serif"
+          className="flex-1 min-w-0 bg-transparent text-sm text-[#0B0B0F] outline-none"
           value={renameVal}
           onChange={(e) => setRenameVal(e.target.value)}
           onKeyDown={(e) => {
@@ -359,7 +359,7 @@ function ConvItem({ conv, active, onSelect, onUpdate, onDelete }: ConvItemProps)
       <button
         onClick={onSelect}
         className={cn(
-          'w-full text-left rounded-xl px-3 py-2 font-curia-serif text-sm transition-all pr-8',
+          'w-full text-left rounded-xl px-3 py-2 text-sm transition-all pr-8',
           active
             ? 'bg-[#C9A84C]/10 text-[#0B0B0F] font-medium border-l-2 border-[#C9A84C] rounded-l-none pl-[10px]'
             : 'text-[#0B0B0F]/70 hover:bg-[#0B0B0F]/[0.05] hover:text-[#0B0B0F]'
@@ -541,7 +541,7 @@ export function ConversationList({
             placeholder="Buscar conversa…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 bg-transparent text-xs text-[#0B0B0F] placeholder-[#0B0B0F]/35 outline-none font-curia-serif"
+            className="flex-1 bg-transparent text-xs text-[#0B0B0F] placeholder-[#0B0B0F]/35 outline-none"
           />
           {search && (
             <button onClick={() => setSearch('')} className="text-[#0B0B0F]/35 hover:text-[#0B0B0F]/60">
@@ -555,7 +555,7 @@ export function ConversationList({
         {/* Strategies */}
         {visibleStrategies.length > 0 && (
           <div className="p-2 pb-0">
-            <p className="px-3 py-1.5 font-notably-alt text-[10px] tracking-wider text-[#0B0B0F]/40">Estratégias</p>
+            <p className="px-3 py-1.5 font-[var(--font-curia-tech)] text-[10px] tracking-wider text-[#0B0B0F]/40">Estratégias</p>
             <div className="space-y-1">
               {visibleStrategies.map((strategy) => {
                 const sConvsAll = convsByStrategy[strategy.id] ?? []
@@ -566,7 +566,7 @@ export function ConversationList({
                     <button
                       onClick={() => onStrategySelect?.(strategy)}
                       className={cn(
-                        'w-full text-left rounded-xl px-3 py-2 font-curia-serif text-sm transition-all',
+                        'w-full text-left rounded-xl px-3 py-2 text-sm transition-all',
                         hasActive ? 'bg-[#C9A84C]/10 text-[#0B0B0F] font-medium border-l-2 border-[#C9A84C] rounded-l-none' : 'text-[#0B0B0F]/70 hover:bg-[#0B0B0F]/[0.06] hover:text-[#0B0B0F]'
                       )}
                     >
@@ -592,7 +592,7 @@ export function ConversationList({
         {/* Active Plans */}
         {visibleActivePlans.length > 0 && (
           <div className="p-2 pb-0">
-            <p className="px-3 py-1.5 font-notably-alt text-[10px] tracking-wider text-[#0B0B0F]/40">Planos Ativos</p>
+            <p className="px-3 py-1.5 font-[var(--font-curia-tech)] text-[10px] tracking-wider text-[#0B0B0F]/40">Planos Ativos</p>
             <div className="space-y-1">
               {visibleActivePlans.map((plan) => {
                 const reviewDate = plan.review_date ? new Date(plan.review_date + 'T00:00:00') : null
@@ -638,7 +638,7 @@ export function ConversationList({
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0B0B0F]/[0.06]">
               <MessageSquare className="h-5 w-5 text-[#0B0B0F]/35" />
             </div>
-            <p className="font-curia-serif text-sm text-[#0B0B0F]/60 leading-relaxed">
+            <p className="text-sm text-[#0B0B0F]/60 leading-relaxed">
               Você ainda não tem nenhuma conversa aberta.
             </p>
           </div>
@@ -647,7 +647,7 @@ export function ConversationList({
             {/* Pinned */}
             {pinnedConvs.length > 0 && (
               <>
-                <p className="px-3 py-1.5 font-notably-alt text-[10px] tracking-wider text-[#0B0B0F]/40">Fixadas</p>
+                <p className="px-3 py-1.5 font-[var(--font-curia-tech)] text-[10px] tracking-wider text-[#0B0B0F]/40">Fixadas</p>
                 {pinnedConvs.map(renderConv)}
                 {unpinnedConvs.length > 0 && <div className="mx-1 my-1.5 border-t border-[hsl(var(--border))]" />}
               </>
@@ -657,7 +657,7 @@ export function ConversationList({
             {unpinnedConvs.length > 0 && (
               <>
                 {pinnedConvs.length > 0 && (
-                  <p className="px-3 py-1.5 font-notably-alt text-[10px] tracking-wider text-[#0B0B0F]/40">Conversas</p>
+                  <p className="px-3 py-1.5 font-[var(--font-curia-tech)] text-[10px] tracking-wider text-[#0B0B0F]/40">Conversas</p>
                 )}
                 {unpinnedConvs.map(renderConv)}
               </>
@@ -666,7 +666,7 @@ export function ConversationList({
             {/* Archived (collapsed) */}
             {!search && archivedConvs.length > 0 && (
               <details className="mt-2">
-                <summary className="cursor-pointer list-none px-3 py-1.5 font-notably-alt text-[10px] tracking-wider text-[#0B0B0F]/30 hover:text-[#0B0B0F]/50 transition-colors select-none">
+                <summary className="cursor-pointer list-none px-3 py-1.5 font-[var(--font-curia-tech)] text-[10px] tracking-wider text-[#0B0B0F]/30 hover:text-[#0B0B0F]/50 transition-colors select-none">
                   Arquivadas ({archivedConvs.length})
                 </summary>
                 <div className="mt-0.5 space-y-0.5">
@@ -699,7 +699,7 @@ export function ConversationList({
                 <span className="sr-only">Online</span>
               </span>
             </div>
-            <span className="truncate font-curia-serif text-xs text-[#0B0B0F]/70">{userName ?? 'Você'}</span>
+            <span className="truncate text-xs text-[#0B0B0F]/70">{userName ?? 'Você'}</span>
           </div>
           <button
             onClick={() => setShowLogoutDialog(true)}

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
@@ -66,7 +66,7 @@ export function DeliberationTimeline({ deliberation, streamingContent }: Props) 
           <span className="relative inline-flex h-2 w-2 rounded-full bg-[#0B0B0F]" />
         </span>
 
-        <span className="flex-1 truncate font-curia-serif text-xs text-[#0B0B0F]/55">
+        <span className="flex-1 truncate text-xs text-[#0B0B0F]/55">
           {currentLabel}
         </span>
 
@@ -93,7 +93,7 @@ export function DeliberationTimeline({ deliberation, streamingContent }: Props) 
               />
               <span
                 className={cn(
-                  'font-curia-serif text-[11px] leading-snug',
+                  'text-[11px] leading-snug',
                   step.done ? 'text-[#0B0B0F]/35' : 'text-[#0B0B0F]/65'
                 )}
               >

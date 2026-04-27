@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 // Widget de feedback por mensagem do assistant.
 //
@@ -105,7 +105,7 @@ export function MessageFeedback({ messageId }: Props) {
 
   if (submitted) {
     return (
-      <div className="mt-2 flex items-center gap-3 pl-1 text-[11px] text-[#0B0B0F]/45 font-curia-serif">
+      <div className="mt-2 flex items-center gap-3 pl-1 text-[11px] text-[#0B0B0F]/45">
         <span>Feedback registrado. Obrigado.</span>
         <button
           type="button"
@@ -119,7 +119,7 @@ export function MessageFeedback({ messageId }: Props) {
   }
 
   return (
-    <div className="mt-2 pl-1 font-curia-serif">
+    <div className="mt-2 pl-1">
       {/* Linha principal: thumbs + toggle expandir */}
       <div className="flex items-center gap-3 text-[11px] text-[#0B0B0F]/45">
         <button

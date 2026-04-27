@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Calendar, ArrowRight, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -27,10 +27,10 @@ export function ReviewBanner({ plan, onStartReview, onDismiss }: ReviewBannerPro
       <div className="flex items-center gap-3 min-w-0">
         <Calendar className="h-4 w-4 shrink-0 text-[#0B0B0F]" />
         <div className="min-w-0">
-          <p className="truncate font-curia-serif text-sm font-medium text-[#0B0B0F]">
+          <p className="truncate text-sm font-medium text-[#0B0B0F]">
             Revisão pendente — {plan.title}
           </p>
-          <p className="font-curia-serif text-xs text-[#0B0B0F]/50">
+          <p className="text-xs text-[#0B0B0F]/50">
             Agendada para {dateLabel}
           </p>
         </div>
@@ -38,7 +38,7 @@ export function ReviewBanner({ plan, onStartReview, onDismiss }: ReviewBannerPro
       <div className="flex shrink-0 items-center gap-2">
         <button
           onClick={() => onStartReview(plan.id)}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[#0B0B0F] px-3 py-1.5 font-curia-serif text-sm font-semibold text-[#FDFBF9] shadow-sm transition-all hover:opacity-90"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[#0B0B0F] px-3 py-1.5 text-sm font-semibold text-[#FDFBF9] shadow-sm transition-all hover:opacity-90"
         >
           Iniciar <ArrowRight className="h-3.5 w-3.5" />
         </button>

@@ -4,10 +4,19 @@ import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
 /**
- * CURIA — Sistema tipográfico v3 (editorial-tech) — CORRIGIDO
+ * CURIA — Sistema tipográfico v3 (editorial-tech)
+ * -----------------------------------------------------------------------------
+ * Fraunces        →  PROTAGONISTA. Voz dominante editorial.
+ *                    Headlines, body, citações, lead.
+ *                    Variável: opsz (9-144), SOFT (0-100), wght (300-900).
  *
- * Fix crítico: weight em array (não string "variable").
- * Fix crítico: variáveis CSS sem referência circular.
+ * Source Sans 3   →  CIRÚRGICA. Momentos de impacto técnico.
+ *                    Números, CTAs, eyebrows, UI utilitária.
+ *
+ * Lilita One      →  Apenas o logotipo "Curia".
+ *
+ * Filosofia: Premium vem da serifa Fraunces dominante.
+ *            Tech vem da composição + Source Sans em momentos certos.
  * -----------------------------------------------------------------------------
  */
 

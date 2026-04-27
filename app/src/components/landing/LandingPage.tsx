@@ -109,7 +109,7 @@ function HeroDemo() {
           <div className="h-3 w-3 rounded-full bg-amber-300/70" />
           <div className="h-3 w-3 rounded-full bg-emerald-400/70" />
         </div>
-        <span className="mx-auto font-curia-serif text-xs text-[#0B0B0F]/50">Curia — Board Room</span>
+        <span className="mx-auto text-xs text-[#0B0B0F]/50">Curia — Board Room</span>
       </div>
 
       {/* App layout */}
@@ -118,14 +118,14 @@ function HeroDemo() {
         {/* Sidebar */}
         <div className="flex w-44 shrink-0 flex-col border-r border-[#0B0B0F]/08" style={{ background: '#1C0F06' }}>
           <div className="px-3 pt-4 pb-2">
-            <p className="font-curia-serif text-[10px] font-semibold uppercase tracking-[0.15em] text-white/30">Conversas</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/30">Conversas</p>
           </div>
           {DEMO_CONVOS.map((c, i) => (
             <div
               key={c}
               className={`mx-2 mb-0.5 rounded-lg px-2.5 py-2 transition-all ${i === 0 ? 'bg-[#0B0B0F]/20' : ''}`}
             >
-              <p className={`font-curia-serif text-xs leading-tight ${i === 0 ? 'text-white/90' : 'text-white/35'}`}>
+              <p className={`text-xs leading-tight ${i === 0 ? 'text-white/90' : 'text-white/35'}`}>
                 {c}
               </p>
             </div>
@@ -141,7 +141,7 @@ function HeroDemo() {
             {showQuestion && (
               <div className="flex justify-end">
                 <div className="max-w-[75%] rounded-2xl rounded-tr-sm bg-[#0B0B0F] px-4 py-2.5">
-                  <p className="font-curia-serif text-xs leading-relaxed text-white/90">{DEMO_Q}</p>
+                  <p className="text-xs leading-relaxed text-white/90">{DEMO_Q}</p>
                 </div>
               </div>
             )}
@@ -154,7 +154,7 @@ function HeroDemo() {
                     <div key={i} className="h-1.5 w-1.5 rounded-full bg-[#0B0B0F]/60 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
                   ))}
                 </div>
-                <p className="font-curia-serif text-xs text-[#0B0B0F]/40">Board deliberando...</p>
+                <p className="text-xs text-[#0B0B0F]/40">Board deliberando...</p>
               </div>
             )}
 
@@ -164,7 +164,7 @@ function HeroDemo() {
                 {DEMO_BOARDS.slice(0, counselors).map(b => (
                   <div key={b.name} className="flex items-center gap-1.5 rounded-full border border-[#0B0B0F]/10 bg-white px-2.5 py-1 shadow-sm">
                     <div className={`h-2 w-2 rounded-full ${b.cls}`} />
-                    <span className="font-curia-serif text-[10px] font-medium text-[#0B0B0F]/70">{b.name}</span>
+                    <span className="text-[10px] font-medium text-[#0B0B0F]/70">{b.name}</span>
                     {phase !== 'done' && <div className="h-1.5 w-1.5 animate-spin rounded-full border border-[#0B0B0F]/20 border-t-[#0B0B0F]/60" />}
                     {phase === 'done' && <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />}
                   </div>
@@ -175,7 +175,7 @@ function HeroDemo() {
             {/* AI response */}
             {showResponse && (
               <div className="max-w-[85%]">
-                <p className="font-curia-serif text-xs leading-relaxed text-[#0B0B0F]/80">
+                <p className="text-xs leading-relaxed text-[#0B0B0F]/80">
                   {streamed}
                   {phase === 'streaming' && <span className="ml-0.5 inline-block h-3 w-0.5 animate-pulse bg-[#0B0B0F]/60" />}
                 </p>
@@ -186,7 +186,7 @@ function HeroDemo() {
           {/* Input bar */}
           <div className="border-t border-[#0B0B0F]/08 px-4 py-3">
             <div className="flex items-center gap-2 rounded-xl border border-[#0B0B0F]/15 bg-white px-3 py-2 shadow-sm">
-              <p className="flex-1 font-curia-serif text-xs text-[#0B0B0F]/80">
+              <p className="flex-1 text-xs text-[#0B0B0F]/80">
                 {typed}
                 {phase === 'typing' && <span className="ml-px inline-block h-3 w-px animate-pulse bg-[#0B0B0F]/60" />}
                 {phase === 'idle' && <span className="text-[#0B0B0F]/30">Pergunte ao seu Board...</span>}
@@ -197,116 +197,6 @@ function HeroDemo() {
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  )
-}
-
-// ─── Board Mockup — home state sem sidebar ────────────────────────────────────
-
-function ChamberSVG({ className = 'w-full max-w-[260px]' }: { className?: string }) {
-  // 6 posições de assento ao redor da mesa isométrica
-  const seats = [
-    { cx: 150, cy: 52  }, // topo
-    { cx: 210, cy: 76  }, // topo-direita
-    { cx: 210, cy: 128 }, // baixo-direita
-    { cx: 150, cy: 154 }, // baixo
-    { cx: 90,  cy: 128 }, // baixo-esquerda
-    { cx: 90,  cy: 76  }, // topo-esquerda
-  ]
-
-  return (
-    <svg viewBox="0 0 300 210" className={className} aria-hidden>
-      <defs>
-        <radialGradient id="mg" cx="50%" cy="50%" r="50%">
-          <stop offset="0%"   stopColor="var(--chamber-obsidian)" stopOpacity="0.5" />
-          <stop offset="100%" stopColor="var(--chamber-obsidian)" stopOpacity="0" />
-        </radialGradient>
-        <radialGradient id="fg" cx="50%" cy="30%" r="70%">
-          <stop offset="0%"   stopColor="var(--chamber-silver)" stopOpacity="0.88" />
-          <stop offset="100%" stopColor="var(--chamber-text-secondary)" stopOpacity="0.78" />
-        </radialGradient>
-      </defs>
-
-      {/* Plataforma isométrica — face superior */}
-      <path d="M 150 35 L 268 98 L 150 162 L 32 98 Z"
-            fill="url(#fg)" stroke="var(--chamber-obsidian)" strokeOpacity="0.12" strokeWidth="1" />
-
-      {/* Face lateral direita */}
-      <path d="M 268 98 L 150 162 L 150 192 L 268 128 Z"
-            fill="var(--chamber-text-secondary)" fillOpacity="0.8" stroke="none" />
-
-      {/* Face lateral esquerda */}
-      <path d="M 32 98 L 150 162 L 150 192 L 32 128 Z"
-            fill="var(--chamber-obsidian)" fillOpacity="0.45" stroke="none" />
-
-      {/* Linha divisória plataforma */}
-      <line x1="150" y1="162" x2="150" y2="192" stroke="var(--chamber-obsidian)" strokeOpacity="0.14" strokeWidth="1" />
-
-      {/* Mesa central (oval isométrica) */}
-      <ellipse cx="150" cy="98" rx="48" ry="28"
-               fill="var(--chamber-obsidian)" fillOpacity="0.08"
-               stroke="var(--chamber-obsidian)" strokeOpacity="0.18" strokeWidth="1"
-               transform="rotate(-0 150 98)" />
-
-      {/* Glow central */}
-      <circle cx="150" cy="98" r="34" fill="url(#mg)" />
-      <circle cx="150" cy="98" r="12" fill="var(--chamber-obsidian)" fillOpacity="0.18" />
-      <circle cx="150" cy="98" r="5"  fill="var(--chamber-obsidian)" fillOpacity="0.6" />
-
-      {/* Assentos dos conselheiros */}
-      {seats.map((s, i) => (
-        <g key={i}>
-          <circle cx={s.cx} cy={s.cy} r={7}
-                  fill="var(--chamber-obsidian)" fillOpacity="0.85"
-                  stroke="var(--chamber-obsidian)" strokeOpacity="0.35" strokeWidth="1.5" />
-          <circle cx={s.cx} cy={s.cy} r={2.5}
-                  fill="var(--chamber-obsidian)" fillOpacity="0.6" />
-        </g>
-      ))}
-    </svg>
-  )
-}
-
-function BoardMockup() {
-  return (
-    <div className="overflow-hidden rounded-2xl border border-[#0B0B0F]/15 shadow-2xl">
-      {/* Chrome */}
-      <div className="flex items-center gap-2 border-b border-[#0B0B0F]/10 bg-[#F5EDE0]/60 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <div className="h-2.5 w-2.5 rounded-full bg-red-400/70" />
-          <div className="h-2.5 w-2.5 rounded-full bg-amber-300/70" />
-          <div className="h-2.5 w-2.5 rounded-full bg-emerald-400/70" />
-        </div>
-        <span className="mx-auto font-curia-serif text-xs text-[#0B0B0F]/50">Curia — Board Room</span>
-      </div>
-
-      {/* App body */}
-      <div className="flex flex-col items-center px-6 pb-5 pt-7" style={{ minHeight: 360 }}>
-
-        {/* Saudação */}
-        <div className="mb-5 text-center">
-          <h3 className="text-xl font-[var(--font-curia-ui)] font-black tracking-[-0.04em] leading-none text-transparent md:text-2xl bg-[linear-gradient(180deg,_rgba(26,26,26,0.58)_0%,_rgba(26,26,26,0.34)_100%)] bg-clip-text">Olá, Empresário</h3>
-          <p className="mt-1 text-sm font-[var(--font-curia-ui)] font-black tracking-[-0.03em] leading-tight text-transparent md:text-base bg-[linear-gradient(180deg,_rgba(26,26,26,0.58)_0%,_rgba(26,26,26,0.34)_100%)] bg-clip-text">O que você deseja resolver hoje?</p>
-        </div>
-
-        {/* Câmara isométrica */}
-        <div className="flex flex-1 items-center justify-center py-2">
-          <ChamberSVG />
-        </div>
-
-        {/* Input */}
-        <div className="mt-4 w-full">
-          <div className="flex items-center gap-2 rounded-xl border border-[#0B0B0F]/15 bg-white px-4 py-3 shadow-sm">
-            <span className="flex-1 font-curia-serif text-sm text-[#0B0B0F]/30">
-              Apresente seu desafio ao Board...
-            </span>
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#0B0B0F]/08">
-              <ArrowRight className="h-3.5 w-3.5 text-[#0B0B0F]/35" />
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   )
@@ -810,7 +700,7 @@ function QuoteCard({ quote, author, company, image }: typeof QUOTES[number]) {
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
       {/* Glassmorphism quote panel at bottom */}
-      <div className="absolute inset-x-3 bottom-3 rounded-xl border border-[#0B0B0F]/20 bg-[#0B0B0F]/10 p-5 backdrop-blur-xl md:inset-x-4 md:bottom-4 md:p-6 font-curia-serif">
+      <div className="absolute inset-x-3 bottom-3 rounded-xl border border-[#0B0B0F]/20 bg-[#0B0B0F]/10 p-5 backdrop-blur-xl md:inset-x-4 md:bottom-4 md:p-6">
         <blockquote className="mb-3 text-sm font-medium leading-relaxed text-white md:text-base">
           &ldquo;{noWidows(quote)}&rdquo;
         </blockquote>
@@ -852,7 +742,7 @@ function AnimatedStickyHeadlines() {
 
   return (
     <div ref={containerRef} className="mx-auto max-w-3xl text-center">
-      <h2 className="text-3xl md:text-5xl myriad-bold--display text-[#0B0B0F] tracking-[-0.01em] leading-tight">
+      <h2 className="text-3xl md:text-5xl font-semibold text-[#0B0B0F] tracking-[-0.01em] leading-tight">
         <span className={`inline-block ${base} ${step >= 1 ? shown : hidden}`}>
           <NoWidows>Pense </NoWidows>
           <CorrectionComo />
@@ -894,7 +784,7 @@ function CorrectionComo() {
         />
       </svg>
       {/* Handwritten correction in Curia Script (same look as toggle) */}
-      <span className="pointer-events-none absolute -top-4 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[#0B0B0F]/50 font-curia-script text-[1.05em] leading-none">
+      <span className="pointer-events-none absolute -top-4 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[#0B0B0F]/50 italic text-[1.05em] leading-none">
         com
       </span>
     </span>
@@ -1102,7 +992,7 @@ function BoardHomePreview() {
     <div className="flex flex-col items-center w-full">
       {/* Greeting texts — cycling above the chamber */}
       <div className="flex flex-col items-center text-center pointer-events-none" style={{ minHeight: '3.5rem' }}>
-        <CyclingText phrases={HERO_PHRASES} className="font-[var(--font-curia-ui)] font-black tracking-[-0.04em] text-3xl md:text-4xl leading-none text-transparent bg-[linear-gradient(180deg,_rgba(26,26,26,0.58)_0%,_rgba(26,26,26,0.34)_100%)] bg-clip-text" />
+        <CyclingText phrases={HERO_PHRASES} className="font-[var(--font-curia-tech)] font-black tracking-[-0.04em] text-3xl md:text-4xl leading-none text-transparent bg-[linear-gradient(180deg,_rgba(26,26,26,0.58)_0%,_rgba(26,26,26,0.34)_100%)] bg-clip-text" />
       </div>
 
       {/* Chamber — pushed below the greeting */}
@@ -1143,11 +1033,11 @@ function MeetCuria({ signedIn = false, mode = 'product' }: { signedIn?: boolean;
         <div className="grid items-center gap-8 md:grid-cols-2 md:gap-10">
 
           <div>
-            <h2 className="mb-5 text-3xl myriad-bold--display text-[#0B0B0F] md:text-5xl tracking-[-0.02em]"><NoWidows>Conheça a Curia</NoWidows></h2>
-            <p className="text-lg leading-relaxed text-[#0B0B0F]/80 myriad-bold--body">
+            <h2 className="mb-5 text-3xl font-semibold text-[#0B0B0F] md:text-5xl tracking-[-0.02em]"><NoWidows>Conheça a Curia</NoWidows></h2>
+            <p className="text-lg leading-relaxed text-[#0B0B0F]/80">
               <NoWidows>Curia é o seu conselho executivo de IA, disponível 24 horas por dia. Estratégico, preciso e sempre pronto para orientar suas decisões.</NoWidows>
             </p>
-            <p className="mt-4 text-lg leading-relaxed text-[#0B0B0F]/70 myriad-bold--body">
+            <p className="mt-4 text-lg leading-relaxed text-[#0B0B0F]/70">
               <NoWidows>Criada para dar a empresas em crescimento o mesmo nível de inteligência que antes só as grandes tinham acesso.</NoWidows>
             </p>
             <div className="mt-8 flex items-center gap-3">
@@ -1203,8 +1093,8 @@ function HowItWorks() {
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-[#0B0B0F]/60">
               Processo
             </p>
-            <h2 className="mb-4 text-3xl myriad-bold--display leading-tight text-[#0B0B0F] md:text-5xl tracking-[-0.02em]"><NoWidows>Como funciona</NoWidows></h2>
-            <p className="text-base leading-relaxed text-[#0B0B0F]/70 myriad-bold--body">
+            <h2 className="mb-4 text-3xl font-semibold leading-tight text-[#0B0B0F] md:text-5xl tracking-[-0.02em]"><NoWidows>Como funciona</NoWidows></h2>
+            <p className="text-base leading-relaxed text-[#0B0B0F]/70">
               <NoWidows>Três passos para ter um board estratégico operando no seu negócio.</NoWidows>
             </p>
 
@@ -1234,7 +1124,7 @@ function maskWhatsapp(value: string) {
   return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
 }
 
-const INPUT_CLS = 'w-full rounded-lg border border-[#0B0B0F]/20 bg-white/70 px-4 py-2.5 font-curia-serif text-sm text-[#0B0B0F] placeholder-[#0B0B0F]/30 outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]'
+const INPUT_CLS = 'w-full rounded-lg border border-[#0B0B0F]/20 bg-white/70 px-4 py-2.5 text-sm text-[#0B0B0F] placeholder-[#0B0B0F]/30 outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]'
 
 function WaitlistSection() {
   const [name, setName]         = useState('')
@@ -1272,10 +1162,10 @@ function WaitlistSection() {
   return (
     <section id="waitlist" className="px-6 py-28">
       <div className="mx-auto max-w-5xl text-center">
-        <h2 className="mb-4 text-3xl myriad-bold--display text-[#0B0B0F] md:text-5xl tracking-[-0.02em]">
+        <h2 className="mb-4 text-3xl font-semibold text-[#0B0B0F] md:text-5xl tracking-[-0.02em]">
           <NoWidows>Curia está chegando</NoWidows>
         </h2>
-        <p className="mb-14 text-lg text-[#0B0B0F]/70 myriad-bold--body">
+        <p className="mb-14 text-lg text-[#0B0B0F]/70">
           <NoWidows>Seja um dos primeiros a testar o conselho de IA que pensa junto com você.</NoWidows>
         </p>
 
@@ -1288,20 +1178,20 @@ function WaitlistSection() {
                   <circle cx="20" cy="20" r="19" stroke="currentColor" strokeOpacity="0.3" />
                   <path d="M11 20l6 6 12-12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                <p className="myriad-bold--display text-lg text-[#0B0B0F]">Você está na lista!</p>
-                <p className="font-curia-serif text-sm text-[#0B0B0F]/60">Vamos te avisar assim que as vagas abrirem.</p>
+                <p className="font-semibold text-lg text-[#0B0B0F]">Você está na lista!</p>
+                <p className="text-sm text-[#0B0B0F]/60">Vamos te avisar assim que as vagas abrirem.</p>
               </div>
             ) : state === 'duplicate' ? (
               <div className="flex flex-col items-center gap-3 py-4 text-center">
-                <p className="myriad-bold--display text-lg text-[#0B0B0F]">Você já está na lista!</p>
-                <p className="font-curia-serif text-sm text-[#0B0B0F]/60">Assim que as vagas abrirem, você será o primeiro a saber.</p>
+                <p className="font-semibold text-lg text-[#0B0B0F]">Você já está na lista!</p>
+                <p className="text-sm text-[#0B0B0F]/60">Assim que as vagas abrirem, você será o primeiro a saber.</p>
               </div>
             ) : (
               <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
-                <label className="myriad-bold--display text-xl text-[#0B0B0F]">
+                <label className="font-semibold text-xl text-[#0B0B0F]">
                   Reserve sua vaga
                 </label>
-                <p className="font-curia-serif text-xs text-[#0B0B0F]/50">
+                <p className="text-xs text-[#0B0B0F]/50">
                   Vagas limitadas para o beta fechado.
                 </p>
                 <input
@@ -1337,7 +1227,7 @@ function WaitlistSection() {
                   {state === 'loading' ? 'Entrando...' : 'Quero entrar na lista'}
                 </Button>
                 {state === 'error' && (
-                  <p className="text-center font-curia-serif text-xs text-red-500">
+                  <p className="text-center text-xs text-red-500">
                     Algo deu errado. Tente novamente.
                   </p>
                 )}
@@ -1369,10 +1259,10 @@ function Pricing({ signedIn = false }: { signedIn?: boolean }) {
   return (
     <section id="planos" className="px-6 py-28">
       <div className="mx-auto max-w-5xl text-center">
-        <h2 className="mb-4 text-3xl myriad-bold--display text-[#0B0B0F] md:text-5xl tracking-[-0.02em]">
+        <h2 className="mb-4 text-3xl font-semibold text-[#0B0B0F] md:text-5xl tracking-[-0.02em]">
           <NoWidows>Fortaleça suas decisões</NoWidows>
         </h2>
-        <p className="mb-14 text-lg text-[#0B0B0F]/70 myriad-bold--body">
+        <p className="mb-14 text-lg text-[#0B0B0F]/70">
           <NoWidows>Teste grátis por 14 dias · Sem cadastrar seu cartão.</NoWidows>
         </p>
 
@@ -1381,16 +1271,16 @@ function Pricing({ signedIn = false }: { signedIn?: boolean }) {
           <div className="relative overflow-hidden rounded-2xl border border-[#C9A84C]/25 bg-[#C9A84C]/[0.04] p-6 text-left ring-1 ring-[#C9A84C]/15">
             {/* Title */}
             <h3 className="text-2xl text-[#0B0B0F]">
-              <span className="myriad-bold--display">Curia </span>
-              <span className="font-curia-script text-[#C9A84C]">Starter</span>
+              <span className="font-semibold">Curia </span>
+              <span className="italic text-[#C9A84C]">Starter</span>
             </h3>
             {/* Price */}
-            <p className="mt-6 myriad-bold--display text-3xl font-bold text-[#0B0B0F]">R$0<span className="text-base font-medium text-[#0B0B0F]/70">/mês</span></p>
+            <p className="mt-6 font-semibold text-3xl text-[#0B0B0F]">R$0<span className="text-base font-medium text-[#0B0B0F]/70">/mês</span></p>
 
             {/* Features */}
             <ul className="mt-6 space-y-3">
               {STARTER_FEATURES.map((feat) => (
-                <li key={feat} className="flex items-start gap-3 font-curia-serif text-sm text-[#0B0B0F]/80">
+                <li key={feat} className="flex items-start gap-3 text-sm text-[#0B0B0F]/80">
                   <svg viewBox="0 0 16 16" className="mt-0.5 h-4 w-4 shrink-0 text-[#C9A84C]" fill="none">
                     <circle cx="8" cy="8" r="7.5" stroke="currentColor" strokeOpacity="0.3" />
                     <path d="M4.5 8l2.5 2.5 4.5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -1467,7 +1357,7 @@ function Footer({
           {/* CTA */}
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0B0B0F]/60 mb-3">Começar</h3>
-            <p className="text-sm text-[#0B0B0F]/70 mb-4 font-curia-serif">Leva menos de 2 minutos.</p>
+            <p className="text-sm text-[#0B0B0F]/70 mb-4">Leva menos de 2 minutos.</p>
             <FooterCtaButton signedIn={signedIn} signingOut={signingOut} onSignOut={onSignOut} mode={mode} />
           </div>
         </div>

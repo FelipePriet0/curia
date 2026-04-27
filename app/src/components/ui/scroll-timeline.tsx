@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useRef, useState } from "react"
 
@@ -128,7 +128,7 @@ export function ScrollTimeline({ steps, className = "" }: ScrollTimelineProps) {
     const parts = text.split(/(Big Tech)/g)
     return parts.map((part, i) =>
       part === 'Big Tech' ? (
-        <span key={i} className="font-curia-script text-[#0B0B0F]/50">
+        <span key={i} className="italic text-[#0B0B0F]/50">
           {part}
         </span>
       ) : (

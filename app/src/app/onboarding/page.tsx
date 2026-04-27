@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useClerk } from '@clerk/nextjs'
@@ -345,7 +345,7 @@ function OnboardingInput({
                 key={chip.value}
                 type="button"
                 onClick={() => onChipClick(chip.value, chip.label)}
-                className="rounded-full border px-4 py-1.5 font-curia-serif text-sm font-medium transition-all bg-white border-[#0B0B0F]/20 text-[#0B0B0F] hover:border-[#0B0B0F]/50"
+                className="rounded-full border px-4 py-1.5 text-sm font-medium transition-all bg-white border-[#0B0B0F]/20 text-[#0B0B0F] hover:border-[#0B0B0F]/50"
               >
                 {chip.label}
               </button>
@@ -354,7 +354,7 @@ function OnboardingInput({
               <button
                 type="button"
                 onClick={onSkip}
-                className="rounded-full border border-[#0B0B0F]/10 px-4 py-1.5 font-curia-serif text-sm text-[#0B0B0F]/40 transition-all hover:border-[#0B0B0F]/25 hover:text-[#0B0B0F]/60"
+                className="rounded-full border border-[#0B0B0F]/10 px-4 py-1.5 text-sm text-[#0B0B0F]/40 transition-all hover:border-[#0B0B0F]/25 hover:text-[#0B0B0F]/60"
               >
                 Pular →
               </button>
@@ -370,7 +370,7 @@ function OnboardingInput({
                 key={chip.value}
                 type="button"
                 onClick={() => onChipClick(chip.value, chip.label)}
-                className="rounded-2xl border border-[#0B0B0F]/15 bg-white px-4 py-3 text-left font-curia-serif text-sm text-[#0B0B0F] transition-all hover:border-[#0B0B0F]/40 hover:bg-white/80"
+                className="rounded-2xl border border-[#0B0B0F]/15 bg-white px-4 py-3 text-left text-sm text-[#0B0B0F] transition-all hover:border-[#0B0B0F]/40 hover:bg-white/80"
               >
                 <span className="block font-semibold">{chip.label}</span>
                 {chip.description && (
@@ -402,7 +402,7 @@ function OnboardingInput({
           ) : (
             <div className="flex items-center gap-1.5">
               {question.prefix && (
-                <span className="shrink-0 font-curia-serif text-sm text-[#0B0B0F]/50">{question.prefix}</span>
+                <span className="shrink-0 text-sm text-[#0B0B0F]/50">{question.prefix}</span>
               )}
               <input
                 autoFocus
@@ -412,11 +412,11 @@ function OnboardingInput({
                 onKeyDown={handleKeyDown}
                 aria-label={question.message}
                 placeholder={question.placeholder ?? '0'}
-                className="flex-1 bg-transparent border-0 outline-none font-curia-serif text-sm text-[#0B0B0F] placeholder:text-[#0B0B0F]/35"
+                className="flex-1 bg-transparent border-0 outline-none text-sm text-[#0B0B0F] placeholder:text-[#0B0B0F]/35"
                 style={{ minHeight: '24px' }}
               />
               {question.suffix && (
-                <span className="shrink-0 font-curia-serif text-sm text-[#0B0B0F]/50">{question.suffix}</span>
+                <span className="shrink-0 text-sm text-[#0B0B0F]/50">{question.suffix}</span>
               )}
             </div>
           )}
@@ -449,7 +449,7 @@ function OnboardingInput({
             <button
               type="button"
               onClick={onSkip}
-              className="font-curia-serif text-xs text-[#0B0B0F]/35 transition-colors hover:text-[#0B0B0F]/55"
+              className="text-xs text-[#0B0B0F]/35 transition-colors hover:text-[#0B0B0F]/55"
             >
               Pular esta pergunta →
             </button>
@@ -834,7 +834,7 @@ export default function OnboardingPage() {
           <div className="relative w-full shrink-0" style={{ height: chamberHeight }}>
             {firstName && phase === 'onboarding' ? (
               <div className="pointer-events-none absolute left-1/2 z-10 -top-2 -translate-x-1/2 md:-top-3">
-                <span className="font-curia-script text-2xl leading-none text-[#C9A84C] md:text-4xl">
+                <span className="italic text-2xl leading-none text-[#C9A84C] md:text-4xl">
                   Olá, {firstName}
                 </span>
               </div>
@@ -857,7 +857,7 @@ export default function OnboardingPage() {
                     Antes de começar
                   </p>
                   <h1 className="mt-2 font-curia-rounded text-2xl text-[#0B0B0F]">Aceite os termos para abrir seu Board</h1>
-                  <p className="mt-3 font-curia-serif text-sm leading-relaxed text-[#0B0B0F]/65">
+                  <p className="mt-3 text-sm leading-relaxed text-[#0B0B0F]/65">
                     Sua autenticação já foi concluída. Falta só registrar o aceite dos{' '}
                     <a href="/terms" target="_blank" className="text-[#4A6FA5] hover:underline">Termos de Uso</a> e da{' '}
                     <a href="/privacy" target="_blank" className="text-[#4A6FA5] hover:underline">Política de Privacidade</a>.
@@ -866,7 +866,7 @@ export default function OnboardingPage() {
 
                 <div className="mt-6 space-y-4">
                   <div>
-                    <label htmlFor="onboarding-profile-name" className="mb-1.5 block font-curia-serif text-sm font-medium text-[#0B0B0F]">
+                    <label htmlFor="onboarding-profile-name" className="mb-1.5 block text-sm font-medium text-[#0B0B0F]">
                       Seu nome
                     </label>
                     <input
@@ -878,12 +878,12 @@ export default function OnboardingPage() {
                         setTermsError(null)
                       }}
                       placeholder="Ex: Felipe"
-                      className="flex h-11 w-full rounded-xl border border-[#0B0B0F]/15 bg-white px-4 font-curia-serif text-sm text-[#0B0B0F] shadow-sm outline-none transition-all placeholder:text-[#0B0B0F]/35 focus-visible:border-[#C9A84C]/60 focus-visible:ring-2 focus-visible:ring-[#C9A84C]/40"
+                      className="flex h-11 w-full rounded-xl border border-[#0B0B0F]/15 bg-white px-4 text-sm text-[#0B0B0F] shadow-sm outline-none transition-all placeholder:text-[#0B0B0F]/35 focus-visible:border-[#C9A84C]/60 focus-visible:ring-2 focus-visible:ring-[#C9A84C]/40"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="onboarding-company-name" className="mb-1.5 block font-curia-serif text-sm font-medium text-[#0B0B0F]">
+                    <label htmlFor="onboarding-company-name" className="mb-1.5 block text-sm font-medium text-[#0B0B0F]">
                       Nome da empresa
                     </label>
                     <input
@@ -896,12 +896,12 @@ export default function OnboardingPage() {
                         setTermsError(null)
                       }}
                       placeholder="Ex: Curia, Nubank, Stone…"
-                      className="flex h-11 w-full rounded-xl border border-[#0B0B0F]/15 bg-white px-4 font-curia-serif text-sm text-[#0B0B0F] shadow-sm outline-none transition-all placeholder:text-[#0B0B0F]/35 focus-visible:border-[#C9A84C]/60 focus-visible:ring-2 focus-visible:ring-[#C9A84C]/40"
+                      className="flex h-11 w-full rounded-xl border border-[#0B0B0F]/15 bg-white px-4 text-sm text-[#0B0B0F] shadow-sm outline-none transition-all placeholder:text-[#0B0B0F]/35 focus-visible:border-[#C9A84C]/60 focus-visible:ring-2 focus-visible:ring-[#C9A84C]/40"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block font-curia-serif text-sm font-medium text-[#0B0B0F]">Setor que atua</label>
+                    <label className="mb-2 block text-sm font-medium text-[#0B0B0F]">Setor que atua</label>
                     <div className="flex flex-wrap gap-2">
                       {INDUSTRY_OPTIONS.map((option) => (
                         <button
@@ -913,7 +913,7 @@ export default function OnboardingPage() {
                             setTermsError(null)
                           }}
                           className={cn(
-                            'rounded-full border px-4 py-1.5 font-curia-serif text-sm font-medium transition-all',
+                            'rounded-full border px-4 py-1.5 text-sm font-medium transition-all',
                             form.industry === option.value
                               ? 'border-[#0B0B0F] bg-[#0B0B0F] text-white'
                               : 'border-[#0B0B0F]/20 bg-white text-[#0B0B0F] hover:border-[#0B0B0F]/50',
@@ -936,14 +936,14 @@ export default function OnboardingPage() {
                     }}
                     className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#0B0B0F]/20 accent-[#0B0B0F]"
                   />
-                  <span className="font-curia-serif text-sm leading-relaxed text-[#0B0B0F]/70">
+                  <span className="text-sm leading-relaxed text-[#0B0B0F]/70">
                     Li e concordo com os termos e políticas da Curia.
                   </span>
                 </label>
 
                 {termsError && (
                   <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3">
-                    <p className="font-curia-serif text-sm text-red-700">{termsError}</p>
+                    <p className="text-sm text-red-700">{termsError}</p>
                   </div>
                 )}
 
@@ -953,7 +953,7 @@ export default function OnboardingPage() {
                   disabled={termsLoading}
                   className={cn(
                     'mt-6 flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3',
-                    'bg-[#0B0B0F] font-curia-serif text-sm font-semibold text-[#FDFBF9]',
+                    'bg-[#0B0B0F] text-sm font-semibold text-[#FDFBF9]',
                     'shadow-sm transition-all hover:opacity-90 active:scale-[0.98]',
                     'disabled:cursor-not-allowed disabled:opacity-50',
                   )}
@@ -980,23 +980,23 @@ export default function OnboardingPage() {
                   />
                 ))}
               </div>
-              <p className="font-curia-serif text-sm text-[#0B0B0F]/60 transition-all duration-500">
+              <p className="text-sm text-[#0B0B0F]/60 transition-all duration-500">
                 {LOADING_MSGS[loadingMsgIdx]}
               </p>
             </div>
           ) : phase === 'error' ? (
             <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
-              <p className="font-curia-serif text-sm text-[#0B0B0F]/60">
+              <p className="text-sm text-[#0B0B0F]/60">
                 Algo deu errado ao preparar o seu board.
               </p>
               {submitError ? (
-                <p className="max-w-xl font-curia-serif text-xs text-[#0B0B0F]/45">
+                <p className="max-w-xl text-xs text-[#0B0B0F]/45">
                   {submitError}
                 </p>
               ) : null}
               <button
                 onClick={() => submitForm && runSubmit(submitForm)}
-                className="rounded-xl border border-[#0B0B0F]/15 bg-white px-5 py-2.5 font-curia-serif text-sm text-[#0B0B0F] shadow-sm transition-all hover:border-[#0B0B0F]/35 hover:bg-white/90"
+                className="rounded-xl border border-[#0B0B0F]/15 bg-white px-5 py-2.5 text-sm text-[#0B0B0F] shadow-sm transition-all hover:border-[#0B0B0F]/35 hover:bg-white/90"
               >
                 Tentar de novo
               </button>

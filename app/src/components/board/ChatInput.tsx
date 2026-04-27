@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useRef, KeyboardEvent } from 'react'
 import { Send } from 'lucide-react'
@@ -53,7 +53,7 @@ export function ChatInput({ onSend, disabled, placeholder }: ChatInputProps) {
         rows={1}
         className={cn(
           'min-h-[36px] border-0 bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0',
-          'font-curia-serif text-sm text-[#0B0B0F] placeholder:text-[#0B0B0F]/35'
+          'text-sm text-[#0B0B0F] placeholder:text-[#0B0B0F]/35'
         )}
       />
       <button

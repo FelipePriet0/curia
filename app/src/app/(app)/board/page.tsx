@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 export const dynamic = 'force-dynamic'
 
@@ -372,7 +372,7 @@ export default function BoardPage() {
             <div className="w-full min-h-0 relative" style={{ height: '38vh' }}>
               {userName && (
                 <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-2 md:-top-3">
-                  <span className="font-curia-script text-[#C9A84C] text-2xl md:text-4xl leading-none">
+                  <span className="italic text-[#C9A84C] text-2xl md:text-4xl leading-none">
                     Olá, {userName}
                   </span>
                 </div>
@@ -383,7 +383,7 @@ export default function BoardPage() {
               {/* Removed home subtitle per UX request */}
               <div className="w-full px-4">
                 <CouncilInput ref={inputRef} onSend={handleSend} isStreaming={isStreaming} variant="home" />
-                <p className="mt-2 text-center font-curia-serif text-[11px] text-[#0B0B0F]/40">
+                <p className="mt-2 text-center text-[11px] text-[#0B0B0F]/40">
                   A Curia pode cometer erros. Confira informações importantes.{' '}
                   <a href="/cookies" className="underline hover:opacity-80">Consulte as Preferências de cookies</a>.
                 </p>
@@ -432,7 +432,7 @@ export default function BoardPage() {
               <div className="mt-auto px-4 pb-4">
                 <div className="mx-auto w-full max-w-2xl">
                   <CouncilInput ref={inputRef} onSend={handleSend} isStreaming={isStreaming} variant="chat" />
-                  <p className="mt-2 text-center font-curia-serif text-[11px] text-[#0B0B0F]/40">
+                  <p className="mt-2 text-center text-[11px] text-[#0B0B0F]/40">
                     A Curia pode cometer erros. Confira informações importantes.{' '}
                     <a href="/cookies" className="underline hover:opacity-80">Consulte as Preferências de cookies</a>.
                   </p>

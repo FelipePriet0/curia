@@ -1,14 +1,14 @@
-export const dynamic = 'force-static'
+﻿export const dynamic = 'force-static'
 
 export default function PrivacyPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
       <h1 className="font-curia-rounded text-2xl text-[#0B0B0F]">Política de Privacidade</h1>
-      <p className="mt-3 font-curia-serif text-sm text-[#0B0B0F]/70">
+      <p className="mt-3 text-sm text-[#0B0B0F]/70">
         Esta Política descreve como a Curia coleta, utiliza e protege suas informações pessoais.
       </p>
 
-      <section className="mt-6 space-y-4 font-curia-serif text-sm text-[#0B0B0F]/80 leading-relaxed">
+      <section className="mt-6 space-y-4 text-sm text-[#0B0B0F]/80 leading-relaxed">
         <div>
           <h2 className="font-semibold text-[#0B0B0F]">1. Informações que coletamos</h2>
           <p>Dados de cadastro (ex.: e-mail), metadados de uso, conteúdos inseridos por você e dados técnicos (IP, agente do usuário).</p>

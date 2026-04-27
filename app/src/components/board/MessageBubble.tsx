@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { cn } from '@/lib/utils/cn'
 import { stripStrategyMarker } from '@/lib/metrics/detectors'
@@ -16,7 +16,7 @@ export function MessageBubble({ message, isStreaming }: MessageBubbleProps) {
     <div className={cn('flex w-full', isUser ? 'justify-end' : 'justify-start')}>
       <div
         className={cn(
-          'max-w-[85%] rounded-xl px-4 py-3 font-curia-serif text-sm leading-relaxed',
+          'max-w-[85%] rounded-xl px-4 py-3 text-sm leading-relaxed',
           isUser
             ? 'bg-[#0B0B0F] text-[#FDFBF9] rounded-br-sm font-medium'
             : 'bg-[#0B0B0F]/[0.06] text-[#0B0B0F] rounded-bl-sm'

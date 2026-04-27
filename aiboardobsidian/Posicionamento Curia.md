@@ -103,4 +103,13 @@ CONSELHEIRO 5 — Marrom Tabaco      #5A3E2B
 CONSELHEIRO 6 — Camel/Caramelo     #8B6F47
 ```
 
-	
+
+O que temos para fazer? 
+
+=> Fazer os 2 carrosséis: 
+
+ => O que é a Curia
+ => Provando o Valor de um Conselho
+ 
+ => Fazer meu Pai usar a Plataforma, de uma forma que o Comercial use, e ele avalie lá dentro - Isso não toma tempo dele
+ 
