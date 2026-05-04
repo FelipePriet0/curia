@@ -1,36 +1,24 @@
 import type { Metadata } from "next";
-import { Fraunces, Source_Sans_3, Lilita_One } from "next/font/google";
+import { Fraunces, Source_Sans_3 } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
 /**
- * CURIA — Sistema tipográfico v3 (editorial-tech) — CORRIGIDO
- *
- * Fix crítico: weight em array (não string "variable").
- * Fix crítico: variáveis CSS sem referência circular.
- * -----------------------------------------------------------------------------
+ * CURIA — Sistema tipográfico editorial-tech
  */
 
 const fraunces = Fraunces({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
   style: ["normal", "italic"],
   axes: ["opsz", "SOFT"],
-  variable: "--font-curia-editorial",
+  variable: "--font-curia-editorial-face",
   display: "swap",
 });
 
 const sourceSans = Source_Sans_3({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800", "900"],
-  variable: "--font-curia-tech",
-  display: "swap",
-});
-
-const lilitaOne = Lilita_One({
-  subsets: ["latin"],
-  weight: ["400"],
-  variable: "--font-curia-logo",
+  variable: "--font-curia-tech-face",
   display: "swap",
 });
 
@@ -49,7 +37,7 @@ export default function RootLayout({
     <html
       lang="pt-BR"
       translate="no"
-      className={`${fraunces.variable} ${sourceSans.variable} ${lilitaOne.variable}`}
+      className={`${fraunces.variable} ${sourceSans.variable}`}
     >
       <head>
         <meta name="google" content="notranslate" />

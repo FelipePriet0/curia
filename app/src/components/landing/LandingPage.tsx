@@ -204,13 +204,18 @@ function HeroDemo() {
 
 // ─── Logo ─────────────────────────────────────────────────────────────────────
 
-function CuriaLogo({ size = 'md' }: { size?: 'sm' | 'md' }) {
+function CuriaLogo({ size = 'md', tone = 'default' }: { size?: 'sm' | 'md'; tone?: 'default' | 'light' }) {
   const sizeClass = size === 'sm' ? 'text-3xl' : 'text-4xl'
   const iconClass = size === 'sm' ? 'h-11 w-11' : 'h-14 w-14'
   return (
     <div className="flex items-center gap-0">
-      <img src="/logo-sfundo-1.svg" alt="" className={`${iconClass} -mr-1 shrink-0 object-contain`} aria-hidden />
-      <span className={`curia-logo ${sizeClass} leading-none`}>
+      <img
+        src="/logo-sfundo-1.svg"
+        alt=""
+        className={`${iconClass} -mr-1 shrink-0 object-contain ${tone === 'light' ? 'brightness-0 invert' : ''}`}
+        aria-hidden
+      />
+      <span className={`curia-logo ${sizeClass} leading-none ${tone === 'light' ? 'text-[#FDFBF9]' : ''}`}>
         Curia
       </span>
     </div>
@@ -289,22 +294,29 @@ const NAV_ITEMS = [
 
 function LandingSessionActions({
   compact = false,
+  tone = 'default',
   signedIn = false,
   signingOut = false,
   onSignOut,
   mode = 'product',
 }: {
   compact?: boolean
+  tone?: 'default' | 'light'
   signedIn?: boolean
   signingOut?: boolean
   onSignOut?: () => void | Promise<void>
   mode?: 'waitlist' | 'product'
 }) {
+  const compactButtonClass =
+    tone === 'light'
+      ? 'rounded-full bg-[#FDFBF9] px-4 py-1.5 text-sm font-semibold text-[#0B0B0F] hover:bg-white transition-colors'
+      : 'rounded-full bg-[#0B0B0F] px-4 py-1.5 text-sm font-semibold text-[#FDFBF9] hover:opacity-90 transition-opacity'
+
   if (mode === 'waitlist') {
     if (compact) {
       return (
         <a href="#waitlist">
-          <button className="rounded-full bg-[#0B0B0F] px-4 py-1.5 text-sm font-semibold text-[#FDFBF9] hover:opacity-90 transition-opacity">
+          <button className={compactButtonClass}>
             Reserve sua vaga
           </button>
         </a>
@@ -326,12 +338,12 @@ function LandingSessionActions({
           <button
             onClick={() => void onSignOut?.()}
             disabled={signingOut}
-            className="rounded-full bg-[#0B0B0F] px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+            className={compactButtonClass}
           >
             {signingOut ? 'Saindo...' : 'Sair'}
           </button>
           <Link href="/board">
-            <button className="rounded-full bg-[#0B0B0F] px-4 py-1.5 text-sm font-semibold text-[#FDFBF9] hover:opacity-90 transition-opacity">
+            <button className={compactButtonClass}>
               Entrar
             </button>
           </Link>
@@ -357,12 +369,12 @@ function LandingSessionActions({
     return (
       <div className="flex items-center gap-2">
         <Link href="/login">
-          <button className="rounded-full bg-[#0B0B0F] px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity">
+          <button className={compactButtonClass}>
             Entrar
           </button>
         </Link>
         <Link href="/signup">
-          <button className="rounded-full bg-[#0B0B0F] px-4 py-1.5 text-sm font-semibold text-[#FDFBF9] hover:opacity-90 transition-opacity">
+          <button className={compactButtonClass}>
             Comece agora
           </button>
         </Link>
@@ -518,15 +530,15 @@ function Nav({
     <>
       <header className="relative z-40 px-6">
         <div className="mx-auto flex h-20 max-w-6xl items-center justify-between">
-          <CuriaLogo size="md" />
+          <CuriaLogo size="sm" />
           <LandingSessionActions signedIn={signedIn} signingOut={signingOut} onSignOut={onSignOut} mode={mode} />
         </div>
       </header>
 
       <FloatingNav
         navItems={NAV_ITEMS}
-        brand={<CuriaLogo size="sm" />}
-        cta={<LandingSessionActions compact signedIn={signedIn} signingOut={signingOut} onSignOut={onSignOut} mode={mode} />}
+        brand={<CuriaLogo size="sm" tone="light" />}
+        cta={<LandingSessionActions compact tone="light" signedIn={signedIn} signingOut={signingOut} onSignOut={onSignOut} mode={mode} />}
       />
     </>
   )

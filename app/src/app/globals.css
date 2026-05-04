@@ -3,14 +3,11 @@
 /* =============================================================================
    CURIA — GLOBAL STYLES v3 (CORRIGIDO)
    -----------------------------------------------------------------------------
-   FIX CRÍTICO:
-     Removidas referências circulares em variáveis de fonte.
-     As variáveis injetadas pelo next/font são:
-       --font-curia-editorial
-       --font-curia-tech
-       --font-curia-logo
-     Elas NÃO devem ser redeclaradas no globals.css.
-     Os aliases semânticos (--font-body, --font-ui) USAM essas variáveis.
+   As variáveis internas injetadas pelo next/font são:
+     --font-curia-editorial-face
+     --font-curia-tech-face
+   Elas NÃO devem ser redeclaradas no globals.css.
+   Os aliases semânticos (--font-body, --font-ui) usam essas variáveis.
    ============================================================================= */
 
 
@@ -79,76 +76,98 @@
   --chamber-text-primary:   var(--chamber-ink);
   --chamber-text-secondary: var(--chamber-gray-700);
   --chamber-text-tertiary:  var(--chamber-gray-500);
+
+  /* Cor secundária — usada no gradiente do H1 hero ("trabalhando na sua") */
+  --color-secondary:              #1A1A1A;
+  --color-secondary-58:           rgba(26, 26, 26, 0.58);
+  --color-secondary-34:           rgba(26, 26, 26, 0.34);
+  --color-secondary-gradient:     linear-gradient(180deg, rgba(26, 26, 26, 0.58) 0%, rgba(26, 26, 26, 0.34) 100%);
 }
 
 
 /* =============================================================================
    2. TIPOGRAFIA — FIX: aliases sem referência circular
    -----------------------------------------------------------------------------
-   IMPORTANTE: as variáveis --font-curia-editorial, --font-curia-tech,
-   --font-curia-logo são INJETADAS pelo next/font no <html>. Não redeclarar
-   aqui. Os aliases abaixo as USAM com fallback de sistema.
+   IMPORTANTE: as variáveis internas --font-curia-editorial-face e
+   --font-curia-tech-face são injetadas pelo next/font no <html>.
+   Os aliases abaixo expõem os nomes finais do sistema com fallback.
    ============================================================================= */
 
 :root {
-  /* Aliases semânticos — referenciam as vars do next/font + fallbacks */
-  --font-body:    var(--font-curia-editorial), "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
-  --font-ui:      var(--font-curia-tech),      "Source Sans 3", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-logo:    var(--font-curia-logo),      "Lilita One", "Source Sans 3", ui-sans-serif, sans-serif;
+  --font-curia-editorial: var(--font-curia-editorial-face), "Fraunces", ui-serif, Georgia, serif;
+  --font-curia-tech: var(--font-curia-tech-face), "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+
+  --font-body: var(--font-curia-editorial);
+  --font-ui: var(--font-curia-tech);
+  --font-logo: var(--font-body);
   --font-display: var(--font-body);
-  --font-mono:    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Escala fluida */
-  --text-display-xl:    clamp(3rem, 7.5vw, 6rem);
-  --text-display:       clamp(2.25rem, 5vw, 4rem);
-  --text-display-sm:    clamp(1.875rem, 3.5vw, 2.75rem);
-  --text-heading:       clamp(1.5rem, 2.25vw, 1.875rem);
-  --text-heading-sm:    clamp(1.25rem, 1.75vw, 1.5rem);
-  --text-lead:          clamp(1.25rem, 1.625vw, 1.4375rem);
-  --text-lead-sm:       clamp(1.125rem, 1.375vw, 1.25rem);
-  --text-body:          1.0625rem;
-  --text-body-sm:       0.9375rem;
-  --text-caption:       0.8125rem;
-  --text-numeric-xl:    clamp(5rem, 12vw, 9rem);
-  --text-numeric-lg:    clamp(3rem, 6vw, 5rem);
-  --text-ui-lg:         1rem;
-  --text-ui:            0.875rem;
-  --text-ui-sm:         0.75rem;
-  --text-ui-xs:         0.6875rem;
+  --text-display-xl: clamp(3rem, 7.5vw, 6rem);
+  --text-display: clamp(2.25rem, 5vw, 4rem);
+  --text-display-sm: clamp(1.875rem, 3.5vw, 2.75rem);
+  --text-heading: clamp(1.5rem, 2.25vw, 1.875rem);
+  --text-lead: clamp(1.25rem, 1.625vw, 1.4375rem);
+  --text-body: 1.0625rem;
+  --text-numeric-xl: clamp(5rem, 12vw, 9rem);
+  --text-ui-xs: 0.6875rem;
 
-  /* Line-heights */
-  --leading-display:    1.05;
-  --leading-tight:      1.15;
-  --leading-snug:       1.35;
-  --leading-body:       1.65;
-  --leading-numeric:    1;
-  --leading-ui:         1.5;
-  --leading-normal:     var(--leading-ui);
-  --leading-relaxed:    var(--leading-body);
+  --leading-display: 1.05;
+  --leading-tight: 1.15;
+  --leading-snug: 1.35;
+  --leading-body: 1.65;
 
-  /* Letter-spacings */
-  --tracking-display:        -0.02em;
-  --tracking-heading:        -0.01em;
-  --tracking-body:           -0.005em;
-  --tracking-numeric:        -0.05em;
-  --tracking-ui-bold:        -0.02em;
-  --tracking-ui-normal:      0;
-  --tracking-ui-wide:        0.04em;
-  --tracking-ui-eyebrow:     0.18em;
-  --tracking-tighter:        -0.05em;
-  --tracking-tight:          -0.035em;
-  --tracking-snug:           -0.02em;
-  --tracking-normal:         0;
-  --tracking-wide:           0.04em;
-  --tracking-wider:          0.12em;
-  --tracking-widest:         0.18em;
+  --tracking-display: -0.02em;
+  --tracking-heading: -0.01em;
+  --tracking-body: -0.005em;
+  --tracking-numeric: -0.05em;
+  --tracking-ui-eyebrow: 0.18em;
 
-  /* Fraunces variation settings */
-  --fraunces-display:     "opsz" 144, "SOFT" 30;
-  --fraunces-display-sm:  "opsz" 96,  "SOFT" 30;
-  --fraunces-heading:     "opsz" 72,  "SOFT" 30;
-  --fraunces-lead:        "opsz" 36,  "SOFT" 30;
-  --fraunces-body:        "opsz" 14,  "SOFT" 30;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-black: 900;
+
+  --fraunces-display-xl-variation: "opsz" 144, "SOFT" 30;
+  --fraunces-display-variation: "opsz" 144, "SOFT" 30;
+  --fraunces-display-sm-variation: "opsz" 96, "SOFT" 30;
+  --fraunces-heading-variation: "opsz" 72, "SOFT" 30;
+  --fraunces-lead-variation: "opsz" 36, "SOFT" 30;
+  --fraunces-body-variation: "opsz" 14, "SOFT" 30;
+
+  /* Extensões usadas no app fora do conjunto-base */
+  --text-heading-sm: clamp(1.25rem, 1.75vw, 1.5rem);
+  --text-lead-sm: clamp(1.125rem, 1.375vw, 1.25rem);
+  --text-body-sm: 0.9375rem;
+  --text-caption: 0.8125rem;
+  --text-numeric-lg: clamp(3rem, 6vw, 5rem);
+  --text-ui-lg: 1rem;
+  --text-ui: 0.875rem;
+  --text-ui-sm: 0.75rem;
+
+  --leading-numeric: 1;
+  --leading-ui: 1.5;
+  --leading-normal: var(--leading-ui);
+  --leading-relaxed: var(--leading-body);
+
+  --tracking-ui-bold: -0.02em;
+  --tracking-ui-normal: 0;
+  --tracking-ui-wide: 0.04em;
+  --tracking-tighter: -0.05em;
+  --tracking-tight: -0.035em;
+  --tracking-snug: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+  --tracking-wider: 0.12em;
+  --tracking-widest: 0.18em;
+
+  /* Aliases retrocompat */
+  --fraunces-display-xl: var(--fraunces-display-xl-variation);
+  --fraunces-display: var(--fraunces-display-variation);
+  --fraunces-display-sm: var(--fraunces-display-sm-variation);
+  --fraunces-heading: var(--fraunces-heading-variation);
+  --fraunces-lead: var(--fraunces-lead-variation);
+  --fraunces-body: var(--fraunces-body-variation);
 }
 
 
@@ -158,7 +177,7 @@
 
 @layer base {
   html {
-    font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "ss01" 1;
+    font-feature-settings: "kern" 1, "liga" 1, "ss01" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -166,17 +185,18 @@
 
   body {
     font-family: var(--font-body);
-    font-weight: 400;
+    font-weight: var(--weight-regular);
     font-size: var(--text-body);
     line-height: var(--leading-body);
     letter-spacing: var(--tracking-body);
     color: var(--chamber-ink);
-    font-variation-settings: var(--fraunces-body);
+    font-synthesis: none;
+    font-variation-settings: var(--fraunces-body-variation);
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-body);
-    font-weight: 600;
+    font-weight: var(--weight-semibold);
     color: var(--chamber-ink);
     text-wrap: balance;
   }
@@ -185,33 +205,35 @@
     font-size: var(--text-display);
     line-height: var(--leading-display);
     letter-spacing: var(--tracking-display);
-    font-variation-settings: var(--fraunces-display);
+    font-variation-settings: var(--fraunces-display-variation);
   }
 
   h2 {
     font-size: var(--text-display-sm);
     line-height: var(--leading-tight);
     letter-spacing: var(--tracking-heading);
-    font-variation-settings: var(--fraunces-display-sm);
+    font-variation-settings: var(--fraunces-display-sm-variation);
   }
 
   h3 {
     font-size: var(--text-heading);
     line-height: var(--leading-tight);
     letter-spacing: var(--tracking-heading);
-    font-variation-settings: var(--fraunces-heading);
+    font-variation-settings: var(--fraunces-heading-variation);
   }
 
   h4 {
     font-size: var(--text-heading-sm);
     line-height: var(--leading-tight);
     letter-spacing: var(--tracking-heading);
-    font-variation-settings: var(--fraunces-heading);
+    font-variation-settings: var(--fraunces-heading-variation);
   }
 
   p { text-wrap: pretty; }
 
   em { font-style: italic; }
+
+  strong { font-weight: var(--weight-semibold); }
 
   .tabular-nums,
   [data-numeric] {
@@ -230,170 +252,258 @@
    4. CLASSES UTILITÁRIAS — Sistema oficial Curia
    ============================================================================= */
 
-/* DISPLAY — Fraunces protagonista */
+:where(
+  .display-xl,
+  .display,
+  .display-sm,
+  .heading,
+  .lead,
+  .body,
+  .quote,
+  .eyebrow,
+  .numeric,
+  .curia-display-xl,
+  .curia-display,
+  .curia-display-sm,
+  .curia-heading,
+  .curia-heading-sm,
+  .curia-lead,
+  .curia-lead-sm,
+  .curia-body,
+  .curia-body-strong,
+  .curia-body-sm,
+  .curia-quote,
+  .curia-eyebrow,
+  .curia-eyebrow-muted,
+  .curia-numeric-xl,
+  .curia-numeric-lg
+) {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-synthesis: none;
+}
+
+:where(
+  .display-xl,
+  .display,
+  .display-sm,
+  .heading,
+  .lead,
+  .body,
+  .quote,
+  .curia-display-xl,
+  .curia-display,
+  .curia-display-sm,
+  .curia-heading,
+  .curia-heading-sm,
+  .curia-lead,
+  .curia-lead-sm,
+  .curia-body,
+  .curia-body-strong,
+  .curia-body-sm,
+  .curia-quote,
+  .curia-logo
+) {
+  font-family: var(--font-curia-editorial);
+  font-feature-settings: "kern" 1, "liga" 1, "ss01" 1;
+}
+
+.display-xl,
 .curia-display-xl {
-  font-family: var(--font-body);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-size: var(--text-display-xl);
   line-height: var(--leading-display);
   letter-spacing: var(--tracking-display);
-  color: var(--chamber-ink);
   text-wrap: balance;
-  font-variation-settings: var(--fraunces-display);
+  font-variation-settings: var(--fraunces-display-xl-variation);
 }
 
+.display,
 .curia-display {
-  font-family: var(--font-body);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-size: var(--text-display);
   line-height: var(--leading-display);
   letter-spacing: var(--tracking-display);
-  color: var(--chamber-ink);
   text-wrap: balance;
-  font-variation-settings: var(--fraunces-display);
+  font-variation-settings: var(--fraunces-display-variation);
 }
 
+.display-sm,
 .curia-display-sm {
-  font-family: var(--font-body);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-size: var(--text-display-sm);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-heading);
-  color: var(--chamber-ink);
   text-wrap: balance;
-  font-variation-settings: var(--fraunces-display-sm);
+  font-variation-settings: var(--fraunces-display-sm-variation);
 }
 
+.display-xl em,
+.display em,
+.display-sm em,
 .curia-display-xl em,
 .curia-display em,
 .curia-display-sm em {
   font-style: italic;
-  font-weight: 500;
+  font-weight: var(--weight-medium);
 }
 
-/* HEADING */
+.heading,
 .curia-heading {
-  font-family: var(--font-body);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-size: var(--text-heading);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-heading);
-  color: var(--chamber-ink);
-  font-variation-settings: var(--fraunces-heading);
+  font-variation-settings: var(--fraunces-heading-variation);
 }
 
 .curia-heading-sm {
-  font-family: var(--font-body);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-size: var(--text-heading-sm);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-heading);
-  color: var(--chamber-ink);
-  font-variation-settings: var(--fraunces-heading);
+  font-variation-settings: var(--fraunces-heading-variation);
 }
 
-/* LEAD */
+.lead,
 .curia-lead {
-  font-family: var(--font-body);
-  font-weight: 400;
+  font-weight: var(--weight-regular);
   font-size: var(--text-lead);
   line-height: var(--leading-snug);
   letter-spacing: var(--tracking-body);
-  color: var(--chamber-ink-85);
   text-wrap: pretty;
-  max-width: 42rem;
-  font-variation-settings: var(--fraunces-lead);
+  font-variation-settings: var(--fraunces-lead-variation);
 }
 
 .curia-lead-sm {
-  font-family: var(--font-body);
-  font-weight: 400;
+  font-weight: var(--weight-regular);
   font-size: var(--text-lead-sm);
   line-height: var(--leading-snug);
   letter-spacing: var(--tracking-body);
-  color: var(--chamber-ink-85);
   text-wrap: pretty;
-  font-variation-settings: var(--fraunces-lead);
+  font-variation-settings: var(--fraunces-lead-variation);
 }
 
+.lead em,
+.body em,
+.quote em,
+.heading em,
 .curia-lead em,
-.curia-lead-sm em { font-style: italic; }
+.curia-lead-sm em,
+.curia-body em,
+.curia-body-sm em,
+.curia-quote em,
+.curia-heading em,
+.curia-heading-sm em {
+  font-style: italic;
+}
 
-/* BODY */
+.body,
 .curia-body {
-  font-family: var(--font-body);
-  font-weight: 400;
+  font-weight: var(--weight-regular);
   font-size: var(--text-body);
   line-height: var(--leading-body);
   letter-spacing: var(--tracking-body);
-  color: var(--chamber-ink-85);
-  font-variation-settings: var(--fraunces-body);
+  font-variation-settings: var(--fraunces-body-variation);
+}
+
+.body strong,
+.curia-body strong,
+.curia-body-strong {
+  font-weight: var(--weight-semibold);
 }
 
 .curia-body-strong {
-  font-family: var(--font-body);
-  font-weight: 600;
   font-size: var(--text-body);
   line-height: var(--leading-body);
   letter-spacing: var(--tracking-body);
-  color: var(--chamber-ink);
-  font-variation-settings: var(--fraunces-body);
+  font-variation-settings: var(--fraunces-body-variation);
 }
 
 .curia-body-sm {
-  font-family: var(--font-body);
-  font-weight: 400;
+  font-weight: var(--weight-regular);
   font-size: var(--text-body-sm);
   line-height: var(--leading-body);
   letter-spacing: var(--tracking-body);
-  color: var(--chamber-ink-85);
-  font-variation-settings: var(--fraunces-body);
+  font-variation-settings: var(--fraunces-body-variation);
 }
 
-/* QUOTE */
+.quote,
 .curia-quote {
-  font-family: var(--font-body);
-  font-weight: 400;
+  font-weight: var(--weight-regular);
   font-style: italic;
   font-size: var(--text-lead);
   line-height: var(--leading-snug);
   letter-spacing: var(--tracking-body);
-  color: var(--chamber-ink);
-  border-left: 2px solid currentColor;
-  padding-left: 1.25rem;
   text-wrap: pretty;
-  font-variation-settings: var(--fraunces-lead);
+  font-variation-settings: var(--fraunces-lead-variation);
 }
 
-/* NUMERIC — Source Sans pra impacto */
+.eyebrow,
+.curia-eyebrow {
+  font-family: var(--font-curia-tech);
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-ui-xs);
+  letter-spacing: var(--tracking-ui-eyebrow);
+  text-transform: uppercase;
+}
+
+.curia-eyebrow-muted {
+  font-family: var(--font-curia-tech);
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-ui-xs);
+  letter-spacing: var(--tracking-ui-eyebrow);
+  text-transform: uppercase;
+  color: var(--chamber-ink-35);
+  display: block;
+}
+
+.numeric,
 .curia-numeric-xl {
-  font-family: var(--font-ui);
-  font-weight: 900;
+  font-family: var(--font-curia-tech);
+  font-weight: var(--weight-black);
   font-size: var(--text-numeric-xl);
-  line-height: var(--leading-numeric);
+  line-height: 1;
   letter-spacing: var(--tracking-numeric);
-  color: var(--chamber-ink);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
 }
 
 .curia-numeric-lg {
-  font-family: var(--font-ui);
-  font-weight: 900;
+  font-family: var(--font-curia-tech);
+  font-weight: var(--weight-black);
   font-size: var(--text-numeric-lg);
-  line-height: var(--leading-numeric);
+  line-height: 1;
   letter-spacing: var(--tracking-numeric);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.curia-metric {
+  font-family: var(--font-curia-tech);
+  font-weight: var(--weight-black);
+  font-size: var(--text-display);
+  line-height: 1;
+  letter-spacing: var(--tracking-tight);
   color: var(--chamber-ink);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
 }
 
-.curia-metric        { font-family: var(--font-ui); font-weight: 900; font-size: var(--text-display); line-height: 1; letter-spacing: var(--tracking-tight); color: var(--chamber-ink); font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
-.curia-metric-gold   { font-family: var(--font-ui); font-weight: 900; font-size: var(--text-display); line-height: 1; letter-spacing: var(--tracking-tight); color: var(--chamber-gold); font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+.curia-metric-gold {
+  font-family: var(--font-curia-tech);
+  font-weight: var(--weight-black);
+  font-size: var(--text-display);
+  line-height: 1;
+  letter-spacing: var(--tracking-tight);
+  color: var(--chamber-gold);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
 
-/* UI — Source Sans utilitário */
 .curia-cta {
-  font-family: var(--font-ui);
+  font-family: var(--font-curia-tech);
   font-weight: 800;
   font-size: var(--text-ui-lg);
   line-height: var(--leading-ui);
@@ -402,7 +512,7 @@
 }
 
 .curia-cta-secondary {
-  font-family: var(--font-ui);
+  font-family: var(--font-curia-tech);
   font-weight: 700;
   font-size: var(--text-ui);
   line-height: var(--leading-ui);
@@ -411,8 +521,8 @@
 }
 
 .curia-ui {
-  font-family: var(--font-ui);
-  font-weight: 500;
+  font-family: var(--font-curia-tech);
+  font-weight: var(--weight-medium);
   font-size: var(--text-ui);
   line-height: var(--leading-ui);
   letter-spacing: var(--tracking-ui-normal);
@@ -420,7 +530,7 @@
 }
 
 .curia-ui-strong {
-  font-family: var(--font-ui);
+  font-family: var(--font-curia-tech);
   font-weight: 700;
   font-size: var(--text-ui);
   line-height: var(--leading-ui);
@@ -430,52 +540,27 @@
 }
 
 .curia-ui-sm {
-  font-family: var(--font-ui);
-  font-weight: 500;
+  font-family: var(--font-curia-tech);
+  font-weight: var(--weight-medium);
   font-size: var(--text-ui-sm);
   line-height: var(--leading-ui);
   letter-spacing: var(--tracking-ui-normal);
   color: var(--chamber-ink-60);
 }
 
-/* EYEBROW */
-.curia-eyebrow {
-  font-family: var(--font-ui);
-  font-weight: 600;
-  font-size: var(--text-ui-xs);
-  line-height: var(--leading-ui);
-  letter-spacing: var(--tracking-ui-eyebrow);
-  text-transform: uppercase;
-  color: var(--chamber-gray-700);
-  display: block;
-}
-
-.curia-eyebrow-muted {
-  font-family: var(--font-ui);
-  font-weight: 600;
-  font-size: var(--text-ui-xs);
-  line-height: var(--leading-ui);
-  letter-spacing: var(--tracking-ui-eyebrow);
-  text-transform: uppercase;
-  color: var(--chamber-ink-35);
-  display: block;
-}
-
-/* CAPTION */
 .curia-caption {
-  font-family: var(--font-ui);
-  font-weight: 400;
+  font-family: var(--font-curia-tech);
+  font-weight: var(--weight-regular);
   font-size: var(--text-caption);
   line-height: var(--leading-ui);
   color: var(--chamber-ink-35);
 }
 
-/* LOGO */
 .curia-logo {
-  font-family: var(--font-logo);
-  font-weight: 400;
-  letter-spacing: -0.005em;
-  color: var(--chamber-ink);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-display);
+  line-height: 1;
+  font-variation-settings: var(--fraunces-display-variation);
 }
 
 /* Padrões compostos */
@@ -489,12 +574,18 @@
 .curia-section-header > .curia-heading      { margin-bottom: 0.75rem; }
 
 /* Tipografia em fundo escuro */
+.on-obsidian .display-xl,
+.on-obsidian .display,
+.on-obsidian .display-sm,
+.on-obsidian .heading,
 .on-obsidian .curia-display-xl,
 .on-obsidian .curia-display,
 .on-obsidian .curia-display-sm,
 .on-obsidian .curia-heading,
 .on-obsidian .curia-heading-sm,
+.on-obsidian .body strong,
 .on-obsidian .curia-body-strong,
+.on-obsidian .numeric,
 .on-obsidian .curia-numeric-xl,
 .on-obsidian .curia-numeric-lg,
 .on-obsidian .curia-logo,
@@ -502,6 +593,9 @@
   color: var(--chamber-cream);
 }
 
+.on-obsidian .lead,
+.on-obsidian .body,
+.on-obsidian .quote,
 .on-obsidian .curia-lead,
 .on-obsidian .curia-lead-sm,
 .on-obsidian .curia-body,
@@ -513,6 +607,7 @@
 
 .on-obsidian .curia-ui-sm,
 .on-obsidian .curia-caption,
+.on-obsidian .eyebrow,
 .on-obsidian .curia-eyebrow,
 .on-obsidian .curia-eyebrow-muted {
   color: var(--chamber-cream-60);
@@ -528,21 +623,45 @@
 
 .myriad-bold,
 .myriad-bold--display,
-.myriad-bold--body,
 .font-myriad-like,
 .font-curia-display,
-.font-curia-body,
-.font-curia-body-bold,
-.font-curia-ui,
-.font-curia-ui-bold,
-.font-curia-serif,
 .font-curia-serif-display,
 .font-kefir-alt,
 .font-kefir-display {
   font-family: var(--font-body) !important;
-  font-variation-settings: var(--fraunces-display);
-  font-weight: 600;
+  font-variation-settings: var(--fraunces-display-variation);
+  font-weight: var(--weight-semibold);
   letter-spacing: var(--tracking-display);
+}
+
+.myriad-bold--body,
+.font-curia-body,
+.font-curia-serif {
+  font-family: var(--font-body) !important;
+  font-variation-settings: var(--fraunces-body-variation);
+  font-weight: var(--weight-regular);
+  letter-spacing: var(--tracking-body);
+}
+
+.font-curia-body-bold {
+  font-family: var(--font-body) !important;
+  font-variation-settings: var(--fraunces-body-variation);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-body);
+}
+
+.font-curia-ui,
+.font-curia-ui-bold {
+  font-family: var(--font-curia-tech) !important;
+  letter-spacing: 0;
+}
+
+.font-curia-ui {
+  font-weight: var(--weight-medium);
+}
+
+.font-curia-ui-bold {
+  font-weight: var(--weight-semibold);
 }
 
 .font-curia-script,
@@ -550,8 +669,8 @@
 .font-lobster {
   font-family: var(--font-body) !important;
   font-style: italic;
-  font-weight: 500;
-  font-variation-settings: var(--fraunces-display);
+  font-weight: var(--weight-medium);
+  font-variation-settings: var(--fraunces-display-variation);
 }
 
 
@@ -646,7 +765,7 @@
   --font-sans:    var(--font-body);
   --font-serif:   var(--font-body);
   --font-display: var(--font-body);
-  --font-mono:    var(--font-mono);
+  --font-mono:    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
